@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myapp" ng-controller="appController as ctrlr">
+
+<head>
+	<title ng-bind="'Point Builder Web'">STCA PI Tools Reports - Web</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" href="../favicon.ico">
+	<link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32x32.png">
+	<link rel="apple-touch-icon" href="../images/icons/apple-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="images/icons/apple-icon-72x72.png">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<!--<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">-->
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.css">
+	<link rel="stylesheet" type="text/css" href="styles.css" />
+
+</head>
+
+<body ng-keypress="shortcutKeypress($event)">
+	<md-toolbar layout="row" class="md-toolbar-tools" ng-cloak layout-align="space-between center">
+		<h1>STCA PI Tools Reports-Web</h1>
+		<md-button class="menu md-icon-button" hide-gt-md ng-click="toggleLeft()" aria-label="Show Nav">
+			<md-icon aria-label="settings" class="material-icons">settings</md-icon>
+		</md-button>
+	</md-toolbar>
+
+	<div flex layout="row" ng-cloak>
+		<div ng-show="errors.length*0" class="md-warn">
+			<div ng-repeat="error in errors">
+				<div ng-repeat="(errname, errmsg) in error"><strong>{{errname}}</strong>: {{errmsg}}
+					<!-- <ul>
+						<li ng-repeat="(errmsgname, errmsgdetail) in errmsg">{{errmsgname+':'+errmsgdetail}}</li>
+					</ul> -->
+				</div>
+			</div>
+			<button type="button" class="close" ng-click="clearErrors()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+		</div>
+		<div layout="column" flex>
+			<md-content flex>
+				<!-- Plant search auto complete -->
+				<form ng-submit="$event.preventDefault()" layout layout-align="center" layout-padding>
+					<div layout="row" flex>
+						<md-autocomplete flex md-selected-item="data.selectedPlantID" md-selected-item-change="getTagAttributes()" class="md-block"
+						 md-search-text="preferences.plantSearchText" md-items="plantsFound in data.plants" md-select-on-focus md-selected-item-change="preferences.plantSearchText = plants.Name"
+						 md-select-on-match="true" md-item-text="tag.Name" md-floating-label="Plant Search" md-min-length="3" md-input-id="search-input-plant"
+						 md-no-cache="true">
+							<md-item-template>
+								<strong><span md-highlight-text="preferences.plantSearchText" md-highlight-flags="i">{{tag.Name}}</span></strong>:
+								{{tag.Description}}
+							</md-item-template>
+							<md-not-found>
+								No tags found "{{preferences.tagSearchText}}"
+							</md-not-found>
+						</md-autocomplete>
+						<div>
+							<md-button class="md-raised" ng-click="getPlantData()">
+								Search /
+								<md-icon aria-label="refresh" class="material-icons">autorenew</md-icon>
+							</md-button>
+						</div>
+					</div>
+				</form>
+			</md-content>
+			<md-content>
+				{{data.selectedPlant.Name}}
+				<br/>
+				<div>
+					<md-input-container>
+						<label>Experiment Name</label>
+						<input ng-model="currentPlantSettings.experimentName">
+					</md-input-container>
+					<md-input-container>
+						<label>Experiment Number</label>
+						<input ng-model="currentPlantSettings.experimentNumber">
+					</md-input-container>
+					<md-input-container>
+						<label>Period Name</label>
+						<input ng-model="currentPlantSettings.periodName">
+					</md-input-container>
+					<md-input-container>
+						<label>Period Number</label>
+						<input ng-model="currentPlantSettings.periodNumber">
+					</md-input-container>
+				</div>
+				<div>
+					<h2>Period Retrieval Method</h2>
+					<md-radio-group ng-model="currentPlantSettings.method">
+						<md-radio-button value="interval" class="md-primary">Interval Time (mins)</md-radio-button>
+						<md-input-container>
+							<label>minutes</label>
+							<input ng-disabled="!(currentPlantSettings.method=='interval')" ng-model="currentPlantSettings.intervalMinutes">
+						</md-input-container>
+						<md-radio-button value="eventTag"> Event Tag </md-radio-button>
+						<md-radio-button ng-disabled="true" value="GC Reports">GC Reports (??)</md-radio-button>
+					</md-radio-group>
+				</div>
+				<div layout="row">
+					<div flex="50">
+						Start Date/Time
+						<br>
+						<md-datepicker ng-model="currentPlantSettings.startDate" md-placeholder="Enter date" md-open-on-focus></md-datepicker>
+						<md-input-container>
+							<label>Time</label>
+							<input ng-model="currentPlantSettings.startTime" type="time">
+						</md-input-container>
+					</div>
+					<div flex="50">
+						End Date/Time
+						<br>
+						<md-datepicker ng-model="currentPlantSettings.endDate" md-placeholder="end date" md-open-on-focus></md-datepicker>
+						<md-input-container>
+							<label>End Time</label>
+							<input ng-model="currentPlantSettings.endTime" type="time">
+						</md-input-container>
+					</div>
+				</div>
+				<div>
+					<h2>Report Settings</h2>
+					<br> Type of Report
+					<md-radio-group ng-model="currentPlantSettings.reportType">
+						<md-radio-button value="hydra" class="md-primary">Hydra (.NOX files)
+							<md-tooltip md-direction="top">
+								Format looks like ...
+							</md-tooltip>
+						</md-radio-button>
+						<md-radio-button value="run" class="">
+							Run report (.R02 files)
+							<md-tooltip md-direction="top">
+								Format looks like ...
+							</md-tooltip>
+						</md-radio-button>
+					</md-radio-group>
+
+					<md-switch ng-model="currentPlantSettings.reportFileNameWithExpPerNums">
+						<md-tooltip md-direction="top">
+							how the file names of the reports will be set up
+						</md-tooltip>
+						Include exp # and per # in file name? {{(currentPlantSettings.reportFileNameWithExpPerNums?'[exp#]-[per#]':'plant[currentplant]')
+						+(currentPlantSettings.reportType==='hydra'?'.nox':'.R02')}}
+					</md-switch>
+					<md-switch ng-model="currentPlantSettings.removeSTCAprefix">
+						<md-tooltip md-direction="top">
+							Whether or not to remove the 'STCA' text in the tag names for the report file
+						</md-tooltip>
+						Remove STCA prefix? {{(currentPlantSettings.removeSTCAprefix?'9999':'STCA9999')}}
+					</md-switch>
+				</div>
+				<div>
+					<h2>PI Tag Select</h2>
+					something clever here. maybe checkboxes?
+					<md-input-container>
+						<label>Filter Tags</label>
+						<input ng-model="selectTagsFiltertext">
+					</md-input-container>
+					<md-checkbox ng-repeat="tag in testTags | filter:selectTagsFiltertext">{{tag}}</md-checkbox>
+				</div>
+			</md-content>
+		</div>
+		<md-sidenav class="md-sidenav-right" md-is-locked-open="$mdMedia('gt-md')" md-component-id="right" ng-click="">
+			<md-content class="md-padding">
+				<md-list>
+					<md-subheader class="">Preferences</md-subheader>
+					<md-list-item>
+						<md-input-container flex>
+							<label>PI Web API URL: </label>
+							<input ng-model="preferences.PIWebAPIURLBase" ng-change="setPIWebCalls()">
+						</md-input-container>
+					</md-list-item>
+					<md-list-item>
+						<md-input-container>
+							<label>Server</label>
+							<md-select ng-model="preferences.PIWebAPIServer">
+								<!-- <md-option><em>None</em></md-option> -->
+								<md-option ng-repeat="server in preferences.PIWEBAvailableServers" ng-value="server">
+									{{server}}
+								</md-option>
+							</md-select>
+						</md-input-container>
+					</md-list-item>
+					<md-list-item>
+						<md-switch ng-model="preferences.tagSearchAddStarBefore">
+							<md-tooltip md-direction="top">
+								Whether or not to automatically add a * wild card to the beginning of the name search
+							</md-tooltip>
+							Add * before tag search?
+						</md-switch>
+					</md-list-item>
+					<md-list-item>
+						<md-switch ng-model="preferences.tagSearchAddStarAfter">
+							<md-tooltip md-direction="top">
+								Whether or not to automatically add a * wild card to the end of the name search
+							</md-tooltip>
+							Add * after tag search?
+						</md-switch>
+					</md-list-item>
+					<div layout="row" layout-align="center center">
+						<md-button class="md-raised md-accent" ng-click="savepreferences()">Save Settings
+							<md-icon aria-label="save" class="material-icons">save</md-icon>
+						</md-button>
+					</div>
+					<md-divider></md-divider>
+					<div layout="row" layout-align="center center">
+						<md-button class="" ng-disabled="" target="_blank" href="https://muntse-s-08817.europe.shell.com/piwebapi/help">
+							PI Web API Link
+							<md-icon aria-label="help" class="material-icons">help_outline</md-icon>
+							<md-tooltip md-direction="botom">
+								Click here if having problems getting data the first time.
+							</md-tooltip>
+						</md-button>
+					</div>
+					<md-divider></md-divider>
+
+				</md-list>
+			</md-content>
+		</md-sidenav>
+	</div>
+	<script src="./scripts/jquery.min.js"></script>
+	<script src="./scripts/bootstrap.min.js"></script>
+	<script src="./scripts/angular.min.js"></script>
+	<script src="./scripts/angular-resource.min.js"></script>
+	<script src="./scripts/angular-route.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-animate.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-aria.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-messages.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
+	<script src="./scripts/nglocalstorage.js"></script>
+	<script src="./scripts/angular-timeago.min.js"></script>
+	<script src="./scripts/app.js"></script>
+
+	<!-- 	<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.4.0/less.min.js" type="text/javascript"></script> -->
+</body>
+
+</html>
