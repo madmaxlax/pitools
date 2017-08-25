@@ -26,7 +26,7 @@
 	</md-toolbar>
 
 	<div flex layout="row" ng-cloak>
-		<div ng-show="errors.length*0" class="md-warn">
+		<div ng-show="errors.length" class="md-warn">
 			<div ng-repeat="error in errors">
 				<div ng-repeat="(errname, errmsg) in error"><strong>{{errname}}</strong>: {{errmsg}}
 					<!-- <ul>
@@ -43,18 +43,17 @@
 				<!-- Plant search auto complete -->
 				<form ng-submit="$event.preventDefault()" layout layout-align="center" layout-padding>
 					<div layout="row" flex>
-						<md-autocomplete flex md-selected-item="data.selectedPlantID" md-selected-item-change="getTagAttributes()" class="md-block"
-						 md-search-text="preferences.plantSearchText" md-items="plantsFound in data.plants" md-select-on-focus md-selected-item-change="preferences.plantSearchText = plants.Name"
-						 md-select-on-match="true" md-item-text="tag.Name" md-floating-label="Plant Search" md-min-length="3" md-input-id="search-input-plant"
-						 md-no-cache="true">
-							<md-item-template>
-								<strong><span md-highlight-text="preferences.plantSearchText" md-highlight-flags="i">{{tag.Name}}</span></strong>:
-								{{tag.Description}}
-							</md-item-template>
-							<md-not-found>
-								No tags found "{{preferences.tagSearchText}}"
-							</md-not-found>
-						</md-autocomplete>
+						<md-autocomplete flex ng-disabled="!data.plants.length" md-selected-item="data.selectedPlant.both" md-selected-item-change="getPlantData()"
+							 class="md-block" md-search-text="preferences.plantSearchText" md-items="plant in data.plants | filter:preferences.plantSearchText"
+							 md-select-on-focus md-select-on-match="true" md-item-text="plant.Name.replace('Plant ID ','')" md-floating-label="{{data.plants.length?'Search for a plant':'Loading Plants...'}}"
+							 md-min-length="0" md-input-id="search-input-plants">
+								<md-item-template>
+									<span md-highlight-text="preferences.plantSearchText" md-highlight-flags="i">{{plant.Name.replace('Plant ID ','')}}</span>
+								</md-item-template>
+								<md-not-found>
+									No plants found "{{preferences.plantSearchText}}"
+								</md-not-found>
+							</md-autocomplete>
 						<div>
 							<md-button class="md-raised" ng-click="getPlantData()">
 								Search /
@@ -70,28 +69,28 @@
 				<div>
 					<md-input-container>
 						<label>Experiment Name</label>
-						<input ng-model="currentPlantSettings.experimentName">
+						<input ng-model="currentPlantReportSettings.experimentName">
 					</md-input-container>
 					<md-input-container>
 						<label>Experiment Number</label>
-						<input ng-model="currentPlantSettings.experimentNumber">
+						<input ng-model="currentPlantReportSettings.experimentNumber">
 					</md-input-container>
 					<md-input-container>
 						<label>Period Name</label>
-						<input ng-model="currentPlantSettings.periodName">
+						<input ng-model="currentPlantReportSettings.periodName">
 					</md-input-container>
 					<md-input-container>
 						<label>Period Number</label>
-						<input ng-model="currentPlantSettings.periodNumber">
+						<input ng-model="currentPlantReportSettings.periodNumber">
 					</md-input-container>
 				</div>
 				<div>
 					<h2>Period Retrieval Method</h2>
-					<md-radio-group ng-model="currentPlantSettings.method">
+					<md-radio-group ng-model="currentPlantReportSettings.method">
 						<md-radio-button value="interval" class="md-primary">Interval Time (mins)</md-radio-button>
 						<md-input-container>
 							<label>minutes</label>
-							<input ng-disabled="!(currentPlantSettings.method=='interval')" ng-model="currentPlantSettings.intervalMinutes">
+							<input ng-disabled="!(currentPlantReportSettings.method=='interval')" ng-model="currentPlantReportSettings.intervalMinutes">
 						</md-input-container>
 						<md-radio-button value="eventTag"> Event Tag </md-radio-button>
 						<md-radio-button ng-disabled="true" value="GC Reports">GC Reports (??)</md-radio-button>
@@ -101,26 +100,26 @@
 					<div flex="50">
 						Start Date/Time
 						<br>
-						<md-datepicker ng-model="currentPlantSettings.startDate" md-placeholder="Enter date" md-open-on-focus></md-datepicker>
+						<md-datepicker ng-model="currentPlantReportSettings.startDate" md-placeholder="Enter date" md-open-on-focus></md-datepicker>
 						<md-input-container>
 							<label>Time</label>
-							<input ng-model="currentPlantSettings.startTime" type="time">
+							<input ng-model="currentPlantReportSettings.startTime" type="time">
 						</md-input-container>
 					</div>
 					<div flex="50">
 						End Date/Time
 						<br>
-						<md-datepicker ng-model="currentPlantSettings.endDate" md-placeholder="end date" md-open-on-focus></md-datepicker>
+						<md-datepicker ng-model="currentPlantReportSettings.endDate" md-placeholder="end date" md-open-on-focus></md-datepicker>
 						<md-input-container>
 							<label>End Time</label>
-							<input ng-model="currentPlantSettings.endTime" type="time">
+							<input ng-model="currentPlantReportSettings.endTime" type="time">
 						</md-input-container>
 					</div>
 				</div>
 				<div>
 					<h2>Report Settings</h2>
 					<br> Type of Report
-					<md-radio-group ng-model="currentPlantSettings.reportType">
+					<md-radio-group ng-model="currentPlantReportSettings.reportType">
 						<md-radio-button value="hydra" class="md-primary">Hydra (.NOX files)
 							<md-tooltip md-direction="top">
 								Format looks like ...
@@ -134,18 +133,18 @@
 						</md-radio-button>
 					</md-radio-group>
 
-					<md-switch ng-model="currentPlantSettings.reportFileNameWithExpPerNums">
+					<md-switch ng-model="currentPlantReportSettings.reportFileNameWithExpPerNums">
 						<md-tooltip md-direction="top">
 							how the file names of the reports will be set up
 						</md-tooltip>
-						Include exp # and per # in file name? {{(currentPlantSettings.reportFileNameWithExpPerNums?'[exp#]-[per#]':'plant[currentplant]')
-						+(currentPlantSettings.reportType==='hydra'?'.nox':'.R02')}}
+						Include exp # and per # in file name? {{(currentPlantReportSettings.reportFileNameWithExpPerNums?'[exp#]-[per#]':'plant[currentplant]')
+						+(currentPlantReportSettings.reportType==='hydra'?'.nox':'.R02')}}
 					</md-switch>
-					<md-switch ng-model="currentPlantSettings.removeSTCAprefix">
+					<md-switch ng-model="currentPlantReportSettings.removeSTCAprefix">
 						<md-tooltip md-direction="top">
 							Whether or not to remove the 'STCA' text in the tag names for the report file
 						</md-tooltip>
-						Remove STCA prefix? {{(currentPlantSettings.removeSTCAprefix?'9999':'STCA9999')}}
+						Remove STCA prefix? {{(currentPlantReportSettings.removeSTCAprefix?'9999':'STCA9999')}}
 					</md-switch>
 				</div>
 				<div>
