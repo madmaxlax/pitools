@@ -22,7 +22,14 @@
       .primaryPalette('yellow')
       .accentPalette('deep-orange');
   });
-
+  app.filter('keyLength', function(){
+    return function(input){
+      if(!angular.isObject(input)){
+        return;
+      }
+      return Object.keys(input).length;
+    };
+  });
   app.factory("PIWebCalls", ['$resource', function PIWebCallsFactory($resource) {
     return {
       reformatArray: function reformatArray(arr) {
@@ -164,6 +171,14 @@
 
     
 
-    $scope.testTags = ['P999Fic1', 'P999Fic2', 'P999Fic3', 'P999Fic4',]
+    $scope.testTags = ['P999Fic1', 'P999Fic2', 'P999Fic3', 'P999Fic4'];
+
+    $scope.generateReports = function(){
+      $scope.generatedReports = [];
+      $scope.generatedReports.push({});
+      $scope.generatedReports.push({});
+      $scope.generatedReports.push({});
+      $scope.generatedReports.push({});
+    };
   }]);
 })();
