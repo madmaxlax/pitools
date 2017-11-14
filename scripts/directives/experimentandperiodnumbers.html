@@ -1,0 +1,27 @@
+<md-card>
+    <!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">Experiment and Period Numbers for {{data.selectedPlant.both.Name}} </span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content>
+        <md-input-container>
+            <label>Experiment Name</label>
+            <input ng-model="currentPlantReportSettings.experimentName">
+        </md-input-container>
+        <md-input-container>
+            <label>Experiment Number</label>
+            <input ng-model="currentPlantReportSettings.experimentNumber">
+        </md-input-container>
+        <md-input-container>
+            <label>Period Name</label>
+            <input ng-model="currentPlantReportSettings.periodName">
+        </md-input-container>
+        <md-input-container>
+            <label>Period Number</label>
+            <input ng-model="currentPlantReportSettings.periodNumber">
+        </md-input-container>
+
+    </md-card-content>
+</md-card>

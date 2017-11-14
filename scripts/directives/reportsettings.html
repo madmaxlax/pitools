@@ -1,0 +1,51 @@
+<md-card>
+    <!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">Report Settings</span>
+            <span class="md-subhead">Your selected file format: {{(currentPlantReportSettings.reportFileNameWithExpPerNums?'[exp#]-[per#]':'plant[currentplant]')
+                +(currentPlantReportSettings.reportType==='hydra'?'.nox':'.R02')}}
+            </span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content>
+
+        <div layout="row">
+            <div flex-xs flex-gt-xs="50">
+
+                <br>
+                <span class="md-strong">Type of Report</span>
+                <br>
+                <br>
+                <md-radio-group ng-model="currentPlantReportSettings.reportType">
+                    <md-radio-button value="hydra" class="md-primary">Hydra (.NOX files)
+                        <md-tooltip md-direction="top">
+                            Format looks like ...
+                        </md-tooltip>
+                    </md-radio-button>
+                    <md-radio-button value="run" class="">
+                        Run report (.R02 files)
+                        <md-tooltip md-direction="top">
+                            Format looks like ...
+                        </md-tooltip>
+                    </md-radio-button>
+                </md-radio-group>
+            </div>
+
+            <div flex-xs flex-gt-xs="50" layout="column">
+                <md-switch flex-xs flex-gt-xs="50" ng-model="currentPlantReportSettings.reportFileNameWithExpPerNums">
+                    <md-tooltip md-direction="top">
+                        how the file names of the reports will be set up
+                    </md-tooltip>
+                    Include exp # and per # in file name?
+                </md-switch>
+                <md-switch flex-xs flex-gt-xs="50" ng-model="currentPlantReportSettings.removeSTCAprefix">
+                    <md-tooltip md-direction="top">
+                        Whether or not to remove the 'STCA' text in the tag names for the report file
+                    </md-tooltip>
+                    Remove STCA prefix? {{(currentPlantReportSettings.removeSTCAprefix?'9999':'STCA9999')}}
+                </md-switch>
+            </div>
+        </div>
+    </md-card-content>
+</md-card>

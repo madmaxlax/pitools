@@ -19,12 +19,12 @@
     $mdThemingProvider.theme('default')
       //.primaryPalette('yellow')
       //.accentPalette('deep-orange');
-      .primaryPalette('yellow')
+      .primaryPalette('amber')
       .accentPalette('deep-orange');
   });
-  app.filter('keyLength', function(){
-    return function(input){
-      if(!angular.isObject(input)){
+  app.filter('keyLength', function () {
+    return function (input) {
+      if (!angular.isObject(input)) {
         return;
       }
       return Object.keys(input).length;
@@ -56,7 +56,41 @@
       TagAttributesDescriptor: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/points/:webid/attributes/descriptor"),
     };
   }]);
-
+  app.directive('tagWriterCard', function () {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: 'scripts/directives/tagWriter.html'
+    };
+  });
+  app.directive('reportSettingsCard', function () {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: 'scripts/directives/reportsettings.html'
+    };
+  });
+  app.directive('pointRetrievalMethodCard', function () {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: 'scripts/directives/pointretrievalmethod.html'
+    };
+  });
+  app.directive('experimentAndPeriodNumbersCard', function () {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: 'scripts/directives/experimentandperiodnumbers.html'
+    };
+  });
+  app.directive('tagSelectCard', function () {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: 'scripts/directives/tagselect.html'
+    };
+  });
   app.controller('appController', ['$scope', '$http', '$resource', '$filter', 'localStorageService', '$mdSidenav', '$mdDialog', '$mdToast', "PIWebCalls", function ($scope, $http, $resource, $filter, localStorageService, $mdSidenav, $mdDialog, $mdToast, PIWebCalls) {
     $scope.errors = [];
     $scope.data = {};
@@ -70,6 +104,7 @@
     };
 
     $scope.savepreferences = function () {
+      $scope.preferences.plantSettings[$scope.data.selectedPlant.both.Name] = $scope.currentPlantReportSettings;
       localStorageService.set('preferences', $scope.preferences);
       $mdToast.showSimple("Preferences saved!");
     };
@@ -114,66 +149,98 @@
         //console.log(resp);
         $scope.data.plants = resp.Items;
         $scope.data.plantsAsNames = PIWebCalls.reformatArray(resp.Items);
-        $scope.data.selectedPlant.Name = "";
         $scope.finishedUpdating();
       }, function (resp) {
         //there was an error
         $scope.errors.push({ "Error with getting plants": resp });
         $scope.finishedUpdating();
       });
+
+      //if a tag is already selected
+      $scope.preferences.plantSearchText = $scope.preferences.plantSearchText;
     };
     //now call it for the initial setup
     $scope.getPlants();
 
-    $scope.tagSearch = function () {
-      if ($scope.preferences.tagSearchText.length > 2) {
-        return $scope.PIWebCalls.TagSearch.get({
-          name: ($scope.preferences.tagSearchAddStarBefore ? '*' : '') + $scope.preferences.tagSearchText.replace(" ", " AND name:") + ($scope.preferences.tagSearchAddStarAfter ? '*' : ''),
-          max: 20,
-          piserver: $scope.preferences.PIWebAPIServer,
-        }).$promise.then(function (resp) {
-          console.log(resp.Items);
-          if (resp.Items.length > 0) {
-            $scope.data.returnedTags = resp.Items;
-            //if only 1 tag, get recent values
-            if (resp.Items.length === 1) {
-              $scope.getTagAttributes();
-            }
-          }
-          else {
-            $scope.data.returnedTags = [];
-          }
-          console.log('returning list', $scope.data.returnedTags);
-          return $scope.data.returnedTags;
-        }, function (resp) {
-          //there was an error
-          $scope.errors.push({ "Error with PI tags search": resp });
-        });
-      }
-      else {
-        return [];
-      }
-    };
-    
+
     //when a plant is selected
     $scope.getPlantData = function () {
       //check that an actual plant was selected
       if ($scope.data.selectedPlant != null && $scope.data.selectedPlant.both != null) {
         //retrieve preferences for that plant
-        if ($scope.preferences.plantSettings[$scope.data.selectedPlant.Name] != null)//there are already preferences for that plant ID
+        if ($scope.preferences.plantSettings[$scope.getCurrentPlantID()] != null)//there are already preferences for that plant ID
         {
-          $scope.currentPlantReportSettings = $scope.preferences.plantSettings[$scope.data.selectedPlant.Name];
+          $scope.currentPlantReportSettings = $scope.preferences.plantSettings[$scope.getCurrentPlantID()];
         }
+        else {
+          $mdToast.showSimple("You don't have any settings saved for this plant yet");
+        }
+        $scope.newTagSearch();
 
       }
     };
 
+    $scope.getCurrentPlantID = function () {
+      if ($scope.data.selectedPlant != null && $scope.data.selectedPlant.both != null) {
+        return $scope.data.selectedPlant.both.Name.replace('Plant ID ', '')
+      }
+      else {
+        return "NoPlant";
+      }
+    };
 
-    
+    $scope.newTagSearch = function () {
+      $scope.data.tags = null;
+      $scope.data.selectedTag = null;
+      //make sure the value exists (sometimes doesnt with new users)
+      if ($scope.data.selectedPlant != null) {
+        PIWebCalls.TagSearch.get({
+          name: $scope.getCurrentPlantID() + '*',
+          max: 5000, //should cover most plants
+          piserver: 'STCAPIColl',
+          pointsource: '*'
+        }, function (resp) {
+          //console.log(resp);
+          $scope.data.tags = resp.Items;
+          if ($scope.data.selectedTag == null) {
+            if ($filter('filter')($scope.data.tags, "RunHour") != null) {
+              $scope.data.selectedTag = $filter('filter')($scope.data.tags, $scope.getCurrentPlantID() + "RunHour")[0];
+              $scope.getTagValue();
+            }
+          }
+        });
+      }
+    };
+
+    $scope.getTagValue = function () {
+      $scope.preferences.tagWriterNewTagSearch = "";
+      PIWebCalls.TagValue.get({
+        webid: $scope.data.selectedTag.WebID
+      }, function (valresp) {
+        $scope.data.selectedTag.curVal = valresp;
+      });
+    };
+
+    $scope.updateTagValue = function () {
+      PIWebCalls.updateValueCall.save({ webid: $scope.data.selectedTag.WebID },
+        {
+          "Timestamp": "*",
+          "Value": $scope.data.selectedTag.newValue,
+          "Good": "true",
+          "Questionable": "false"
+        },
+        function (resp) {
+          $mdToast.showSimple("Value saved!");
+          $scope.getTagValue();
+        }, function (resp) {
+          //there was an error
+          $scope.errors.push({ "Error with updating values": resp });
+        });
+    };
 
     $scope.testTags = ['P999Fic1', 'P999Fic2', 'P999Fic3', 'P999Fic4'];
 
-    $scope.generateReports = function(){
+    $scope.generateReports = function () {
       $scope.generatedReports = [];
       $scope.generatedReports.push({});
       $scope.generatedReports.push({});

@@ -1,0 +1,30 @@
+<md-card>
+    <!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">PI Tag Select</span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content>
+        something clever here. maybe checkboxes?
+        <md-input-container>
+            <label>Filter Tags</label>
+            <input ng-model="selectTagsFiltertext">
+        </md-input-container>
+        <div layout="row">
+            <div flex-xs flex-gt-xs="50">
+                Tags available
+                <md-checkbox ng-model="selectAllTags">Select All?</md-checkbox>
+                <br>
+                <div ng-repeat="tag in testTags | filter:selectTagsFiltertext">
+                    <md-checkbox ng-checked="selectAllTags" ng-model="currentPlantReportSettings.selectedTags[tag]">{{tag}}</md-checkbox>
+                </div>
+            </div>
+            <div flex-xs flex-gt-xs="50">
+                Tags selected ({{currentPlantReportSettings.selectedTags | keyLength}})
+                <br>
+                <div ng-repeat="(tagName, value) in currentPlantReportSettings.selectedTags" ng-if="value">{{tagName}}</div>
+            </div>
+        </div>
+    </md-card-content>
+</md-card>

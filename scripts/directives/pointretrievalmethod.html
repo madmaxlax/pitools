@@ -1,0 +1,69 @@
+<md-card>
+    <!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">Period Retrieval Method</span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content>
+        <md-radio-group ng-model="currentPlantReportSettings.method">
+            <div layout="row">
+                <div flex-xs flex-gt-xs="50">
+                    <md-radio-button value="interval" class="md-primary">Interval Time (mins)</md-radio-button>
+                </div>
+                <div flex-xs flex-gt-xs="50">
+                    <md-input-container>
+                        <label>minutes</label>
+                        <input ng-disabled="!(currentPlantReportSettings.method=='interval')" ng-model="currentPlantReportSettings.intervalMinutes">
+                    </md-input-container>
+                </div>
+            </div>
+            <div layout="row">
+                <div flex-xs flex-gt-xs="50">
+                    <md-radio-button value="eventTag"> Event Tag </md-radio-button>
+                </div>
+                <div flex-xs flex-gt-xs="50">
+                    <md-input-container>
+                        <label>Select Event Tag</label>
+                        <md-select ng-disabled="!(currentPlantReportSettings.method=='eventTag')" ng-model="currentPlantReportSettings.eventTag">
+                            <md-option>
+                                <em>None</em>
+                            </md-option>
+                            <md-option>Eventtag1</md-option>
+                            <md-option>Eventtag2</md-option>
+                            <md-option>...</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+            </div>
+            <md-radio-button ng-disabled="true" value="GC Reports">GC Reports (??)</md-radio-button>
+        </md-radio-group>
+        <div layout="row">
+            <div flex="50">
+                Start Date/Time
+                <br>
+                <md-input-container>
+                    <label>Start Date</label>
+                    <md-datepicker ng-model="currentPlantReportSettings.startDate" md-open-on-focus></md-datepicker>
+                </md-input-container>
+                <md-input-container>
+                    <label>Time</label>
+                    <input ng-model="currentPlantReportSettings.startTime" type="time">
+                </md-input-container>
+            </div>
+            <div flex="50">
+                End Date/Time
+                <br>
+
+                <md-input-container>
+                    <label>End Date</label>
+                    <md-datepicker ng-model="currentPlantReportSettings.endDate" md-open-on-focus></md-datepicker>
+                </md-input-container>
+                <md-input-container>
+                    <label>End Time</label>
+                    <input ng-model="currentPlantReportSettings.endTime" type="time">
+                </md-input-container>
+            </div>
+        </div>
+    </md-card-content>
+</md-card>

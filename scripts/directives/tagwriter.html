@@ -1,0 +1,51 @@
+<md-card>
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">TagWriter for {{data.selectedPlant.both.Name}}</span>
+            <span class="md-subhead">{{data.selectedTag.Name}}</span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-content>
+        <div ng-if="data.selectedTag">
+            <md-button class="md-raised" ng-click="data.selectedTag = null">
+                Change tag
+                <md-tooltip md-direction="botom">
+                    Select a tag other than {{data.selectedTag.Name}} to update the value in PI for
+                </md-tooltip>
+            </md-button>
+            Change the value of the
+            <strong>{{data.selectedTag.Name}}</strong>, current value: {{data.selectedTag.curVal.Value}} @ {{data.selectedTag.curVal.Timestamp
+            | date:'medium'}}
+
+            <form ng-submit="updateTagValue()">
+                <div layout="row">
+                    <div flex>
+                        <md-input-container class="md-block">
+                            <label>New Value:</label>
+                            <input ng-model="data.selectedTag.newValue">
+                        </md-input-container>
+                    </div>
+                    <div>
+                        <md-button class="md-raised md-primary" type="submit">
+                            Update Value
+                        </md-button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div ng-if="data.selectedTag == null">
+            <md-autocomplete flex md-selected-item="data.selectedTag" md-selected-item-change="getTagValue()" class="md-block" md-search-text="preferences.tagWriterNewTagSearch"
+                md-items="tag in data.tags | filter:preferences.tagWriterNewTagSearch" md-autoselect="true" md-select-on-focus
+                md-select-on-match="true" md-item-text="tag.Name" md-floating-label="Search for a new tag within this plant"
+                md-min-length="0" md-input-id="search-input-tags">
+                <md-item-template>
+                    <span md-highlight-text="preferences.tagWriterNewTagSearch" md-highlight-flags="i">{{tag.Name}}</span>
+                </md-item-template>
+                <md-not-found>
+                    No tags found "{{preferences.tagWriterNewTagSearch}}"
+                </md-not-found>
+            </md-autocomplete>
+        </div>
+
+    </md-card-content>
+</md-card>
