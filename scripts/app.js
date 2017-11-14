@@ -103,10 +103,14 @@
       $mdSidenav('right').toggle();
     };
 
-    $scope.savepreferences = function () {
-      $scope.preferences.plantSettings[$scope.data.selectedPlant.both.Name] = $scope.currentPlantReportSettings;
+    $scope.savepreferences = function (showToast) {
+      if ($scope.data.selectedPlant != null && $scope.preferences.plantSettings != null && $scope.preferences.plantSettings[$scope.getCurrentPlantID()] != null) {
+        $scope.preferences.plantSettings[$scope.getCurrentPlantID()].plantReportSettings = $scope.currentPlantReportSettings;
+      }
       localStorageService.set('preferences', $scope.preferences);
-      $mdToast.showSimple("Preferences saved!");
+      if (showToast == null || showToast === true) {
+        $mdToast.showSimple("Preferences saved!");
+      }
     };
 
     $scope.preferences = {};
@@ -117,7 +121,7 @@
         plantSettings: {}
       };
 
-      $scope.savepreferences();
+      $scope.savepreferences(false);
     }
     else {
       $scope.preferences = localStorageService.get('preferences');
@@ -150,14 +154,21 @@
         $scope.data.plants = resp.Items;
         $scope.data.plantsAsNames = PIWebCalls.reformatArray(resp.Items);
         $scope.finishedUpdating();
+        console.log('done loading plants');
+        //if a tag is already selectedan restored from the prefs
+        if ($scope.preferences.plantSearchText != null) {
+          if ($filter('filter')($scope.data.plants, { Name: $scope.preferences.plantSearchText }).length === 1) {
+            //do the same as the autocomplete search and set the current plant if the search finds 1
+            $scope.data.selectedPlant.both = $filter('filter')($scope.data.plants, { Name: $scope.preferences.plantSearchText })[0];
+          }
+        }
       }, function (resp) {
         //there was an error
         $scope.errors.push({ "Error with getting plants": resp });
         $scope.finishedUpdating();
       });
 
-      //if a tag is already selected
-      $scope.preferences.plantSearchText = $scope.preferences.plantSearchText;
+
     };
     //now call it for the initial setup
     $scope.getPlants();
@@ -170,10 +181,12 @@
         //retrieve preferences for that plant
         if ($scope.preferences.plantSettings[$scope.getCurrentPlantID()] != null)//there are already preferences for that plant ID
         {
-          $scope.currentPlantReportSettings = $scope.preferences.plantSettings[$scope.getCurrentPlantID()];
+          $scope.currentPlantReportSettings = $scope.preferences.plantSettings[$scope.getCurrentPlantID()].plantReportSettings;
+          $mdToast.showSimple("Restoring your locally saved settings for this plant");
         }
         else {
           $mdToast.showSimple("You don't have any settings saved for this plant yet");
+          $scope.preferences.plantSettings[$scope.getCurrentPlantID()] = {};
         }
         $scope.newTagSearch();
 
@@ -182,7 +195,7 @@
 
     $scope.getCurrentPlantID = function () {
       if ($scope.data.selectedPlant != null && $scope.data.selectedPlant.both != null) {
-        return $scope.data.selectedPlant.both.Name.replace('Plant ID ', '')
+        return $scope.data.selectedPlant.both.Name.replace('Plant ID ', '');
       }
       else {
         return "NoPlant";
@@ -191,7 +204,7 @@
 
     $scope.newTagSearch = function () {
       $scope.data.tags = null;
-      $scope.data.selectedTag = null;
+      $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag = null;
       //make sure the value exists (sometimes doesnt with new users)
       if ($scope.data.selectedPlant != null) {
         PIWebCalls.TagSearch.get({
@@ -202,9 +215,9 @@
         }, function (resp) {
           //console.log(resp);
           $scope.data.tags = resp.Items;
-          if ($scope.data.selectedTag == null) {
-            if ($filter('filter')($scope.data.tags, "RunHour") != null) {
-              $scope.data.selectedTag = $filter('filter')($scope.data.tags, $scope.getCurrentPlantID() + "RunHour")[0];
+          if ($scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag == null) {
+            if ($filter('filter')($scope.data.tags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false) !== 0) {
+              $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag = $filter('filter')($scope.data.tags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false)[0];
               $scope.getTagValue();
             }
           }
@@ -215,22 +228,23 @@
     $scope.getTagValue = function () {
       $scope.preferences.tagWriterNewTagSearch = "";
       PIWebCalls.TagValue.get({
-        webid: $scope.data.selectedTag.WebID
+        webid: $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.WebID
       }, function (valresp) {
-        $scope.data.selectedTag.curVal = valresp;
+        $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.curVal = valresp;
       });
     };
 
+    //for tagWriter, stores a new value to the specified PI tag
     $scope.updateTagValue = function () {
-      PIWebCalls.updateValueCall.save({ webid: $scope.data.selectedTag.WebID },
+      PIWebCalls.updateValueCall.save({ webid: $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.WebID },
         {
           "Timestamp": "*",
-          "Value": $scope.data.selectedTag.newValue,
+          "Value": $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.newValue,
           "Good": "true",
           "Questionable": "false"
         },
         function (resp) {
-          $mdToast.showSimple("Value saved!");
+          $mdToast.showSimple("Value saved! " + $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.Name + " Set to " + resp.Value);
           $scope.getTagValue();
         }, function (resp) {
           //there was an error
@@ -238,14 +252,49 @@
         });
     };
 
+    //debug only
     $scope.testTags = ['P999Fic1', 'P999Fic2', 'P999Fic3', 'P999Fic4'];
 
+    //function that actually generates the reports
     $scope.generateReports = function () {
       $scope.generatedReports = [];
-      $scope.generatedReports.push({});
-      $scope.generatedReports.push({});
-      $scope.generatedReports.push({});
-      $scope.generatedReports.push({});
+      $scope.generatedReports.push('DATACOL');
+      $scope.generatedReports.push('');
+      $scope.generatedReports.push('{}');
+      $scope.generatedReports.push('{}');
+    };
+    $scope.getCurrentFileName = function () {
+      return ($scope.currentPlantReportSettings.reportFileNameWithExpPerNums ? '[exp#]-[per#]' : 'plant[currentplant]') + ($scope.currentPlantReportSettings.reportType === 'hydra' ? '.nox' : '.R02');
+    }
+    $scope.openReport = function (reportNumber) {
+      var filename = $scope.getCurrentFileName();
+      var csvFile = 'Report number ' + reportNumber + '\nDATACOL\tsecondcolumn\n' +
+        'col1\tcol2\col3\n' +
+        '1\t2\t3\n' +
+        '\n***PERIOD A0000011\nPLANT 0266 PERIOD A0000011  RUNLIST REPORT        EXPERIMENT NR 22';
+
+      //function to force the download of the file
+      //from Jossef Harush https://jsfiddle.net/jossef/m3rrLzk0/ from https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+      var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+      //IE allows direct saving
+      if (navigator.msSaveBlob) { // IE 10+
+        navigator.msSaveBlob(blob, filename);
+      } else {//create an invisible link to a 'blob' of the report, and 'click' it to download it
+        var url = URL.createObjectURL(blob);
+        // Browsers that support HTML5 download attribute
+        if (false && link.download !== undefined) { // feature detection
+          var link = document.createElement("a");
+          link.setAttribute("href", url);
+          link.setAttribute("download", filename);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        else {
+          window.open(url, "_blank");
+        }
+      }
     };
   }]);
 })();

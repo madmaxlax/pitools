@@ -2,18 +2,20 @@
 <html lang="en" ng-app="myapp" ng-controller="appController as ctrlr">
 
 <head>
-	<title ng-bind="'STCA PI Tools Reports - Web'">STCA PI Tools Reports - Web</title>
+	<title ng-bind="'STCA PI Tools Reports & TagWriter- Web'">STCA PI Tools Reports - Web</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="shortcut icon" href="../favicon.ico">
 	<link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32x32.png">
 	<link rel="apple-touch-icon" href="../images/icons/apple-icon.png">
 	<link rel="apple-touch-icon" sizes="72x72" href="images/icons/apple-icon-72x72.png">
+	<!-- <link href="./styles/roboto.css" rel="stylesheet"> -->
+	<!-- <link href="./styles/materialicons.css" rel="stylesheet"> -->
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<!--<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">-->
-	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.css">
-	<link rel="stylesheet" type="text/css" href="styles.css" />
+	<link rel="stylesheet" href="./scripts/vendor/angular_material/1.1.4/angular-material.min.css">
+	<link rel="stylesheet" type="text/css" href="./styles/styles.css" />
 
 </head>
 
@@ -23,6 +25,9 @@
 		<div>
 			<md-progress-circular ng-show="!data.plants.length || isUpdating" class="md-warn" md-mode="indeterminate"></md-progress-circular>
 		</div>
+		<md-button class="md-raised md-accent" ng-click="savepreferences()">Save Settings
+			<md-icon aria-label="save" class="material-icons">save</md-icon>
+		</md-button>
 		<md-button class="md-raised " ng-disabled="isUpdating" href="mailto:pt-stca-pi-support@shell.com;Business-Assist-Engineering-ITV-TEE@shell.com&subject=PI Tools Web App">
 			Need Support
 			<md-icon aria-label="help" class="material-icons">help_outline</md-icon>
@@ -54,9 +59,9 @@
 				<!-- Plant search auto complete -->
 				<form ng-submit="$event.preventDefault()" layout layout-align="center" layout-padding>
 					<div layout="row" flex>
-						<md-autocomplete flex ng-disabled="!data.plants.length" md-selected-item="data.selectedPlant.both" md-selected-item-change="getPlantData()"
-						 class="md-block" md-search-text="preferences.plantSearchText" md-items="plant in data.plants | filter:preferences.plantSearchText" md-autoselect="true"
-						 md-select-on-focus md-select-on-match="true" md-item-text="plant.Name.replace('Plant ID ','')" md-floating-label="{{data.plants.length?'Search for a plant':'Loading Plants...'}}"
+						<md-autocomplete flex ng-disabled="!data.plants.length" md-selected-item="data.selectedPlant.both" md-selected-item-change="getPlantData()" md-clear-button="true"
+						 class="md-block" md-search-text="preferences.plantSearchText" md-items="plant in data.plants | filter:{Name:preferences.plantSearchText}" md-autoselect="true"
+						 md-select-on-focus md-auto-focus="true" md-select-on-match="true" md-item-text="plant.Name.replace('Plant ID ','')" md-floating-label="{{data.plants.length?'Search for a plant':'Loading Plants...'}}"
 						 md-min-length="0" md-input-id="search-input-plants">
 							<md-item-template>
 								<span md-highlight-text="preferences.plantSearchText" md-highlight-flags="i">{{plant.Name.replace('Plant ID ','')}}</span>
@@ -122,7 +127,8 @@
 								<br> Reports:
 								<br>
 
-								<md-button ng-repeat="(reportNumber, value) in generatedReports" class="md-raised " ng-click="openReport(reportNumber)">open report {{reportNumber}}
+								<md-button ng-repeat="(reportNumber, value) in generatedReports track by $index" class="md-raised " ng-click="openReport(reportNumber)">Download report {{reportNumber}}
+									<md-icon aria-label="download" class="material-icons">file_download</md-icon>
 								</md-button>
 
 							</md-card-content>
@@ -160,17 +166,20 @@
 			</md-content>
 		</md-sidenav>
 	</div>
-	<script src="./scripts/jquery.min.js"></script>
-	<script src="./scripts/bootstrap.min.js"></script>
-	<script src="./scripts/angular.min.js"></script>
-	<script src="./scripts/angular-resource.min.js"></script>
-	<script src="./scripts/angular-route.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-animate.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-aria.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-messages.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
-	<script src="./scripts/nglocalstorage.js"></script>
-	<script src="./scripts/angular-timeago.min.js"></script>
+	<script src="./scripts/vendor/jquery.min.js"></script>
+	<script src="./scripts/vendor/bootstrap.min.js"></script>
+	<!-- <script src="./scripts/angular.min.js"></script> -->
+	<script src="./scripts/vendor/angularjs/1.6.4/angular.min.js"></script>
+	<!-- <script src="./scripts/angular-resource.min.js"></script>
+	<script src="./scripts/angular-route.min.js"></script> -->
+	<script src="./scripts/vendor/angularjs/1.6.4/angular-resource.min.js"></script>
+	<script src="./scripts/vendor/angularjs/1.6.4/angular-route.min.js"></script>
+	<script src="./scripts/vendor/angularjs/1.6.4/angular-animate.min.js"></script>
+	<script src="./scripts/vendor/angularjs/1.6.4/angular-aria.min.js"></script>
+	<script src="./scripts/vendor/angularjs/1.6.4/angular-messages.min.js"></script>
+	<script src="./scripts/vendor/angular_material/1.1.4/angular-material.min.js"></script>
+	<script src="./scripts/vendor/nglocalstorage.js"></script>
+	<script src="./scripts/vendor/angular-timeago.min.js"></script>
 	<script src="./scripts/app.js"></script>
 
 	<!-- 	<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.4.0/less.min.js" type="text/javascript"></script> -->

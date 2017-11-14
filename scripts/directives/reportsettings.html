@@ -3,8 +3,7 @@
     <md-card-title>
         <md-card-title-text>
             <span class="md-headline">Report Settings</span>
-            <span class="md-subhead">Your selected file format: {{(currentPlantReportSettings.reportFileNameWithExpPerNums?'[exp#]-[per#]':'plant[currentplant]')
-                +(currentPlantReportSettings.reportType==='hydra'?'.nox':'.R02')}}
+            <span class="md-subhead">Your selected file format: {{getCurrentFileName()}}
             </span>
         </md-card-title-text>
     </md-card-title>
