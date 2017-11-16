@@ -25,7 +25,7 @@
 		<div>
 			<md-progress-circular ng-show="!data.plants.length || isUpdating" class="md-warn" md-mode="indeterminate"></md-progress-circular>
 		</div>
-		<md-button class="md-raised md-accent" ng-click="savepreferences()">Save Settings
+		<md-button class="md-raised" ng-click="savepreferences()">Save Settings
 			<md-icon aria-label="save" class="material-icons">save</md-icon>
 		</md-button>
 		<md-button class="md-raised " ng-disabled="isUpdating" href="mailto:pt-stca-pi-support@shell.com;Business-Assist-Engineering-ITV-TEE@shell.com&subject=PI Tools Web App">
@@ -62,7 +62,7 @@
 						<md-autocomplete flex ng-disabled="!data.plants.length" md-selected-item="data.selectedPlant.both" md-selected-item-change="getPlantData()" md-clear-button="true"
 						 class="md-block" md-search-text="preferences.plantSearchText" md-items="plant in data.plants | filter:{Name:preferences.plantSearchText}" md-autoselect="true"
 						 md-select-on-focus md-auto-focus="true" md-select-on-match="true" md-item-text="plant.Name.replace('Plant ID ','')" md-floating-label="{{data.plants.length?'Search for a plant':'Loading Plants...'}}"
-						 md-min-length="0" md-input-id="search-input-plants">
+						 md-min-length="0" md-input-id="search-input-plants" >
 							<md-item-template>
 								<span md-highlight-text="preferences.plantSearchText" md-highlight-flags="i">{{plant.Name.replace('Plant ID ','')}}</span>
 							</md-item-template>

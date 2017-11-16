@@ -15,16 +15,21 @@
             <div flex-xs flex-gt-xs="50">
                 Tags available
                 <md-checkbox ng-model="selectAllTags">Select All?</md-checkbox>
-                <br>
-                <div ng-repeat="tag in testTags | filter:selectTagsFiltertext">
-                    <md-checkbox ng-checked="selectAllTags" ng-model="currentPlantReportSettings.selectedTags[tag]">{{tag}}</md-checkbox>
-                </div>
             </div>
             <div flex-xs flex-gt-xs="50">
                 Tags selected ({{currentPlantReportSettings.selectedTags | keyLength}})
-                <br>
-                <div ng-repeat="(tagName, value) in currentPlantReportSettings.selectedTags" ng-if="value">{{tagName}}</div>
             </div>
         </div>
+        <md-virtual-repeat-container id="tags-virtual-list" style="height:500px;">
+            <md-list>
+                <md-list-item md-virtual-repeat="tag in data.tags | filter:{Name:selectTagsFiltertext}" >
+                    <md-checkbox class="" ng-checked="selectAllTags" ng-model="tag.selected"></md-checkbox>
+                    <p> {{ tag.Name }} </p>
+                </md-list-item>
+            </md-list>
+            <!-- <div md-virtual-repeat="tag in virtualTagsList" md-on-demand="true" md-item-size="20">
+                <p> {{ tag.Name }} </p>
+            </div> -->
+        </md-virtual-repeat-container>
     </md-card-content>
 </md-card>

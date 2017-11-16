@@ -2,8 +2,14 @@
     <md-card-title>
         <md-card-title-text>
             <span class="md-headline">TagWriter for {{data.selectedPlant.both.Name}}</span>
-            <span class="md-subhead">
-                <md-button class="md-raised" ng-click="preferences.plantSettings[getCurrentPlantID()].selectedTagWriterTag = null">
+            <md-switch ng-model="preferences.hideTagWriter">
+                <md-tooltip md-direction="top">
+                    Hide the TagWriter tool
+                </md-tooltip>
+                Hide this app?
+            </md-switch>
+            <span class="md-subhead"  ng-show="preferences.hideTagWriter == null || preferences.hideTagWriter === false">
+                <md-button class="md-raised" ng-click="changeTagWriterTag()">
                     Change tag
                     <md-tooltip md-direction="botom">
                         Select a tag other than {{preferences.plantSettings[getCurrentPlantID()].selectedTagWriterTag.Name}} to update the value
@@ -11,7 +17,7 @@
                     </md-tooltip>
                 </md-button>
                 <md-button class="md-raised" ng-click="getTagValue()">
-                    Refresh tag value 
+                    Refresh tag value
                     <md-icon aria-label="refresh" class="material-icons">autorenew</md-icon>
                     <md-tooltip md-direction="botom">
                         Refresh the value of the currently selected tag {{preferences.plantSettings[getCurrentPlantID()].selectedTagWriterTag.Name}}
@@ -22,7 +28,7 @@
 
         </md-card-title-text>
     </md-card-title>
-    <md-card-content>
+    <md-card-content  ng-show="preferences.hideTagWriter == null || preferences.hideTagWriter === false">
         <div ng-if="preferences.plantSettings[getCurrentPlantID()].selectedTagWriterTag">
 
             Change the value of the
@@ -48,8 +54,8 @@
         <div ng-if="preferences.plantSettings[getCurrentPlantID()].selectedTagWriterTag == null">
             <md-autocomplete flex md-selected-item="preferences.plantSettings[getCurrentPlantID()].selectedTagWriterTag" md-selected-item-change="getTagValue()"
                 class="md-block" md-search-text="preferences.tagWriterNewTagSearch" md-items="tag in data.tags | filter:preferences.tagWriterNewTagSearch"
-                md-autoselect="true" md-select-on-focus md-select-on-match="true" md-item-text="tag.Name" md-floating-label="Search for a new tag within this plant"
-                md-min-length="0" md-input-id="search-input-tags">
+                md-no-cache="true" md-autoselect="true" md-select-on-focus md-select-on-match="true" md-item-text="tag.Name"
+                md-floating-label="Search for a new tag within this plant" md-min-length="0" md-input-id="search-input-tags">
                 <md-item-template>
                     <span md-highlight-text="preferences.tagWriterNewTagSearch" md-highlight-flags="i">{{tag.Name}}</span>
                 </md-item-template>

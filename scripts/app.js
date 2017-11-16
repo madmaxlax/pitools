@@ -154,7 +154,6 @@
         $scope.data.plants = resp.Items;
         $scope.data.plantsAsNames = PIWebCalls.reformatArray(resp.Items);
         $scope.finishedUpdating();
-        console.log('done loading plants');
         //if a tag is already selectedan restored from the prefs
         if ($scope.preferences.plantSearchText != null) {
           if ($filter('filter')($scope.data.plants, { Name: $scope.preferences.plantSearchText }).length === 1) {
@@ -202,6 +201,15 @@
       }
     };
 
+    $scope.changeTagWriterTag = function () {
+      $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag = null;
+      //The timeout is needed to make sure that the autocomplete component is rendered at the time of calling focus.
+      setTimeout(function () {
+        angular.element('#search-input-tags').focus();
+      }, 0);
+    };
+
+
     $scope.newTagSearch = function () {
       $scope.data.tags = null;
       $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag = null;
@@ -221,17 +229,25 @@
               $scope.getTagValue();
             }
           }
+        }, function (resp) {
+          //there was an error
+          $scope.errors.push({ "Error with searching for tags": resp });
         });
       }
     };
 
     $scope.getTagValue = function () {
       $scope.preferences.tagWriterNewTagSearch = "";
-      PIWebCalls.TagValue.get({
-        webid: $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.WebID
-      }, function (valresp) {
-        $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.curVal = valresp;
-      });
+      if ($scope.preferences.plantSettings != null && $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag != null) {
+        PIWebCalls.TagValue.get({
+          webid: $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.WebID
+        }, function (valresp) {
+          $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.curVal = valresp;
+        }, function (resp) {
+          //there was an error
+          $scope.errors.push({ "Error with getting values": resp });
+        });
+      }
     };
 
     //for tagWriter, stores a new value to the specified PI tag
@@ -252,9 +268,27 @@
         });
     };
 
-    //debug only
-    $scope.testTags = ['P999Fic1', 'P999Fic2', 'P999Fic3', 'P999Fic4'];
+    //needed for virtual repeater
+    $scope.virtualTagsList = {
+      getItemAtIndex: function(index) {
+        if($scope.data && $scope.data.tags && $scope.data.tags.length)
+        {
+          // | filter:{Name:selectTagsFiltertext}
+          //$filter('filter')($scope.data.plants, { Name: $scope.preferences.plantSearchText }).length
+          return $filter('filter')($scope.data.tags, { Name: $scope.selectTagsFiltertext })[index];
+        }
+        else return null;
 
+      },
+      getLength: function(){
+        if($scope.data && $scope.data.tags)
+        {
+          // | filter:{Name:selectTagsFiltertext}
+          return $filter('filter')($scope.data.tags, { Name: $scope.selectTagsFiltertext }).length;
+        }
+        else return 0;
+      }
+    };
     //function that actually generates the reports
     $scope.generateReports = function () {
       $scope.generatedReports = [];
