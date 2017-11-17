@@ -32,9 +32,11 @@
   });
   app.factory("PIWebCalls", ['$resource', function PIWebCallsFactory($resource) {
     return {
-      reformatArray: function reformatArray(arr) {
+      reformatArray: function reformatArray(arr, keyName) {
+        //default parameter
+        keyName = (typeof keyName !== 'undefined') ? keyName : 'Name';
         var obj = arr.reduce(function (obj, item) {
-          obj[item.Name] = item;
+          obj[item[keyName]] = item;
           return obj;
         }, {});
         return obj;
@@ -51,6 +53,7 @@
       TagSearch: $resource('https://muntse-s-08817.europe.shell.com/piwebapi/search/query?scope=pi::piserver&count=:max&q=(name::name AND pointsource::pointsource)'),
       TagValue: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streams/:webid/value"),
       TagValueGroup: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streamsets/value"),
+      CalculatedValues: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streamsets/summary"),
       TagRecordedValues: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streams/:webid/recorded?maxCount=:max&startTime=*&endTime=*-5y"),
       TagAttributes: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/points/:webid/attributes"),
       TagAttributesDescriptor: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/points/:webid/attributes/descriptor"),
@@ -270,9 +273,8 @@
 
     //needed for virtual repeater
     $scope.virtualTagsList = {
-      getItemAtIndex: function(index) {
-        if($scope.data && $scope.data.tags && $scope.data.tags.length)
-        {
+      getItemAtIndex: function (index) {
+        if ($scope.data && $scope.data.tags && $scope.data.tags.length) {
           // | filter:{Name:selectTagsFiltertext}
           //$filter('filter')($scope.data.plants, { Name: $scope.preferences.plantSearchText }).length
           return $filter('filter')($scope.data.tags, { Name: $scope.selectTagsFiltertext })[index];
@@ -280,35 +282,99 @@
         else return null;
 
       },
-      getLength: function(){
-        if($scope.data && $scope.data.tags)
-        {
+      getLength: function () {
+        if ($scope.data && $scope.data.tags) {
           // | filter:{Name:selectTagsFiltertext}
           return $filter('filter')($scope.data.tags, { Name: $scope.selectTagsFiltertext }).length;
         }
         else return 0;
       }
     };
+
+    //function that goes through and selects or clears all (filtered) tags
+    $scope.selectAllTags = function (select, useFilter) {
+      if (useFilter) {
+        angular.forEach($filter('filter')($scope.data.tags, { Name: $scope.selectTagsFiltertext }), function (tag, index) {
+          tag.selected = (select ? true : false);
+        });
+      }
+      else {
+        $scope.data.tags.forEach(function (tag, index) {
+          tag.selected = (select ? true : false);
+        });
+      }
+    };
+
     //function that actually generates the reports
     $scope.generateReports = function () {
-      $scope.generatedReports = [];
-      $scope.generatedReports.push('DATACOL');
-      $scope.generatedReports.push('');
-      $scope.generatedReports.push('{}');
-      $scope.generatedReports.push('{}');
+      $scope.currentPlantReportSettings.generatedReports = [];
+      var newReport = { tags: [], webIDs: [] };
+      var filename = $scope.getCurrentFileName();
+      var csvFile = 'Report number \nDATACOL\tsecondcolumn\n' +
+        'col1\tcol2\col3\n' +
+        '1\t2\t3\n' +
+        '\n***PERIOD A0000011\nPLANT 0266 PERIOD A0000011  RUNLIST REPORT        EXPERIMENT NR 22\n' +
+        'Tagnames\tSI-Units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
+
+      //add the selected tags to the report tags list
+      $scope.data.tags.forEach(function (tag, index) {
+        if (tag.selected) {
+          newReport.tags.push(tag);
+          newReport.webIDs.push(tag.WebID);
+        }
+      });
+      var reportStartTime = '*-1h';
+      var reportEndTime = '*';
+
+      //get the calculated values
+      PIWebCalls.CalculatedValues.get({
+        webid: newReport.webIDs,
+        startTime: reportStartTime,
+        endTime: reportEndTime,
+        summaryType: ['Average', 'Minimum', 'Maximum', 'StdDev']
+      }, function (resp) {
+        console.log(resp);
+        newReport.summaryData = PIWebCalls.reformatArray(resp.Items, 'WebId');
+        newReport.tags.forEach(function (tag, index) {
+          csvFile += tag.Name + '\t' + (tag.UoM === undefined ? '' : tag.UoM) + '\t' +
+            $scope.getPrintableValue(newReport, tag.WebID, 1) + '\t' +//minimum
+            $scope.getPrintableValue(newReport, tag.WebID, 2) + '\t' +//maximum
+            $scope.getPrintableValue(newReport, tag.WebID, 0) + '\t' +//average
+            $scope.getPrintableValue(newReport, tag.WebID, 3) + '\t' +//std
+            '\n';
+        });
+        newReport.csvFile = csvFile;
+        $scope.currentPlantReportSettings.generatedReports.push(newReport);
+      }, function (resp) {
+        //there was an error
+        $scope.errors.push({ "Error with getting calculated data for tags": resp });
+      });
+
+
+
+
+
     };
+
+    $scope.getPrintableValue = function (newReport, webID, index) {
+      var Value = newReport.summaryData[webID].Items[index].Value;
+      if (Value.Value != null && typeof Value.Value === 'number') {
+        //return the value to 4 decimal places
+        return $filter('number')(Value.Value, 4);
+      }
+      else
+        return '0.0000';
+    }
+
     $scope.getCurrentFileName = function () {
       return ($scope.currentPlantReportSettings.reportFileNameWithExpPerNums ? '[exp#]-[per#]' : 'plant[currentplant]') + ($scope.currentPlantReportSettings.reportType === 'hydra' ? '.nox' : '.R02');
     }
-    $scope.openReport = function (reportNumber) {
-      var filename = $scope.getCurrentFileName();
-      var csvFile = 'Report number ' + reportNumber + '\nDATACOL\tsecondcolumn\n' +
-        'col1\tcol2\col3\n' +
-        '1\t2\t3\n' +
-        '\n***PERIOD A0000011\nPLANT 0266 PERIOD A0000011  RUNLIST REPORT        EXPERIMENT NR 22';
 
-      //function to force the download of the file
-      //from Jossef Harush https://jsfiddle.net/jossef/m3rrLzk0/ from https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+    //function to force the download of the file
+    //from Jossef Harush https://jsfiddle.net/jossef/m3rrLzk0/ from https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+    $scope.openReport = function (reportNumber) {
+      var csvFile = $scope.currentPlantReportSettings.generatedReports[reportNumber].csvFile;
+      var filename = $scope.getCurrentFileName();
       var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
       //IE allows direct saving
       if (navigator.msSaveBlob) { // IE 10+
@@ -316,18 +382,18 @@
       } else {//create an invisible link to a 'blob' of the report, and 'click' it to download it
         var url = URL.createObjectURL(blob);
         // Browsers that support HTML5 download attribute
-        if (false && link.download !== undefined) { // feature detection
-          var link = document.createElement("a");
+        var link = document.createElement("a");
+        link.style.visibility = 'hidden';
+        if (link.download !== undefined) { // feature detection
           link.setAttribute("href", url);
           link.setAttribute("download", filename);
-          link.style.visibility = 'hidden';
           document.body.appendChild(link);
           link.click();
-          document.body.removeChild(link);
         }
         else {
           window.open(url, "_blank");
         }
+        document.body.removeChild(link);
       }
     };
   }]);
