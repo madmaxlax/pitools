@@ -54,6 +54,7 @@
       TagValue: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streams/:webid/value"),
       TagValueGroup: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streamsets/value"),
       CalculatedValues: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streamsets/summary"),
+      SampledValues: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streamsets/interpolated"), //can get a set intervals
       TagRecordedValues: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streams/:webid/recorded?maxCount=:max&startTime=*&endTime=*-5y"),
       TagAttributes: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/points/:webid/attributes"),
       TagAttributesDescriptor: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/points/:webid/attributes/descriptor"),
@@ -291,7 +292,12 @@
       }
     };
 
-    //function that goes through and selects or clears all (filtered) tags
+    /**
+     *function that goes through and selects or clears all (filtered) tags 
+     * 
+     * @param {boolean} select 
+     * @param {boolean} useFilter 
+     */
     $scope.selectAllTags = function (select, useFilter) {
       if (useFilter) {
         angular.forEach($filter('filter')($scope.data.tags, { Name: $scope.selectTagsFiltertext }), function (tag, index) {
@@ -304,6 +310,7 @@
         });
       }
     };
+
 
     //function that actually generates the reports
     $scope.generateReports = function () {
@@ -335,12 +342,29 @@
       }, function (resp) {
         console.log(resp);
         newReport.summaryData = PIWebCalls.reformatArray(resp.Items, 'WebId');
+       
+      }, function (resp) {
+        //there was an error
+        $scope.errors.push({ "Error with getting calculated data for tags": resp });
+      });
+
+      //get the first and last values
+      PIWebCalls.SampledValues.get({
+        webid: newReport.webIDs,
+        startTime: reportStartTime,
+        endTime: reportEndTime
+      }, function (resp) {
+        console.log(resp);
+        newReport.sampledData = PIWebCalls.reformatArray(resp.Items, 'WebId');
+        //this needs to be moved
         newReport.tags.forEach(function (tag, index) {
           csvFile += tag.Name + '\t' + (tag.UoM === undefined ? '' : tag.UoM) + '\t' +
-            $scope.getPrintableValue(newReport, tag.WebID, 1) + '\t' +//minimum
-            $scope.getPrintableValue(newReport, tag.WebID, 2) + '\t' +//maximum
-            $scope.getPrintableValue(newReport, tag.WebID, 0) + '\t' +//average
-            $scope.getPrintableValue(newReport, tag.WebID, 3) + '\t' +//std
+            $scope.getPrintableValue(newReport.summaryData, tag.WebID, 1) + '\t' +//minimum
+            $scope.getPrintableValue(newReport.summaryData, tag.WebID, 2) + '\t' +//maximum
+            $scope.getPrintableValue(newReport.summaryData, tag.WebID, 0) + '\t' +//average
+            $scope.getPrintableValue(newReport.summaryData, tag.WebID, 3) + '\t' +//std
+            $scope.getPrintableValue(newReport.sampledData, tag.WebID, 0) + '\t' +//firstval
+            $scope.getPrintableValue(newReport.sampledData, tag.WebID, 1) +//lastval
             '\n';
         });
         newReport.csvFile = csvFile;
@@ -350,14 +374,14 @@
         $scope.errors.push({ "Error with getting calculated data for tags": resp });
       });
 
-
-
-
-
     };
 
-    $scope.getPrintableValue = function (newReport, webID, index) {
-      var Value = newReport.summaryData[webID].Items[index].Value;
+    $scope.setUpCSVFile = function(){
+      
+    }
+
+    $scope.getPrintableValue = function (webIDArray, webID, index) {
+      var Value = webIDArray[webID].Items[index].Value;
       if (Value.Value != null && typeof Value.Value === 'number') {
         //return the value to 4 decimal places
         return $filter('number')(Value.Value, 4);
