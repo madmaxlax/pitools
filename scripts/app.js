@@ -1,5 +1,5 @@
 /// <reference path="C:\Apps\Dropbox\Dev\typings\angularjs\angular.d.ts" />
-
+//Author: Maxwell Struever maxwell.c.struever@shell.com
 
 (function () {
   //set up the angular app
@@ -121,6 +121,8 @@
     $scope.isLoading = false;
     //extra global bool var for whether or not the app is loading anything (for loading spinners)
     $scope.isUpdating = false;
+    //previous plant for saving settings and working with multiple plants
+    $scope.previousPlant;
 
     //function to clear any current errors (when the user clicks the x on the errors display)
     $scope.clearErrors = function () {
@@ -134,7 +136,7 @@
 
     //funciton to save the current prefernces to local storage
     //param showToast is a bool, whether or not to show a toast message when the prefs have been saved
-    $scope.savepreferences = function (showToast) {
+    $scope.savePreferences = function (showToast) {
       if ($scope.data.selectedPlant != null && $scope.preferences.plantSettings != null && $scope.preferences.plantSettings[$scope.getCurrentPlantID()] != null) {
         $scope.preferences.plantSettings[$scope.getCurrentPlantID()].plantReportSettings = $scope.currentPlantReportSettings;
       }
@@ -142,6 +144,23 @@
       if (showToast == null || showToast === true) {
         $mdToast.showSimple("Preferences saved!");
       }
+    };
+    /**
+     * For troubleshooting
+     * function that deletes the preferences for the currently selected plant
+     */
+    $scope.deletePlantPrefernces = function () {
+      $scope.preferences.plantSettings.remove($scope.getCurrentPlantID());
+      $scope.savePreferences(false);
+      window.location.reload(true);
+    };
+    /**
+     *For troubleshooting
+     *Deletes all saved preferences and restarts
+     */
+    $scope.deleteAllPreferences = function () {
+      localStorageService.clearAll();
+      window.location.reload(true)
     };
 
     //check for local storage saved prefs
@@ -153,7 +172,7 @@
         plantSettings: {}
       };
       //and save the defaults to the local storage
-      $scope.savepreferences(false);
+      $scope.savePreferences(false);
     }
     else {//grab them from local storage
       $scope.preferences = localStorageService.get('preferences');
@@ -208,6 +227,11 @@
     $scope.getPlantData = function () {
       //check that an actual plant was selected
       if ($scope.data.selectedPlant != null && $scope.data.selectedPlant.both != null) {
+        //save previous plant settings
+        if ($scope.previousPlant != null) {
+          $scope.preferences.plantSettings[$scope.previousPlant].plantReportSettings = $scope.currentPlantReportSettings;
+        }
+        $scope.currentPlantReportSettings = {};
         //retrieve preferences for that plant
         if ($scope.preferences.plantSettings[$scope.getCurrentPlantID()] != null)//there are already preferences for that plant ID
         {
@@ -220,6 +244,7 @@
         }
         $scope.newTagSearch();
       }
+      $scope.previousPlant = $scope.getCurrentPlantID();
     };
 
     //helper function for renaming plant names from "Plant ID xxxx" to just the number, "xxxx"
@@ -245,32 +270,39 @@
     //function that searches for all tags that belong to the currently selected plant ID
     //and populates the tags variable
     $scope.newTagSearch = function () {
-      $scope.data.tags = null;
+      $scope.data.availableTagWriterTags = [];
+      $scope.data.availablePlantTags = [];
       $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag = null;
       //make sure the value exists (sometimes doesnt with new users)
       if ($scope.data.selectedPlant != null) {
         PIWebCalls.TagSearch.get({
           name: $scope.getCurrentPlantID() + '*',
-          max: 5000, //should cover most plants
+          max: 5000, //Covers more than double the max amount of tags plants have as of 2017
           piserver: 'STCAPIColl',
           pointsource: '*'
         }, function (resp) {
-          //console.log(resp);
-          $scope.data.tags = resp.Items;
+          //assign tags for to the tagwriter list of tags
+          $scope.data.availableTagWriterTags = resp.Items;
+          //then do a separate deep copy to plant tags
+          angular.copy($scope.data.availableTagWriterTags, $scope.data.availablePlantTags);
           if ($scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag == null) {
             //since tagwriter is mostly used for RunHour tags,
             //check for a runhour tag in the list of tags and select it first if it's available
-            if ($filter('filter')($scope.data.tags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false) !== 0) {
-              $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag = $filter('filter')($scope.data.tags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false)[0];
+            if ($filter('filter')($scope.data.availableTagWriterTags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false) !== 0) {
+              $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag = $filter('filter')($scope.data.availableTagWriterTags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false)[0];
               $scope.getTagValue();
             }
           }
+          //run the startup check (in a non-blocking way)
+          setTimeout($scope.checkSelectedTagsAtStartup, 0);
         }, function (resp) {
           //there was an error
           $scope.errors.push({ "Error with searching for tags": resp });
         });
       }
     };
+
+
 
     //get the current value of the selected tag
     $scope.getTagValue = function () {
@@ -312,17 +344,17 @@
     //needed for Angualr MD virtual repeater
     $scope.virtualTagsList = {
       getItemAtIndex: function (index) {
-        if ($scope.data && $scope.data.tags && $scope.data.tags.length) {
+        if ($scope.data && $scope.data.availablePlantTags && $scope.data.availablePlantTags.length) {
           //return a list that is already filtered by the filter text
           //and ordered by Name
-          return $filter('orderBy')($filter('filter')($scope.data.tags, { Name: $scope.selectTagsFiltertext }), 'Name')[index];
+          return $filter('orderBy')($filter('filter')($scope.data.availablePlantTags, { Name: $scope.selectTagsFiltertext }), 'Name')[index];
         }
         else return null;
       },
       getLength: function () {
-        if ($scope.data && $scope.data.tags) {
+        if ($scope.data && $scope.data.availablePlantTags) {
           //return the length of the filtered list
-          return $filter('filter')($scope.data.tags, { Name: $scope.selectTagsFiltertext }).length;
+          return $filter('filter')($scope.data.availablePlantTags, { Name: $scope.selectTagsFiltertext }).length;
         }
         else return 0;
       }
@@ -346,15 +378,46 @@
     };
 
     /**
+     * Function that checks the list of selected tags that were loaded from the settings and:
+     * 1 checks that they exist
+     * 2 removes them from the 'available' tags so that they aren't duplicated
+     */
+    $scope.checkSelectedTagsAtStartup = function () {
+      //check if there are any tags at all, if not, do nothing
+      if ($scope.currentPlantReportSettings.selectedTags == null || $scope.currentPlantReportSettings.selectedTags.length === 0) {
+        return;
+      }
+      //go through all selected tags, then try to find a match
+      for (var i = 0; i < $scope.currentPlantReportSettings.selectedTags.length; i++) {
+        var matchFound = false;
+        //go through all available plant tags looking for a match
+        for (var c = 0; c < $scope.data.availablePlantTags.length; c++) {
+          if ($scope.currentPlantReportSettings.selectedTags[i].WebID === $scope.data.availablePlantTags[c].WebID) {
+            removedTag = $scope.data.availablePlantTags.splice(c, 1)[0];
+            matchFound = true;//since there's no 'break' function in js
+          }
+        }
+        if (!matchFound) {
+          //remove it from the available tags list because that tag that was saved in the settings no longer exists in the PI System
+          var removedTag = $scope.currentPlantReportSettings.selectedTags.splice(i, 1)[0];
+          $mdToast.showSimple("A tag in your saved settings "+removedTag.Name+" was not found on the PI system, it has been removed from your settings");
+          console.log("A tag in your saved settings "+removedTag.Name+" was not found on the PI system, it has been removed from your settings");
+        }
+      }
+
+    };
+
+    /**
     * Function to add selected tag to the current report
     * 
     * @param {int} tagToSelect 
     */
     $scope.selectTag = function (tagToSelect) {
       var selectedTag, found = false;
-      for (var i = 0; i < $scope.data.tags.length && !found; i++) {
-        if ($scope.data.tags[i].WebID === tagToSelect.WebID) {
-          selectedTag = $scope.data.tags.splice(i, 1)[0];
+      //go through all tags, find one that matches (check matching webid) and remove (splice) it, then push it to the other list
+      for (var i = 0; i < $scope.data.availablePlantTags.length && !found; i++) {
+        if ($scope.data.availablePlantTags[i].WebID === tagToSelect.WebID) {
+          selectedTag = $scope.data.availablePlantTags.splice(i, 1)[0];
           found = true;//since there's no 'break' function in js
         }
       }
@@ -372,13 +435,14 @@
     */
     $scope.removeSelectedTag = function (tagToRemove) {
       var removedTag, found = false;
+      //go through all tags, find one that matches (check matching webid) and remove (splice) it, then push it to the other list
       for (var i = 0; i < $scope.currentPlantReportSettings.selectedTags.length && !found; i++) {
-        if ($scope.currentPlantReportSettings.selectedTags[i].WebID === tagToSelect.WebID) {
+        if ($scope.currentPlantReportSettings.selectedTags[i].WebID === tagToRemove.WebID) {
           removedTag = $scope.currentPlantReportSettings.selectedTags.splice(i, 1)[0];
           found = true;//since there's no 'break' function in js
         }
       }
-      $scope.data.tags.push(selectedTag);
+      $scope.data.availablePlantTags.push(tagToRemove);
     };
 
     /**
@@ -387,7 +451,7 @@
      */
     $scope.selectAllTags = function () {
       if ($scope.selectTagsFiltertext != null && $scope.selectTagsFiltertext !== '') {
-        $filter('filter')($scope.data.tags, { Name: $scope.selectTagsFiltertext }).forEach(function (tag, index) {
+        $filter('filter')($scope.data.availablePlantTags, { Name: $scope.selectTagsFiltertext }).forEach(function (tag, index) {
           $scope.selectTag(tag);
         });
       }
@@ -396,9 +460,9 @@
         if ($scope.currentPlantReportSettings.selectedTags == null) {
           $scope.currentPlantReportSettings.selectedTags = [];
         }
-        $scope.currentPlantReportSettings.selectedTags = $scope.data.tags.concat($scope.currentPlantReportSettings.selectedTags);
+        $scope.currentPlantReportSettings.selectedTags = $scope.data.availablePlantTags.concat($scope.currentPlantReportSettings.selectedTags);
 
-        $scope.data.tags = []; //empty the array
+        $scope.data.availablePlantTags = []; //empty the array
       }
     };
 
@@ -407,7 +471,7 @@
      * 
      */
     $scope.removeAllTags = function () {
-      $scope.data.tags = $scope.data.tags.concat($scope.currentPlantReportSettings.selectedTags);
+      $scope.data.availablePlantTags = $scope.data.availablePlantTags.concat($scope.currentPlantReportSettings.selectedTags);
       $scope.currentPlantReportSettings.selectedTags = []
     };
 
@@ -426,7 +490,7 @@
         'Tagnames\tSI-Units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
 
       //add the selected tags to the report tags list
-      $scope.data.tags.forEach(function (tag, index) {
+      $scope.data.availablePlantTags.forEach(function (tag, index) {
         if (tag.selected) {
           newReport.tags.push(tag);
           newReport.webIDs.push(tag.WebID);
