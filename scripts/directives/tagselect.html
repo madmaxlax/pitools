@@ -2,34 +2,50 @@
     <!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
     <md-card-title>
         <md-card-title-text>
-            <span class="md-headline">PI Tag Select</span>
+            <span class="md-headline">Select Plant Tags for Report</span>
         </md-card-title-text>
     </md-card-title>
     <md-card-content>
-        something clever here. maybe checkboxes?
         <md-input-container>
-            <label>Filter Tags</label>
+            <label>Search Among Tags</label>
             <input ng-model="selectTagsFiltertext">
         </md-input-container>
         <div layout="row">
             <div flex-xs flex-gt-xs="50">
-                Tags available
-                <md-checkbox ng-model="selectAllTags">Select All?</md-checkbox>
+                Tags available ({{virtualTagsList.getLength()}})
+                <md-button class="md-raised" ng-click="selectAllTags()">Select all {{(selectTagsFiltertext != null && selectTagsFiltertext !== '')?'filtered ':''}}tags
+                </md-button>
             </div>
             <div flex-xs flex-gt-xs="50">
-                Tags selected ({{currentPlantReportSettings.selectedTags | keyLength}})
+                Tags selected ({{currentPlantReportSettings.selectedTags.length}})
+                <md-button ng-show="currentPlantReportSettings.selectedTags.length" class="md-raised" ng-click="removeAllTags()">Remove all selected tags
+                    </md-button>
             </div>
         </div>
-        <md-virtual-repeat-container id="tags-virtual-list" style="height:500px;">
-            <md-list>
-                <md-list-item md-virtual-repeat="tag in data.tags | filter:{Name:selectTagsFiltertext}" >
-                    <md-checkbox class="" ng-checked="selectAllTags" ng-model="tag.selected"></md-checkbox>
-                    <p> {{ tag.Name }} </p>
-                </md-list-item>
-            </md-list>
-            <!-- <div md-virtual-repeat="tag in virtualTagsList" md-on-demand="true" md-item-size="20">
-                <p> {{ tag.Name }} </p>
-            </div> -->
-        </md-virtual-repeat-container>
+
+        <div layout="row">
+            <!-- Available Tags -->
+            <div flex-xs flex-gt-xs="50">
+                <md-virtual-repeat-container id="tags-virtual-list" style="height:500px;">
+                    <md-list>
+                        <md-list-item md-virtual-repeat="tag in virtualTagsList" md-on-demand ng-click="selectTag(tag)">
+                            <p> {{ tag.Name }} </p>
+                            <md-icon aria-label="select" class="material-icons md-secondary">chevron_right</md-icon>
+                        </md-list-item>
+                    </md-list>
+                </md-virtual-repeat-container>
+            </div>
+            <!-- Selected tags -->
+            <div flex-xs flex-gt-xs="50">
+                <md-virtual-repeat-container id="tags-virtual-selected-list" style="height:500px;">
+                    <md-list>
+                        <md-list-item md-virtual-repeat="tag in virtualSelectedTagsList" md-on-demand ng-click="removeSelectedTag(tag)">
+                            <p> {{ tag.Name }} </p>
+                            <md-icon aria-label="remove" class="material-icons md-secondary">chevron_left</md-icon>
+                        </md-list-item>
+                    </md-list>
+                </md-virtual-repeat-container>
+            </div>
+        </div>
     </md-card-content>
 </md-card>

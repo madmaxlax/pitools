@@ -59,10 +59,10 @@
 				<!-- Plant search auto complete -->
 				<form ng-submit="$event.preventDefault()" layout layout-align="center" layout-padding>
 					<div layout="row" flex>
-						<md-autocomplete flex ng-disabled="!data.plants.length" md-selected-item="data.selectedPlant.both" md-selected-item-change="getPlantData()" md-clear-button="true"
-						 class="md-block" md-search-text="preferences.plantSearchText" md-items="plant in data.plants | filter:{Name:preferences.plantSearchText}" md-autoselect="true"
-						 md-select-on-focus md-auto-focus="true" md-select-on-match="true" md-item-text="plant.Name.replace('Plant ID ','')" md-floating-label="{{data.plants.length?'Search for a plant':'Loading Plants...'}}"
-						 md-min-length="0" md-input-id="search-input-plants" >
+						<md-autocomplete flex ng-disabled="!data.plants.length" md-selected-item="data.selectedPlant.both" md-selected-item-change="getPlantData()"
+						 md-clear-button="true" class="md-block" md-search-text="preferences.plantSearchText" md-items="plant in data.plants | filter:{Name:preferences.plantSearchText}"
+						 md-autoselect="true" md-select-on-focus md-auto-focus="true" md-select-on-match="true" md-item-text="plant.Name.replace('Plant ID ','')"
+						 md-floating-label="{{data.plants.length?'Search for a plant':'Loading Plants...'}}" md-min-length="0" md-input-id="search-input-plants">
 							<md-item-template>
 								<span md-highlight-text="preferences.plantSearchText" md-highlight-flags="i">{{plant.Name.replace('Plant ID ','')}}</span>
 							</md-item-template>
@@ -127,7 +127,8 @@
 								<br> Reports:
 								<br>
 
-								<md-button ng-repeat="(reportNumber, value) in currentPlantReportSettings.generatedReports track by $index" class="md-raised " ng-click="openReport(reportNumber)">Download report {{reportNumber}}
+								<md-button ng-repeat="(reportNumber, value) in currentPlantReportSettings.generatedReports track by $index" class="md-raised "
+								 ng-click="openReport(reportNumber)">Download report {{reportNumber}}
 									<md-icon aria-label="download" class="material-icons">file_download</md-icon>
 								</md-button>
 
@@ -140,7 +141,7 @@
 		<md-sidenav class="md-sidenav-right" md-is-locked-open="$mdMedia('gt-md')" md-component-id="right" ng-click="">
 			<md-content class="md-padding">
 				<md-list>
-					<md-subheader class="">Preferences</md-subheader>
+					<h3 class="md-title">Preferences</h3>
 
 					<md-list-item>
 
@@ -161,7 +162,10 @@
 						</md-button>
 					</div>
 					<md-divider></md-divider>
-
+					<md-subheader>
+						Developed and supported by
+						<a href="mailto:maxwell.C.Struever@shell.com">Maxwell.C.Struever@shell.com</a>
+					</md-subheader>
 				</md-list>
 			</md-content>
 		</md-sidenav>
