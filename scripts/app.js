@@ -121,6 +121,8 @@
     $scope.isLoading = false;
     //extra global bool var for whether or not the app is loading anything (for loading spinners)
     $scope.isUpdating = false;
+    //previous plant for saving settings and working with multiple plants
+    $scope.previousPlant;
 
     //function to clear any current errors (when the user clicks the x on the errors display)
     $scope.clearErrors = function () {
@@ -134,7 +136,7 @@
 
     //funciton to save the current prefernces to local storage
     //param showToast is a bool, whether or not to show a toast message when the prefs have been saved
-    $scope.savepreferences = function (showToast) {
+    $scope.savePreferences = function (showToast) {
       if ($scope.data.selectedPlant != null && $scope.preferences.plantSettings != null && $scope.preferences.plantSettings[$scope.getCurrentPlantID()] != null) {
         $scope.preferences.plantSettings[$scope.getCurrentPlantID()].plantReportSettings = $scope.currentPlantReportSettings;
       }
@@ -142,6 +144,23 @@
       if (showToast == null || showToast === true) {
         $mdToast.showSimple("Preferences saved!");
       }
+    };
+    /**
+     * For troubleshooting
+     * function that deletes the preferences for the currently selected plant
+     */
+    $scope.deletePlantPrefernces = function () {
+      $scope.preferences.plantSettings.remove($scope.getCurrentPlantID());
+      $scope.savePreferences(false);
+      window.location.reload(true);
+    };
+    /**
+     * 
+     * 
+     */
+    $scope.deleteAllPreferences = function () {
+      localStorageService.clearAll();
+      window.location.reload(true)
     };
 
     //check for local storage saved prefs
@@ -153,7 +172,7 @@
         plantSettings: {}
       };
       //and save the defaults to the local storage
-      $scope.savepreferences(false);
+      $scope.savePreferences(false);
     }
     else {//grab them from local storage
       $scope.preferences = localStorageService.get('preferences');
@@ -208,6 +227,12 @@
     $scope.getPlantData = function () {
       //check that an actual plant was selected
       if ($scope.data.selectedPlant != null && $scope.data.selectedPlant.both != null) {
+        //save previous plant settings
+        if($scope.previousPlant != null)
+        {
+          $scope.preferences.plantSettings[$scope.previousPlant].plantReportSettings = $scope.currentPlantReportSettings;
+        }
+        $scope.currentPlantReportSettings = {};
         //retrieve preferences for that plant
         if ($scope.preferences.plantSettings[$scope.getCurrentPlantID()] != null)//there are already preferences for that plant ID
         {
@@ -220,6 +245,7 @@
         }
         $scope.newTagSearch();
       }
+      $scope.previousPlant = $scope.getCurrentPlantID();
     };
 
     //helper function for renaming plant names from "Plant ID xxxx" to just the number, "xxxx"

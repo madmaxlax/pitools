@@ -19,7 +19,7 @@
             <div flex-xs flex-gt-xs="50">
                 Tags selected ({{currentPlantReportSettings.selectedTags.length}})
                 <md-button ng-show="currentPlantReportSettings.selectedTags.length" class="md-raised" ng-click="removeAllTags()">Remove all selected tags
-                    </md-button>
+                </md-button>
             </div>
         </div>
 
@@ -31,6 +31,9 @@
                         <md-list-item md-virtual-repeat="tag in virtualTagsList" md-on-demand ng-click="selectTag(tag)">
                             <p> {{ tag.Name }} </p>
                             <md-icon aria-label="select" class="material-icons md-secondary">chevron_right</md-icon>
+                            <md-tooltip md-direction="botom">
+                                Click to add this tag only
+                            </md-tooltip>
                         </md-list-item>
                     </md-list>
                 </md-virtual-repeat-container>
@@ -42,6 +45,9 @@
                         <md-list-item md-virtual-repeat="tag in virtualSelectedTagsList" md-on-demand ng-click="removeSelectedTag(tag)">
                             <p> {{ tag.Name }} </p>
                             <md-icon aria-label="remove" class="material-icons md-secondary">chevron_left</md-icon>
+                            <md-tooltip md-direction="botom">
+                                Click to remove this tag only
+                            </md-tooltip>
                         </md-list-item>
                     </md-list>
                 </md-virtual-repeat-container>

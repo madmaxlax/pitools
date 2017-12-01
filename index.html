@@ -25,7 +25,7 @@
 		<div>
 			<md-progress-circular ng-show="!data.plants.length || isUpdating" class="md-warn" md-mode="indeterminate"></md-progress-circular>
 		</div>
-		<md-button class="md-raised" ng-click="savepreferences()">Save Settings
+		<md-button class="md-raised" ng-click="savePreferences()">Save Settings
 			<md-icon aria-label="save" class="material-icons">save</md-icon>
 		</md-button>
 		<md-button class="md-raised " ng-disabled="isUpdating" href="mailto:pt-stca-pi-support@shell.com;Business-Assist-Engineering-ITV-TEE@shell.com&subject=PI Tools Web App">
@@ -142,13 +142,30 @@
 			<md-content class="md-padding">
 				<md-list>
 					<h3 class="md-title">Preferences</h3>
-
+					<!-- 
 					<md-list-item>
 
-					</md-list-item>
+					</md-list-item> -->
 					<div layout="row" layout-align="center center">
-						<md-button class="md-raised md-accent" ng-click="savepreferences()">Save Settings
+						<md-button class="md-raised md-accent" ng-click="savePreferences()">Save Settings
 							<md-icon aria-label="save" class="material-icons">save</md-icon>
+						</md-button>
+					</div>
+
+					<div layout="row" layout-align="center center">
+						<md-button class="md-raised " ng-click="deletePlantPrefernces()">Delete Plant Settings
+							<md-icon aria-label="delete" class="material-icons">delete</md-icon>
+							<md-tooltip md-direction="botom">
+									This deletes the saved settings you have for the currently selected plant
+								</md-tooltip>
+						</md-button>
+					</div>
+					<div layout="row" layout-align="center center">
+						<md-button class="md-raised " ng-click="deleteAllPreferences()">Delete All Settings
+							<md-icon aria-label="delete" class="material-icons">delete_forever</md-icon>
+							<md-tooltip md-direction="botom">
+									This deletes all the saved settings you have and does a refresh (troubleshooting)
+								</md-tooltip>
 						</md-button>
 					</div>
 					<md-divider></md-divider>
