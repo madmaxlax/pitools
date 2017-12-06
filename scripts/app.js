@@ -107,6 +107,13 @@
     };
   });
 
+  app.directive('piToolsCard', function () {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: 'scripts/directives/pitools.html'
+    };
+  });
   //this is the main controller and it is actually used for the whole app to keep things simpler and on one $scope
   app.controller('appController', ['$scope', '$http', '$resource', '$filter', 'localStorageService', '$mdSidenav', '$mdDialog', '$mdToast', "PIWebCalls", function ($scope, $http, $resource, $filter, localStorageService, $mdSidenav, $mdDialog, $mdToast, PIWebCalls) {
     //globally available array of errors, to be pushed to and displayed as they arise
@@ -134,6 +141,16 @@
       $mdSidenav('right').toggle();
     };
 
+
+    $scope.focusPeriodTypeSelected = function () {
+      console.log($scope.currentPlantReportSettings.method, angular.element('#interval-minutes-input'))
+      if (true) {
+        setTimeout(function () {
+          angular.element('#interval-minutes-input').focus();
+        }, 0);
+
+      }
+    };
     //funciton to save the current prefernces to local storage
     //param showToast is a bool, whether or not to show a toast message when the prefs have been saved
     $scope.savePreferences = function (showToast) {
@@ -237,6 +254,10 @@
         {
           $scope.currentPlantReportSettings = $scope.preferences.plantSettings[$scope.getCurrentPlantID()].plantReportSettings;
           $mdToast.showSimple("Restoring your locally saved settings for this plant");
+          // $scope.currentPlantReportSettings.startTime = new Date($scope.currentPlantReportSettings.startTime);
+          // $scope.currentPlantReportSettings.endTime = new Date($scope.currentPlantReportSettings.endTime);
+          $scope.currentPlantReportSettings.startDate = new Date($scope.currentPlantReportSettings.startDate);
+          $scope.currentPlantReportSettings.endDate = new Date($scope.currentPlantReportSettings.endDate);
         }
         else {
           $mdToast.showSimple("You don't have any settings saved for this plant yet");
@@ -400,8 +421,8 @@
         if (!matchFound) {
           //remove it from the available tags list because that tag that was saved in the settings no longer exists in the PI System
           var removedTag = $scope.currentPlantReportSettings.selectedTags.splice(i, 1)[0];
-          $mdToast.showSimple("A tag in your saved settings "+removedTag.Name+" was not found on the PI system, it has been removed from your settings");
-          console.log("A tag in your saved settings "+removedTag.Name+" was not found on the PI system, it has been removed from your settings");
+          $mdToast.showSimple("A tag in your saved settings " + removedTag.Name + " was not found on the PI system, it has been removed from your settings");
+          console.log("A tag in your saved settings " + removedTag.Name + " was not found on the PI system, it has been removed from your settings");
         }
       }
 
@@ -480,17 +501,29 @@
 
     //function that actually generates the reports
     $scope.generateReports = function () {
+      //
+      //TODO If statement that everything is ok, and tags are selected
+      //
+
       $scope.currentPlantReportSettings.generatedReports = [];
       var newReport = { tags: [], webIDs: [] };
       var filename = $scope.getCurrentFileName();
-      var csvFile = 'Report number \nDATACOL\tsecondcolumn\n' +
-        'col1\tcol2\col3\n' +
-        '1\t2\t3\n' +
-        '\n***PERIOD A0000011\nPLANT 0266 PERIOD A0000011  RUNLIST REPORT        EXPERIMENT NR 22\n' +
-        'Tagnames\tSI-Units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
+      // var csvFile = 'Report number \nDATACOL\tsecondcolumn\n' +
+      //   'col1\tcol2\col3\n' +
+      //   '1\t2\t3\n' +
+      //   '\n***PERIOD A0000011\nPLANT 0266 PERIOD A0000011  RUNLIST REPORT        EXPERIMENT NR 22\n' +
+      //   'Tagnames\tSI-Units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
+
+      // var csvFile = 'DATACOL' + '\n\n'
+      //   '***PERIOD '+$scope.currentPlantReportSettings.periodNumber+'\n\n' +
+      //   '    PLANT P999 PERIOD PERD0065  RUNLIST REPORT        EXPERIMENT NR 1234567890 \n'+
+      //   '    PERIOD START TIME 16:00:00  20 APR 2016  START RUN HOUR 3852.7\n'+
+      //   '    PERIOD END   TIME 16:30:00  20 APR 2016  END   RUN HOUR 3853.2\n'+
+      //   '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL\n';
+
 
       //add the selected tags to the report tags list
-      $scope.data.availablePlantTags.forEach(function (tag, index) {
+      $scope.currentPlantReportSettings.selectedTags.forEach(function (tag, index) {
         if (tag.selected) {
           newReport.tags.push(tag);
           newReport.webIDs.push(tag.WebID);
@@ -560,7 +593,8 @@
 
     //helper function to get the file name based on the currently set variables
     $scope.getCurrentFileName = function () {
-      return ($scope.currentPlantReportSettings.reportFileNameWithExpPerNums ? '[exp#]-[per#]' : 'plant[currentplant]') + ($scope.currentPlantReportSettings.reportType === 'hydra' ? '.nox' : '.R02');
+      //always .nox Hydra files for now, 
+      return ($scope.currentPlantReportSettings.reportFileNameWithExpPerNums ? '[exp#]-[per#]' : 'plant[currentplant]') + '.R02';//($scope.currentPlantReportSettings.reportType === 'hydra' ? '.nox' : '.R02');
     }
 
     //function to force the download of the file

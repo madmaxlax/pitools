@@ -1,5 +1,5 @@
-<md-card>
-    <!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
+
+<div>
     <md-card-title>
         <md-card-title-text>
             <span class="md-headline">Select Plant Tags for Report</span>
@@ -26,7 +26,7 @@
         <div layout="row">
             <!-- Available Tags -->
             <div flex-xs flex-gt-xs="50">
-                <md-virtual-repeat-container id="tags-virtual-list" style="height:500px;" md-auto-shrink="true" >
+                <md-virtual-repeat-container id="tags-virtual-list" style="height:500px;" md-auto-shrink="true">
                     <md-list>
                         <md-list-item md-virtual-repeat="tag in virtualTagsList" md-on-demand ng-click="selectTag(tag)">
                             <p> {{ tag.Name }} </p>
@@ -40,7 +40,7 @@
             </div>
             <!-- Selected tags -->
             <div flex-xs flex-gt-xs="50">
-                <md-virtual-repeat-container id="tags-virtual-selected-list" style="height:500px;" md-auto-shrink="true" >
+                <md-virtual-repeat-container id="tags-virtual-selected-list" style="height:500px;" md-auto-shrink="true">
                     <md-list>
                         <md-list-item md-virtual-repeat="tag in virtualSelectedTagsList" md-on-demand ng-click="removeSelectedTag(tag)">
                             <p> {{ tag.Name }} </p>
@@ -54,9 +54,9 @@
             </div>
         </div>
 
-        
-		<md-button class="md-raised" ng-click="savePreferences()">Save Settings
-			<md-icon aria-label="save" class="material-icons">save</md-icon>
-		</md-button>
+
+        <md-button class="md-raised" ng-click="savePreferences()">Save Settings
+            <md-icon aria-label="save" class="material-icons">save</md-icon>
+        </md-button>
     </md-card-content>
-</md-card>
+</div>

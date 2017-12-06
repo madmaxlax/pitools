@@ -1,5 +1,4 @@
-<md-card>
-    <!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
+<div>
     <md-card-title>
         <md-card-title-text>
             <span class="md-headline">Report Settings</span>
@@ -10,28 +9,29 @@
     <md-card-content>
 
         <div layout="row">
-            <div flex-xs flex-gt-xs="50">
+            <!-- Only use format: Hydra .NOX files -->
+            <!-- <div flex-xs flex-gt-xs="50">
 
                 <br>
                 <span class="md-strong">Type of Report</span>
                 <br>
                 <br>
                 <md-radio-group ng-model="currentPlantReportSettings.reportType">
-                    <md-radio-button value="hydra" class="md-primary">Hydra (.NOX files)
+                    <md-radio-button value="hydra" class="md-primary" ng-selected="true">Hydra (.R02 files)
                         <md-tooltip md-direction="top">
                             Format looks like ...
                         </md-tooltip>
                     </md-radio-button>
                     <md-radio-button value="run" class="">
-                        Run report (.R02 files)
+                        Run report (.NOX files)
                         <md-tooltip md-direction="top">
                             Format looks like ...
                         </md-tooltip>
                     </md-radio-button>
                 </md-radio-group>
-            </div>
+            </div> -->
 
-            <div flex-xs flex-gt-xs="50" layout="column">
+            <div flex-xs flex-gt-xs="100" layout="row">
                 <md-switch flex-xs flex-gt-xs="50" ng-model="currentPlantReportSettings.reportFileNameWithExpPerNums">
                     <md-tooltip md-direction="top">
                         how the file names of the reports will be set up
@@ -47,4 +47,4 @@
             </div>
         </div>
     </md-card-content>
-</md-card>
+</div>

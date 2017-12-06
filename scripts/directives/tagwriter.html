@@ -1,14 +1,16 @@
 <md-card>
     <md-card-title>
         <md-card-title-text>
-            <span class="md-headline">TagWriter for {{data.selectedPlant.both.Name}}</span>
-            <md-switch ng-model="preferences.hideTagWriter">
-                <md-tooltip md-direction="top">
-                    Hide the TagWriter tool
-                </md-tooltip>
-                Hide this app?
-            </md-switch>
-            <span class="md-subhead"  ng-show="preferences.hideTagWriter == null || preferences.hideTagWriter === false">
+            <div layout="row">
+                <span class="md-headline" flex="50">TagWriter for {{data.selectedPlant.both.Name}}</span>
+                <md-switch ng-model="preferences.hideTagWriter" flex="50">
+                    <md-tooltip md-direction="top">
+                        Hide the TagWriter tool
+                    </md-tooltip>
+                    Hide this app?
+                </md-switch>
+            </div>
+            <span class="md-subhead" ng-show="preferences.hideTagWriter == null || preferences.hideTagWriter === false">
                 <md-button class="md-raised" ng-click="changeTagWriterTag()">
                     Change tag
                     <md-tooltip md-direction="botom">
@@ -25,10 +27,9 @@
                 </md-button>
                 {{preferences.plantSettings[getCurrentPlantID()].selectedTagWriterTag.Name}}
             </span>
-
         </md-card-title-text>
     </md-card-title>
-    <md-card-content  ng-show="preferences.hideTagWriter == null || preferences.hideTagWriter === false">
+    <md-card-content ng-show="preferences.hideTagWriter == null || preferences.hideTagWriter === false">
         <div ng-if="preferences.plantSettings[getCurrentPlantID()].selectedTagWriterTag">
 
             Change the value of the

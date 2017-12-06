@@ -1,36 +1,42 @@
-<md-card>
-    <!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
+<div>
     <md-card-title>
         <md-card-title-text>
-            <span class="md-headline">Experiment and Period Numbers for {{data.selectedPlant.both.Name}} </span>
+            <span class="md-headline">PI Tools Experiment and Period Numbers for {{data.selectedPlant.both.Name}} </span>
         </md-card-title-text>
     </md-card-title>
     <md-card-content>
-        <md-input-container>
-            <label>Experiment Name</label>
-            <input ng-model="currentPlantReportSettings.experimentName">
-        </md-input-container>
-        <md-input-container>
-            <label>Experiment Number</label>
-            <input ng-model="currentPlantReportSettings.experimentNumber">
-        </md-input-container>
-        <md-input-container>
-            <label>Period Name</label>
-            <input ng-model="currentPlantReportSettings.periodName">
-        </md-input-container>
-        <md-input-container>
-            <label>Period Number</label>
-            <input ng-model="currentPlantReportSettings.periodNumber">
-        </md-input-container>
-
+        <div layout="row">
+            <md-input-container flex-xs="50" flex-gt-xs="25">
+                <label>Experiment Name</label>
+                <input ng-model="currentPlantReportSettings.experimentName">
+            </md-input-container>
+            <md-input-container flex-xs="50" flex-gt-xs="25">
+                <label>Experiment Number</label>
+                <input ng-model="currentPlantReportSettings.experimentNumber">
+            </md-input-container>
+            <md-input-container flex-xs="50" flex-gt-xs="25">
+                <label>Period Name</label>
+                <input ng-model="currentPlantReportSettings.periodName">
+            </md-input-container>
+            <md-input-container flex-xs="50" flex-gt-xs="25">
+                <label>Period Number</label>
+                <input ng-model="currentPlantReportSettings.periodNumber">
+            </md-input-container>
+        </div>
+        Selected file format: {{getCurrentFileName()}}
+        <div flex-xs flex-gt-xs="100" layout="row">
+            <md-switch flex-xs flex-gt-xs="50" ng-model="currentPlantReportSettings.reportFileNameWithExpPerNums">
+                <md-tooltip md-direction="top">
+                    how the file names of the reports will be set up
+                </md-tooltip>
+                Include exp # and perd # in file name?
+            </md-switch>
+            <md-switch flex-xs flex-gt-xs="50" ng-model="currentPlantReportSettings.removeSTCAprefix">
+                <md-tooltip md-direction="top">
+                    Whether or not to remove the 'STCA' text in the tag names for the report file
+                </md-tooltip>
+                Remove STCA prefix? {{(currentPlantReportSettings.removeSTCAprefix?'9999':'STCA9999')}}
+            </md-switch>
+        </div>
     </md-card-content>
-    <md-card-title>
-        <md-card-title-text>
-            <span class="md-headline">Header 2</span>
-        </md-card-title-text>
-    </md-card-title>
-    <md-card-content>
-        content 2
-
-    </md-card-content>
-</md-card>
+</div>

@@ -56,30 +56,39 @@
 		</div>
 		<div layout="column" flex>
 			<md-content flex>
-				<!-- Plant search auto complete -->
-				<form ng-submit="$event.preventDefault()" layout layout-align="center" layout-padding>
-					<div layout="row" flex>
-						<md-autocomplete flex ng-disabled="!data.plants.length" md-selected-item="data.selectedPlant.both" md-selected-item-change="getPlantData()"
-						 md-clear-button="true" class="md-block" md-search-text="preferences.plantSearchText" md-items="plant in data.plants | filter:{Name:preferences.plantSearchText}"
-						 md-autoselect="true" md-select-on-focus md-auto-focus="true" md-select-on-match="true" md-item-text="plant.Name.replace('Plant ID ','')"
-						 md-floating-label="{{data.plants.length?'Search for a plant':'Loading Plants...'}}" md-min-length="0" md-input-id="search-input-plants">
-							<md-item-template>
-								<span md-highlight-text="preferences.plantSearchText" md-highlight-flags="i">{{plant.Name.replace('Plant ID ','')}}</span>
-							</md-item-template>
-							<md-not-found>
-								No plants found "{{preferences.plantSearchText}}"
-							</md-not-found>
-						</md-autocomplete>
-						<div>
-							<md-button class="md-raised" ng-click="getPlantData()">
-								Search /
-								<md-icon aria-label="refresh" class="material-icons">autorenew</md-icon>
-							</md-button>
-						</div>
-					</div>
-				</form>
+				<md-card>
+					<md-card-title>
+						<md-card-title-text>
+							<span class="md-headline">Select a Plant</span>
+						</md-card-title-text>
+					</md-card-title>
+					<md-card-content>
+						<!-- Plant search auto complete -->
+						<form ng-submit="$event.preventDefault()" layout layout-align="center" layout-padding>
+							<div layout="row" flex>
+								<md-autocomplete flex ng-disabled="!data.plants.length" md-selected-item="data.selectedPlant.both" md-selected-item-change="getPlantData()"
+								 md-clear-button="true" class="md-block" md-search-text="preferences.plantSearchText" md-items="plant in data.plants | filter:{Name:preferences.plantSearchText}"
+								 md-autoselect="true" md-select-on-focus md-auto-focus="true" md-select-on-match="true" md-item-text="plant.Name.replace('Plant ID ','')"
+								 md-floating-label="{{data.plants.length?'Search for a plant':'Loading Plants...'}}" md-min-length="0" md-input-id="search-input-plants">
+									<md-item-template>
+										<span md-highlight-text="preferences.plantSearchText" md-highlight-flags="i">{{plant.Name.replace('Plant ID ','')}}</span>
+									</md-item-template>
+									<md-not-found>
+										No plants found "{{preferences.plantSearchText}}"
+									</md-not-found>
+								</md-autocomplete>
+								<div>
+									<md-button class="md-raised" ng-click="getPlantData()">
+										Search /
+										<md-icon aria-label="refresh" class="material-icons">autorenew</md-icon>
+									</md-button>
+								</div>
+							</div>
+						</form>
+					</md-card-content>
+				</md-card>
 			</md-content>
-			<md-content layout-xs="column" layout="row" layout-wrap>
+			<md-content layout="column">
 				<div flex="100" layout="column" ng-if="data.selectedPlant.both == null">
 					<md-card>
 						<!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
@@ -94,26 +103,18 @@
 						</md-card-content>
 					</md-card>
 				</div>
-				<div ng-show="! (data.selectedPlant.both == null)" layout-xs="column" layout="row" layout-wrap>
+				<div ng-show="!(data.selectedPlant.both == null)" layout="column">
 					<div flex="100" layout="column">
 						<tag-writer-card></tag-writer-card>
 					</div>
 					<div flex="100" layout="column">
-						<experiment-and-period-numbers-card></experiment-and-period-numbers-card>
-					</div>
-					<div flex-xs flex-gt-xs="50" layout="column">
-						<point-retrieval-method-card></point-retrieval-method-card>
-					</div>
-					<div flex-xs flex-gt-xs="50" layout="column">
-						<report-settings-card></report-settings-card>
-					</div>
-					<div flex-xs flex-gt-xs="100" layout="column">
-						<tag-select-card></tag-select-card>
-					</div>
-
-					<div flex-xs flex-gt-xs="100" layout="column">
 						<md-card>
-							<!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
+							<experiment-and-period-numbers-card></experiment-and-period-numbers-card>
+							<point-retrieval-method-card></point-retrieval-method-card>
+							<!-- <report-settings-card></report-settings-card> -->
+							<tag-select-card></tag-select-card>
+
+							<!-- Generate Reports section -->
 							<md-card-title>
 								<md-card-title-text>
 									<span class="md-headline">Generate Reports</span>
@@ -133,6 +134,13 @@
 								</md-button>
 
 							</md-card-content>
+						</md-card>
+					</div>
+
+					<div flex-xs flex-gt-xs="100" layout="column">
+						<md-card>
+							<!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
+
 						</md-card>
 					</div>
 				</div>
@@ -156,16 +164,16 @@
 						<md-button class="md-raised " ng-click="deletePlantPrefernces()">Delete Plant Settings
 							<md-icon aria-label="delete" class="material-icons">delete</md-icon>
 							<md-tooltip md-direction="botom">
-									This deletes the saved settings you have for the currently selected plant
-								</md-tooltip>
+								This deletes the saved settings you have for the currently selected plant
+							</md-tooltip>
 						</md-button>
 					</div>
 					<div layout="row" layout-align="center center">
 						<md-button class="md-raised " ng-click="deleteAllPreferences()">Delete All Settings
 							<md-icon aria-label="delete" class="material-icons">delete_forever</md-icon>
 							<md-tooltip md-direction="botom">
-									This deletes all the saved settings you have and does a refresh (troubleshooting)
-								</md-tooltip>
+								This deletes all the saved settings you have and does a refresh (troubleshooting)
+							</md-tooltip>
 						</md-button>
 					</div>
 					<md-divider></md-divider>
