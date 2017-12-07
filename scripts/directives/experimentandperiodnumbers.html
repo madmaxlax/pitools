@@ -1,7 +1,8 @@
 <div>
     <md-card-title>
         <md-card-title-text>
-            <span class="md-headline">PI Tools Experiment and Period Numbers for {{data.selectedPlant.both.Name}} </span>
+            <span class="md-headline">PI Tools Report Generation</span>
+            <span class="md-title">Experiment and Period Numbers for {{data.selectedPlant.both.Name}} </span>
         </md-card-title-text>
     </md-card-title>
     <md-card-content>
@@ -20,7 +21,7 @@
             </md-input-container>
             <md-input-container flex-xs="50" flex-gt-xs="25">
                 <label>Period Number</label>
-                <input ng-model="currentPlantReportSettings.periodNumber">
+                <input ng-model="currentPlantReportSettings.periodNumber" type="number" ng-step="1" ng-min="0" string-to-number>
             </md-input-container>
         </div>
         Selected file format: {{getCurrentFileName()}}

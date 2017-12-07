@@ -128,7 +128,7 @@
 								<br> Reports:
 								<br>
 
-								<md-button ng-repeat="(reportNumber, value) in currentPlantReportSettings.generatedReports track by $index" class="md-raised "
+								<md-button ng-repeat="(reportNumber, value) in reportGeneration.generatedReports track by $index" class="md-raised "
 								 ng-click="openReport(reportNumber)">Download report {{reportNumber}}
 									<md-icon aria-label="download" class="material-icons">file_download</md-icon>
 								</md-button>

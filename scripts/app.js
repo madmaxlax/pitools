@@ -114,6 +114,38 @@
       templateUrl: 'scripts/directives/pitools.html'
     };
   });
+
+  //directives to help with the required casting/parsing
+  //https://docs.angularjs.org/error/ngModel/numfmt?p0=10
+  app.directive('stringToNumber', function () {
+    return {
+      require: 'ngModel',
+      link: function (scope, element, attrs, ngModel) {
+        // ngModel.$parsers.push(function(value) {
+        //   return '' + value;
+        // });
+        ngModel.$formatters.push(function (value) {
+          return parseFloat(value);
+        });
+      }
+    };
+  });
+
+  app.directive('stringToDate', function () {
+    return {
+      require: 'ngModel',
+      link: function (scope, element, attrs, ngModel) {
+        // ngModel.$parsers.push(function(value) {
+        //   return '' + value;
+        // });
+        ngModel.$formatters.push(function (value) {
+          return new Date(value);
+        });
+      }
+    };
+  });
+
+
   //this is the main controller and it is actually used for the whole app to keep things simpler and on one $scope
   app.controller('appController', ['$scope', '$http', '$resource', '$filter', 'localStorageService', '$mdSidenav', '$mdDialog', '$mdToast', "PIWebCalls", function ($scope, $http, $resource, $filter, localStorageService, $mdSidenav, $mdDialog, $mdToast, PIWebCalls) {
     //globally available array of errors, to be pushed to and displayed as they arise
@@ -143,12 +175,10 @@
 
 
     $scope.focusPeriodTypeSelected = function () {
-      console.log($scope.currentPlantReportSettings.method, angular.element('#interval-minutes-input'))
       if (true) {
         setTimeout(function () {
           angular.element('#interval-minutes-input').focus();
         }, 0);
-
       }
     };
     //funciton to save the current prefernces to local storage
@@ -254,10 +284,6 @@
         {
           $scope.currentPlantReportSettings = $scope.preferences.plantSettings[$scope.getCurrentPlantID()].plantReportSettings;
           $mdToast.showSimple("Restoring your locally saved settings for this plant");
-          // $scope.currentPlantReportSettings.startTime = new Date($scope.currentPlantReportSettings.startTime);
-          // $scope.currentPlantReportSettings.endTime = new Date($scope.currentPlantReportSettings.endTime);
-          $scope.currentPlantReportSettings.startDate = new Date($scope.currentPlantReportSettings.startDate);
-          $scope.currentPlantReportSettings.endDate = new Date($scope.currentPlantReportSettings.endDate);
         }
         else {
           $mdToast.showSimple("You don't have any settings saved for this plant yet");
@@ -485,6 +511,7 @@
 
         $scope.data.availablePlantTags = []; //empty the array
       }
+      $scope.selectTagsFiltertext = '';
     };
 
     /**
@@ -499,65 +526,157 @@
 
 
 
-    //function that actually generates the reports
+    /**
+     * Function that sets off the functions that generate reports from the user info
+     * 
+     * @returns 
+     */
     $scope.generateReports = function () {
       //
       //TODO If statement that everything is ok, and tags are selected
       //
+      if ($scope.currentPlantReportSettings.selectedTags.length) {
+        //set up new scope var, reportGeneration
+        //this will not be saved to the preferences
+        $scope.reportGeneration = {};
+        //figure out how many periods are in the selected start and end times
+        $scope.reportGeneration.periodsCount = 0;
+        var timeSpan = (new Date($scope.currentPlantReportSettings.endDate)) - (new Date($scope.currentPlantReportSettings.startDate));
+        $scope.reportGeneration.periodsCount = Math.floor(timeSpan / ($scope.currentPlantReportSettings.intervalMinutes * 60000));//minutes to milliseconds, then divide to find the periods
 
-      $scope.currentPlantReportSettings.generatedReports = [];
-      var newReport = { tags: [], webIDs: [] };
-      var filename = $scope.getCurrentFileName();
-      // var csvFile = 'Report number \nDATACOL\tsecondcolumn\n' +
-      //   'col1\tcol2\col3\n' +
-      //   '1\t2\t3\n' +
-      //   '\n***PERIOD A0000011\nPLANT 0266 PERIOD A0000011  RUNLIST REPORT        EXPERIMENT NR 22\n' +
-      //   'Tagnames\tSI-Units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
+        //if there are no periods, we're done here
+        if (!($scope.reportGeneration.periodsCount > 0)) {
+          $mdToast.showSimple("No periods found!! Check your start/end time and intervals then try again");
+          return;
+        }
+        $mdToast.showSimple($scope.reportGeneration.periodsCount + " periods found, generating reports");
 
-      // var csvFile = 'DATACOL' + '\n\n'
-      //   '***PERIOD '+$scope.currentPlantReportSettings.periodNumber+'\n\n' +
-      //   '    PLANT P999 PERIOD PERD0065  RUNLIST REPORT        EXPERIMENT NR 1234567890 \n'+
-      //   '    PERIOD START TIME 16:00:00  20 APR 2016  START RUN HOUR 3852.7\n'+
-      //   '    PERIOD END   TIME 16:30:00  20 APR 2016  END   RUN HOUR 3853.2\n'+
-      //   '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL\n';
+        //grab the run hour tag, same as how tagwriter does it
+        $scope.reportGeneration.runhourTag = {};
+        if ($filter('filter')($scope.data.availableTagWriterTags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false) !== 0) {
+          angular.copy($filter('filter')($scope.data.availableTagWriterTags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false)[0], $scope.reportGeneration.runhourTag);
+        }
+        else {
+          $scope.errors.push({ "No RunHour": "No run hour tag found for this plant to use in the report" });
+        }
+
+        $scope.reportGeneration.generatedReports = [];
+        var newReport = { tags: [], webIDs: [] };
+        //Get the periods via interval interpolation from PI Web API for RunHour, this will set up the reports and timing
+        PIWebCalls.SampledValues.get({
+          webid: $scope.reportGeneration.runhourTag.WebID,
+          startTime: $scope.currentPlantReportSettings.startDate,
+          endTime: $scope.currentPlantReportSettings.endDate,
+          interval: $scope.currentPlantReportSettings.intervalMinutes + "m",
+        }, function (resp) {
+          var runhourValues = resp.Items[0];
+          for (var i = 0; i < $scope.reportGeneration.periodsCount; i++) {
+            newReport.runhourTag = $scope.reportGeneration.runhourTag;
+            newReport.runhourTag.periodStartValue = runhourValues.Items[i];
+            newReport.runhourTag.periodEndValue = runhourValues.Items[i + 1];
+            newReport.periodStartTime = runhourValues.Items[i].Timestamp;
+            newReport.periodEndTime = runhourValues.Items[i + 1].Timestamp;
+            //period number from the user plus the offset of how many periods have already been generated
+            newReport.periodNumber = $scope.currentPlantReportSettings.periodNumber + i;
+            //go set up the CSV
+            $scope.setUpCSVFile(newReport);
+          }
+        }, function (resp) {
+          //there was an error
+          $scope.errors.push({ "Error with getting RunHour data for the periods": resp });
+        });
+      }
+      else {
+        $mdToast.showSimple("You must select tags for the report");
+      }
+    };
+
+    /**
+     * Function that sets up the actual CSV file
+     * 
+     * @param {object} newReport expected to have the following values: runhourTag (with start and end values), periodStartTime, periodEndTime, periodNumber
+     * the rest of the data like selected tags will come from the preferences
+     */
+    $scope.setUpCSVFile = function (newReport) {
+
+      newReport.filename = $scope.getCurrentFileName(newReport.periodNumber);
+      var currentTime = Date.now();
+      newReport.csvFile = '[HEADER]\n' +
+        'Lay-out version=\t3.0\n' +
+        'Date=\t' + $filter('date')(currentTime, 'yyyy-MM-dd') + '\n' + //current date
+        'Time=\t' + $filter('date')(currentTime, 'HH:mm') + '\n' + //current time
+        'Plant name=\t' + $scope.getCurrentPlantID() + '\n' +
+        'Reactor name=\n' +
+        'Group name=\t' + $scope.currentPlantReportSettings.experimentName + '\n' +
+        'Experiment nr=\t' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
+        'Condition ID=\t' + $scope.currentPlantReportSettings.periodName + '\n' +
+        'Period nr=\t' + newReport.periodNumber + '\n' + //use period number with the offset
+        'Period start date=\t' + $filter('date')(newReport.periodStartTime, 'yyyy-MM-dd') + '\n' +
+        'Period start time=\t' + $filter('date')(newReport.periodStartTime, 'HH:mm') + '\n' +
+        'Period end date=\t' + $filter('date')(newReport.periodEndTime, 'yyyy-MM-dd') + '\n' +
+        'Period end time=\t' + $filter('date')(newReport.periodEndTime, 'HH:mm') + '\n' +
+        'Start run hour=\t' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' +
+        'End run hour=\t' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' +
+        '[DATA]\n' +
+        'Tagnames\tSI-units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
 
 
       //add the selected tags to the report tags list
       $scope.currentPlantReportSettings.selectedTags.forEach(function (tag, index) {
-        if (tag.selected) {
-          newReport.tags.push(tag);
-          newReport.webIDs.push(tag.WebID);
-        }
+        newReport.tags.push(tag);
+        newReport.webIDs.push(tag.WebID);
       });
-      var reportStartTime = '*-1h';
-      var reportEndTime = '*';
+
+      //set up a counter
+      newReport.asyncCallsStillWaiting = 0;
 
       //get the calculated values
       PIWebCalls.CalculatedValues.get({
         webid: newReport.webIDs,
-        startTime: reportStartTime,
-        endTime: reportEndTime,
+        startTime: newReport.periodStartTime,
+        endTime: newReport.periodEndTime,
         summaryType: ['Average', 'Minimum', 'Maximum', 'StdDev']
       }, function (resp) {
-        console.log(resp);
+        // console.log(resp);
         newReport.summaryData = PIWebCalls.reformatArray(resp.Items, 'WebId');
-
+        newReport.asyncCallsStillWaiting--
+        //check;    
+        $scope.checkAndFinishReport(newReport);
       }, function (resp) {
         //there was an error
         $scope.errors.push({ "Error with getting calculated data for tags": resp });
       });
+      newReport.asyncCallsStillWaiting++;
 
       //get the first and last values
       PIWebCalls.SampledValues.get({
         webid: newReport.webIDs,
-        startTime: reportStartTime,
-        endTime: reportEndTime
+        startTime: newReport.periodStartTime,
+        endTime: newReport.periodEndTime,
+        interval: (new Date(newReport.periodEndTime) - new Date(newReport.periodStartTime)) / 1000 + 's'
       }, function (resp) {
-        console.log(resp);
+        // console.log(resp);
         newReport.sampledData = PIWebCalls.reformatArray(resp.Items, 'WebId');
+        newReport.asyncCallsStillWaiting--
+        //check;        
+        $scope.checkAndFinishReport(newReport);
+      }, function (resp) {
+        //there was an error
+        $scope.errors.push({ "Error with getting first and last value data for tags": resp });
+      });
+      newReport.asyncCallsStillWaiting++;
+    };
+    /**
+     * Checks if there are any outstanding async calls still waiting
+     * if not, finishes the report and pushes it to be available for download
+     * 
+     * @param {any} newReport 
+     */
+    $scope.checkAndFinishReport = function (newReport) {
+      if (newReport.asyncCallsStillWaiting === 0) {
         //this needs to be moved
         newReport.tags.forEach(function (tag, index) {
-          csvFile += tag.Name + '\t' + (tag.UoM === undefined ? '' : tag.UoM) + '\t' +
+          newReport.csvFile += tag.Name + '\t' + (tag.UoM === undefined ? '' : tag.UoM) + '\t' +
             $scope.getPrintableValue(newReport.summaryData, tag.WebID, 1) + '\t' +//minimum, this is just the order it is returned by PI web API 
             $scope.getPrintableValue(newReport.summaryData, tag.WebID, 2) + '\t' +//maximum
             $scope.getPrintableValue(newReport.summaryData, tag.WebID, 0) + '\t' +//average
@@ -566,22 +685,23 @@
             $scope.getPrintableValue(newReport.sampledData, tag.WebID, 1) +//lastval
             '\n';
         });
-        newReport.csvFile = csvFile;
-        $scope.currentPlantReportSettings.generatedReports.push(newReport);
-      }, function (resp) {
-        //there was an error
-        $scope.errors.push({ "Error with getting calculated data for tags": resp });
-      });
-
-    };
-
-    $scope.setUpCSVFile = function () {
-
+        $scope.reportGeneration.generatedReports.push(newReport);
+      }
     }
 
-    //function that gets the value from a JSON PI Web API value 
-    //and puts it in the numerical format that is expected in PI tools
-    $scope.getPrintableValue = function (webIDArray, webID, index) {
+  
+    /**
+     * function that gets the value from a JSON PI Web API value 
+     * 
+     * @param {any} webIDArray object list of tags with the webID as the keys
+     * @param {any} webID the webID to get from the array
+     * @param {any} index which value to get (if multiple values are provided)
+     * @param {any} decimals 
+     * @returns 
+     */
+    $scope.getPrintableValue = function (webIDArray, webID, index, decimals) {
+      //default decimal places amount is 4
+      decimals = (typeof decimals !== 'undefined') ? decimals : 4;      
       var Value = webIDArray[webID].Items[index].Value;
       if (Value.Value != null && typeof Value.Value === 'number') {
         //return the value to 4 decimal places
@@ -589,19 +709,22 @@
       }
       else
         return '0.0000';
-    }
+    };
 
     //helper function to get the file name based on the currently set variables
-    $scope.getCurrentFileName = function () {
+    $scope.getCurrentFileName = function (periodNumber) {
+      periodNumber = (typeof periodNumber !== 'undefined') ? periodNumber : $scope.currentPlantReportSettings.experimentNumber;
       //always .nox Hydra files for now, 
-      return ($scope.currentPlantReportSettings.reportFileNameWithExpPerNums ? '[exp#]-[per#]' : 'plant[currentplant]') + '.R02';//($scope.currentPlantReportSettings.reportType === 'hydra' ? '.nox' : '.R02');
-    }
+      return ($scope.currentPlantReportSettings.reportFileNameWithExpPerNums ? $scope.currentPlantReportSettings.experimentName +
+        $scope.currentPlantReportSettings.experimentNumber + '-' + $scope.currentPlantReportSettings.periodName + periodNumber :
+        'plant' + $scope.getCurrentPlantID()) + '.R02';//($scope.currentPlantReportSettings.reportType === 'hydra' ? '.nox' : '.R02');
+    };
 
     //function to force the download of the file
     //from Jossef Harush https://jsfiddle.net/jossef/m3rrLzk0/ from https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
     $scope.openReport = function (reportNumber) {
-      var csvFile = $scope.currentPlantReportSettings.generatedReports[reportNumber].csvFile;
-      var filename = $scope.getCurrentFileName();
+      var csvFile = $scope.reportGeneration.generatedReports[reportNumber].csvFile;
+      var filename = $scope.reportGeneration.generatedReports[reportNumber].filename;
       var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
       //IE allows direct saving
       if (navigator.msSaveBlob) { // IE 10+

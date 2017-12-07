@@ -1,7 +1,7 @@
 <div>
     <md-card-title>
         <md-card-title-text>
-            <span class="md-headline">Period Retrieval Method</span>
+            <span class="md-title">Period Retrieval Method</span>
         </md-card-title-text>
     </md-card-title>
     <md-card-content>
@@ -12,10 +12,15 @@
                 </md-input-container>
                 <md-input-container class="md-block" flex-gt-xs>
                     <label>minutes</label>
-                    <input ng-disabled="!(currentPlantReportSettings.method=='interval')" ng-model="currentPlantReportSettings.intervalMinutes" id="interval-minutes-input">
+                    <input ng-disabled="!(currentPlantReportSettings.method=='interval')" ng-model="currentPlantReportSettings.intervalMinutes"
+                        id="interval-minutes-input" type="number" ng-step="1" ng-min="0" string-to-number>
                 </md-input-container>
             </div>
             <div layout="row">
+                <!-- Event tag -->
+                <md-tooltip md-direction="top">
+                    Event tag feature not enabled yet
+                </md-tooltip>
                 <div flex-xs flex-gt-xs="50">
                     <md-radio-button value="eventTag" ng-disabled="true" ng-click="focusPeriodTypeSelected()"> Event Tag </md-radio-button>
                 </div>
@@ -41,11 +46,11 @@
                 <br>
                 <md-input-container>
                     <label>Start Date</label>
-                    <md-datepicker ng-model="currentPlantReportSettings.startDate" md-open-on-focus></md-datepicker>
+                    <md-datepicker ng-model="currentPlantReportSettings.startDate" string-to-date md-open-on-focus></md-datepicker>
                 </md-input-container>
                 <md-input-container>
                     <label>Time</label>
-                    <input ng-model="currentPlantReportSettings.startDate" type="time">
+                    <input ng-model="currentPlantReportSettings.startDate" string-to-date type="time">
                 </md-input-container>
             </div>
             <div flex="50">
@@ -54,11 +59,11 @@
 
                 <md-input-container>
                     <label>End Date</label>
-                    <md-datepicker ng-model="currentPlantReportSettings.endDate" md-open-on-focus></md-datepicker>
+                    <md-datepicker ng-model="currentPlantReportSettings.endDate" string-to-date md-open-on-focus></md-datepicker>
                 </md-input-container>
                 <md-input-container>
                     <label>End Time</label>
-                    <input ng-model="currentPlantReportSettings.endDate" type="time">
+                    <input ng-model="currentPlantReportSettings.endDate" string-to-date type="time">
                 </md-input-container>
             </div>
         </div>
