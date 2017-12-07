@@ -19,7 +19,7 @@
 
 </head>
 
-<body ng-keypress="shortcutKeypress($event)" >
+<body >
 	<md-toolbar layout="row" class="md-toolbar-tools" ng-cloak layout-align="space-between center">
 		<h1>STCA PI Tools Reports-Web</h1>
 		<div>
@@ -55,15 +55,15 @@
 					Close and Clear Errors
 			</button>
 		</div>
-		<md-content layout="column" flex>
-			<div flex>
+		<div layout="column" flex>
+			<div >
 				<md-card>
 					<md-card-title>
 						<md-card-title-text>
 							<span class="md-headline">Select a Plant</span>
 						</md-card-title-text>
 					</md-card-title>
-					<md-card-content>
+					<md-card-content >
 						<!-- Plant search auto complete -->
 						<form ng-submit="$event.preventDefault()" layout layout-align="center" layout-padding>
 							<div layout="row" flex>
@@ -122,7 +122,7 @@
 								</md-card-title-text>
 							</md-card-title>
 							<md-card-content>
-								Ready to generate {x} reports based on your settings?
+								Ready to generate {{reportGeneration.periodsCount?reportGeneration.periodsCount+' ':''}}reports based on your settings?
 
 								<md-button class="md-raised md-accent" ng-click="generateReports()">Get Report files
 								</md-button>
@@ -146,7 +146,7 @@
 					</div>
 				</div>
 			</div>
-		</md-content>
+		</div>
 		<md-sidenav class="md-sidenav-right" md-is-locked-open="$mdMedia('gt-md')" md-component-id="right" ng-click="">
 			<md-content class="md-padding">
 				<md-list>
