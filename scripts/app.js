@@ -561,7 +561,7 @@
         }
 
         $scope.reportGeneration.generatedReports = [];
-        var newReport = { tags: [], webIDs: [] };
+        var newReport;
         //Get the periods via interval interpolation from PI Web API for RunHour, this will set up the reports and timing
         PIWebCalls.SampledValues.get({
           webid: $scope.reportGeneration.runhourTag.WebID,
@@ -571,6 +571,7 @@
         }, function (resp) {
           var runhourValues = resp.Items[0];
           for (var i = 0; i < $scope.reportGeneration.periodsCount; i++) {
+            newReport = { tags: [], webIDs: [] };
             newReport.runhourTag = $scope.reportGeneration.runhourTag;
             newReport.runhourTag.periodStartValue = runhourValues.Items[i];
             newReport.runhourTag.periodEndValue = runhourValues.Items[i + 1];

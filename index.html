@@ -19,7 +19,7 @@
 
 </head>
 
-<body ng-keypress="shortcutKeypress($event)">
+<body ng-keypress="shortcutKeypress($event)" >
 	<md-toolbar layout="row" class="md-toolbar-tools" ng-cloak layout-align="space-between center">
 		<h1>STCA PI Tools Reports-Web</h1>
 		<div>
@@ -51,11 +51,12 @@
 				</div>
 			</div>
 			<button type="button" class="close" ng-click="clearErrors()" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
+					<md-icon aria-label="close" class="material-icons">close</md-icon>
+					Close and Clear Errors
 			</button>
 		</div>
-		<div layout="column" flex>
-			<md-content flex>
+		<md-content layout="column" flex>
+			<div flex>
 				<md-card>
 					<md-card-title>
 						<md-card-title-text>
@@ -87,8 +88,8 @@
 						</form>
 					</md-card-content>
 				</md-card>
-			</md-content>
-			<md-content layout="column">
+			</div>
+			<div layout="column">
 				<div flex="100" layout="column" ng-if="data.selectedPlant.both == null">
 					<md-card>
 						<!-- <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out"> -->
@@ -129,7 +130,7 @@
 								<br>
 
 								<md-button ng-repeat="(reportNumber, value) in reportGeneration.generatedReports track by $index" class="md-raised "
-								 ng-click="openReport(reportNumber)">Download report {{reportNumber}}
+								 ng-click="openReport(reportNumber)">Download report {{value.periodNumber}}
 									<md-icon aria-label="download" class="material-icons">file_download</md-icon>
 								</md-button>
 
@@ -144,8 +145,8 @@
 						</md-card>
 					</div>
 				</div>
-			</md-content>
-		</div>
+			</div>
+		</md-content>
 		<md-sidenav class="md-sidenav-right" md-is-locked-open="$mdMedia('gt-md')" md-component-id="right" ng-click="">
 			<md-content class="md-padding">
 				<md-list>
