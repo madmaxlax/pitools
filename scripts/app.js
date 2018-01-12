@@ -602,24 +602,36 @@
 
       newReport.filename = $scope.getCurrentFileName(newReport.periodNumber);
       var currentTime = Date.now();
-      newReport.csvFile = '[HEADER]\n' +
-        'Lay-out version=\t3.0\n' +
-        'Date=\t' + $filter('date')(currentTime, 'yyyy-MM-dd') + '\n' + //current date
-        'Time=\t' + $filter('date')(currentTime, 'HH:mm') + '\n' + //current time
-        'Plant name=\t' + $scope.getCurrentPlantID() + '\n' +
-        'Reactor name=\n' +
-        'Group name=\t' + $scope.currentPlantReportSettings.experimentName + '\n' +
-        'Experiment nr=\t' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
-        'Condition ID=\t' + $scope.currentPlantReportSettings.periodName + '\n' +
-        'Period nr=\t' + newReport.periodNumber + '\n' + //use period number with the offset
-        'Period start date=\t' + $filter('date')(newReport.periodStartTime, 'yyyy-MM-dd') + '\n' +
-        'Period start time=\t' + $filter('date')(newReport.periodStartTime, 'HH:mm') + '\n' +
-        'Period end date=\t' + $filter('date')(newReport.periodEndTime, 'yyyy-MM-dd') + '\n' +
-        'Period end time=\t' + $filter('date')(newReport.periodEndTime, 'HH:mm') + '\n' +
-        'Start run hour=\t' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' +
-        'End run hour=\t' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' +
-        '[DATA]\n' +
-        'Tagnames\tSI-units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
+      if ($scope.currentPlantReportSettings.reportType === 'hydra') {
+        newReport.csvFile = '[HEADER]\n' +
+          'Lay-out version=\t3.0\n' +
+          'Date=\t' + $filter('date')(currentTime, 'yyyy-MM-dd') + '\n' + //current date
+          'Time=\t' + $filter('date')(currentTime, 'HH:mm') + '\n' + //current time
+          'Plant name=\t' + $scope.getCurrentPlantID() + '\n' +
+          'Reactor name=\n' +
+          'Group name=\t' + $scope.currentPlantReportSettings.experimentName + '\n' +
+          'Experiment nr=\t' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
+          'Condition ID=\t' + $scope.currentPlantReportSettings.periodName + '\n' +
+          'Period nr=\t' + newReport.periodNumber + '\n' + //use period number with the offset
+          'Period start date=\t' + $filter('date')(newReport.periodStartTime, 'yyyy-MM-dd') + '\n' +
+          'Period start time=\t' + $filter('date')(newReport.periodStartTime, 'HH:mm') + '\n' +
+          'Period end date=\t' + $filter('date')(newReport.periodEndTime, 'yyyy-MM-dd') + '\n' +
+          'Period end time=\t' + $filter('date')(newReport.periodEndTime, 'HH:mm') + '\n' +
+          'Start run hour=\t' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' +
+          'End run hour=\t' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' +
+          '[DATA]\n' +
+          'Tagnames\tSI-units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
+      }
+      else{
+        newReport.csvFile = 'DATACOL\n' + 
+        '\n' + 
+        '***PERIOD ' + newReport.periodNumber + '\n' + 
+        '\n' + 
+        '    PLANT 0044 PERIOD ' + newReport.periodNumber + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\n' + 
+        '    PERIOD START TIME ' + $filter('date')(newReport.periodStartTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodStartTime, 'dd MMM yyyy') + '  START RUN HOUR ' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' + 
+        '    PERIOD END   TIME ' + $filter('date')(newReport.periodEndTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodEndTime, 'dd MMM yyyy') + '  END   RUN HOUR ' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' + 
+        '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL';
+      }
 
 
       //add the selected tags to the report tags list
@@ -690,7 +702,7 @@
       }
     }
 
-  
+
     /**
      * function that gets the value from a JSON PI Web API value 
      * 
@@ -702,7 +714,7 @@
      */
     $scope.getPrintableValue = function (webIDArray, webID, index, decimals) {
       //default decimal places amount is 4
-      decimals = (typeof decimals !== 'undefined') ? decimals : 4;      
+      decimals = (typeof decimals !== 'undefined') ? decimals : 4;
       var Value = webIDArray[webID].Items[index].Value;
       if (Value.Value != null && typeof Value.Value === 'number') {
         //return the value to 4 decimal places
@@ -718,7 +730,7 @@
       //always .nox Hydra files for now, 
       return ($scope.currentPlantReportSettings.reportFileNameWithExpPerNums ? $scope.currentPlantReportSettings.experimentName +
         $scope.currentPlantReportSettings.experimentNumber + '-' + $scope.currentPlantReportSettings.periodName + periodNumber :
-        'plant' + $scope.getCurrentPlantID()) + '.R02';//($scope.currentPlantReportSettings.reportType === 'hydra' ? '.nox' : '.R02');
+        'plant' + $scope.getCurrentPlantID()) + ($scope.currentPlantReportSettings.reportType === 'hydra' ? '.R02' : '.NOX');
     };
 
     //function to force the download of the file

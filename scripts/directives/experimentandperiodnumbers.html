@@ -26,18 +26,53 @@
         </div>
         Selected file format: {{getCurrentFileName()}}
         <div flex-xs flex-gt-xs="100" layout="row">
-            <md-switch flex-xs flex-gt-xs="50" ng-model="currentPlantReportSettings.reportFileNameWithExpPerNums">
-                <md-tooltip md-direction="top">
-                    how the file names of the reports will be set up
-                </md-tooltip>
-                Include exp # and perd # in file name?
-            </md-switch>
-            <md-switch flex-xs flex-gt-xs="50" ng-model="currentPlantReportSettings.removeSTCAprefix">
-                <md-tooltip md-direction="top">
-                    Whether or not to remove the 'STCA' text in the tag names for the report file
-                </md-tooltip>
-                Remove STCA prefix? {{(currentPlantReportSettings.removeSTCAprefix?'9999':'STCA9999')}}
-            </md-switch>
+            <div flex-xs flex-gt-xs="50">
+                <br>
+                <span class="md-strong">Type of Report</span>
+                <br>
+                <br>
+                <md-radio-group ng-model="currentPlantReportSettings.reportType">
+                    <md-radio-button value="hydra" class="md-primary" ng-selected="true">Hydra (.R02 files)
+                        <md-tooltip md-direction="top" class="tt-multiline">
+                            Format looks like:
+                            <br>[Header]
+                            <br>Lay-out version=&nbsp;&nbsp;&nbsp;&nbsp;2.0
+                            <br>Date=&nbsp;&nbsp;&nbsp;&nbsp;2011-05-03
+                            <br>Time=&nbsp;&nbsp;&nbsp;&nbsp;07:59
+                            <br>Plant name=&nbsp;&nbsp;&nbsp;&nbsp;P622
+                            <br>Reactor name=&nbsp;&nbsp;&nbsp;&nbsp;R101
+                        </md-tooltip>
+                    </md-radio-button>
+                    <md-radio-button value="run" class="">
+                        Runlist (.NOX files)
+                        <md-tooltip md-direction="top" class="tt-multiline">
+                            Format looks like:
+                            <br>
+                            <br>***PERIOD&nbsp;A0000001
+                            <br>
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;PLANT&nbsp;5230&nbsp;PERIOD&nbsp;A0000001&nbsp;&nbsp;RUNLIST&nbsp;REPORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPERIMENT&nbsp;NR&nbsp;993
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;PERIOD&nbsp;START&nbsp;TIME&nbsp;09:36:17&nbsp;&nbsp;18&nbsp;APR&nbsp;2017&nbsp;&nbsp;START&nbsp;RUN&nbsp;HOUR&nbsp;771.2
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;PERIOD&nbsp;END&nbsp;&nbsp;&nbsp;TIME&nbsp;21:23:41&nbsp;&nbsp;18&nbsp;APR&nbsp;2017&nbsp;&nbsp;END&nbsp;&nbsp;&nbsp;RUN&nbsp;HOUR&nbsp;.0
+                            <br>&nbsp;&nbsp;&nbsp;NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MINIMUM&nbsp;&nbsp;
+                        </md-tooltip>
+                    </md-radio-button>
+                </md-radio-group>
+            </div>
+            <div flex-xs flex-gt-xs="50" layout="column">
+                <md-switch flex-xs flex-gt-xs="50" ng-model="currentPlantReportSettings.reportFileNameWithExpPerNums">
+                    <md-tooltip md-direction="top">
+                        how the file names of the reports will be set up
+                    </md-tooltip>
+                    Include exp # and perd # in file name?
+                </md-switch>
+                <md-switch flex-xs flex-gt-xs="50" ng-model="currentPlantReportSettings.removeSTCAprefix">
+                    <md-tooltip md-direction="top">
+                        Whether or not to remove the 'STCA' text in the tag names for the report file
+                    </md-tooltip>
+                    Remove STCA prefix? {{(currentPlantReportSettings.removeSTCAprefix?'9999':'STCA9999')}}
+                </md-switch>
+            </div>
+
         </div>
     </md-card-content>
 </div>

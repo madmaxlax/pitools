@@ -3,3 +3,6 @@
 }
 
 body.md-toast-animating { overflow: auto !important; }
+md-tooltip.tt-multiline{
+  height: auto;
+}
