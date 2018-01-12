@@ -622,15 +622,15 @@
           '[DATA]\n' +
           'Tagnames\tSI-units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
       }
-      else{
-        newReport.csvFile = 'DATACOL\n' + 
-        '\n' + 
-        '***PERIOD ' + newReport.periodNumber + '\n' + 
-        '\n' + 
-        '    PLANT 0044 PERIOD ' + newReport.periodNumber + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\n' + 
-        '    PERIOD START TIME ' + $filter('date')(newReport.periodStartTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodStartTime, 'dd MMM yyyy') + '  START RUN HOUR ' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' + 
-        '    PERIOD END   TIME ' + $filter('date')(newReport.periodEndTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodEndTime, 'dd MMM yyyy') + '  END   RUN HOUR ' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' + 
-        '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL';
+      else {
+        newReport.csvFile = 'DATACOL\n' +
+          '\n' +
+          '***PERIOD ' + newReport.periodNumber + '\n' +
+          '\n' +
+          '    PLANT ' + $scope.getCurrentPlantID() + ' PERIOD ' + newReport.periodNumber + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
+          '    PERIOD START TIME ' + $filter('date')(newReport.periodStartTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodStartTime, 'dd MMM yyyy') + '  START RUN HOUR ' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' +
+          '    PERIOD END   TIME ' + $filter('date')(newReport.periodEndTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodEndTime, 'dd MMM yyyy') + '  END   RUN HOUR ' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' +
+          '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL';
       }
 
 
@@ -689,15 +689,34 @@
       if (newReport.asyncCallsStillWaiting === 0) {
         //this needs to be moved
         newReport.tags.forEach(function (tag, index) {
-          newReport.csvFile += tag.Name + '\t' + (tag.UoM === undefined ? '' : tag.UoM) + '\t' +
-            $scope.getPrintableValue(newReport.summaryData, tag.WebID, 1) + '\t' +//minimum, this is just the order it is returned by PI web API 
-            $scope.getPrintableValue(newReport.summaryData, tag.WebID, 2) + '\t' +//maximum
-            $scope.getPrintableValue(newReport.summaryData, tag.WebID, 0) + '\t' +//average
-            $scope.getPrintableValue(newReport.summaryData, tag.WebID, 3) + '\t' +//std
-            $scope.getPrintableValue(newReport.sampledData, tag.WebID, 0) + '\t' +//firstval
-            $scope.getPrintableValue(newReport.sampledData, tag.WebID, 1) +//lastval
-            '\n';
+          if ($scope.currentPlantReportSettings.reportType === 'hydra') {//Hydra .R02
+            newReport.csvFile += tag.Name + '\t' + (tag.UoM === undefined ? '' : tag.UoM) + '\t' +
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 1).toString() + '\t' +//minimum, this is just the order it is returned by PI web API 
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 2).toString() + '\t' +//maximum
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 0).toString() + '\t' +//average
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 3).toString() + '\t' +//std
+              $scope.getPrintableValue(newReport.sampledData, tag.WebID, 0).toString() + '\t' +//firstval
+              $scope.getPrintableValue(newReport.sampledData, tag.WebID, 1).toString() +//lastval
+              '\n';
+          }
+          else {//runlist .nox
+            //tagname must be shortened to 10 chars
+            var tagShortName = ' ' + tag.Name.replace('STCA', '').substr(4, 10);
+            while (tagShortName.length < 12) //need to add spaces if < 11 characters
+            {
+              tagShortName += '';
+            }
+            newReport.csvFile += $scope.getPrintableValue(newReport.summaryData, tag.WebID, 1, 5).toString().substr(0, 7) + '    ' +//minimum, this is just the order it is returned by PI web API 
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 2) + '    ' +//maximum
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 0) + '    ' +//average
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 3) + '    ' +//std
+              $scope.getPrintableValue(newReport.sampledData, tag.WebID, 0) + '    ' +//firstval
+              $scope.getPrintableValue(newReport.sampledData, tag.WebID, 1) + '\n';//lastval
+          }
         });
+        if ($scope.currentPlantReportSettings.reportType === 'run') {
+          newReport.csvFile += '\n***END OF LIST'
+        }
         $scope.reportGeneration.generatedReports.push(newReport);
       }
     }
