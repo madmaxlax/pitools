@@ -2,8 +2,9 @@
 <html lang="en" ng-app="myapp" ng-controller="appController as ctrlr">
 
 <head>
-	<title ng-bind="'STCA PI Tools Reports & TagWriter- Web'">STCA PI Tools Reports - Web</title>
+	<title ng-bind="'STCA PI Tools Reports & TagWriter- Web -Beta'">STCA PI Tools Reports - Web</title>
 	<meta charset="utf-8">
+
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="shortcut icon" href="../favicon.ico">
 	<link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32x32.png">
@@ -17,11 +18,25 @@
 	<link rel="stylesheet" href="./scripts/vendor/angular_material/1.1.4/angular-material.min.css">
 	<link rel="stylesheet" type="text/css" href="./styles/styles.css" />
 
+
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9932775-10"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() { dataLayer.push(arguments); }
+		gtag('js', new Date());
+
+		gtag('config', 'UA-9932775-10');
+	</script>
 </head>
 
-<body >
+<body>
 	<md-toolbar layout="row" class="md-toolbar-tools" ng-cloak layout-align="space-between center">
-		<h1>STCA PI Tools Reports-Web</h1>
+		<h1>STCA PI Tools Reports-Web -BETA
+			<md-tooltip md-direction="botom">
+				This app is still in development and not fully tested; it will have some bugs
+			</md-tooltip>
+		</h1>
 		<div>
 			<md-progress-circular ng-show="!data.plants.length || isUpdating" class="md-warn" md-mode="indeterminate"></md-progress-circular>
 		</div>
@@ -51,19 +66,19 @@
 				</div>
 			</div>
 			<button type="button" class="close" ng-click="clearErrors()" aria-label="Close">
-					<md-icon aria-label="close" class="material-icons">close</md-icon>
-					Close and Clear Errors
+				<md-icon aria-label="close" class="material-icons">close</md-icon>
+				Close and Clear Errors
 			</button>
 		</div>
 		<div layout="column" flex>
-			<div >
+			<div>
 				<md-card>
 					<md-card-title>
 						<md-card-title-text>
 							<span class="md-headline">Select a Plant</span>
 						</md-card-title-text>
 					</md-card-title>
-					<md-card-content >
+					<md-card-content>
 						<!-- Plant search auto complete -->
 						<form ng-submit="$event.preventDefault()" layout layout-align="center" layout-padding>
 							<div layout="row" flex>
@@ -104,7 +119,7 @@
 						</md-card-content>
 					</md-card>
 				</div>
-				<div ng-show="!(data.selectedPlant.both == null)" layout="column">
+				<div ng-show="!(data.selectedPlant.both == null)">
 					<div flex="100" layout="column">
 						<tag-writer-card></tag-writer-card>
 					</div>
@@ -124,16 +139,24 @@
 							<md-card-content>
 								Ready to generate {{reportGeneration.periodsCount?reportGeneration.periodsCount+' ':''}}reports based on your settings?
 
-								<md-button class="md-raised md-accent" ng-click="generateReports()">Get Report files
+
+								<md-button ng-disabled="totalAsyncCallsFinished<totalAsyncCallsSent"  class="md-raised md-accent" ng-click="generateReports()">{{((totalAsyncCallsFinished
+									< totalAsyncCallsSent)? "Generating...": "Get Report files")}} 
 								</md-button>
+								<span ng-show="totalAsyncCallsFinished<totalAsyncCallsSent">
+									<md-button class="md-raised" ng-click="cancelGenerate()">
+										<md-icon aria-label="close" class="material-icons">close</md-icon>
+										Cancel </md-button>
+									Report Progress: {{(totalAsyncCallsFinished/totalAsyncCallsSent * 100) | number:0}}%
+								</span>
+								<br>
+								<md-progress-linear md-mode="{{((totalAsyncCallsFinished===0) && (totalAsyncCallsSent>0))?'indeterminate':'determinate'}}" value="{{totalAsyncCallsFinished/totalAsyncCallsSent * 100}}"></md-progress-linear>
 								<br> Reports:
 								<br>
 
-								<md-button ng-repeat="(reportNumber, value) in reportGeneration.generatedReports track by $index" class="md-raised "
-								 ng-click="openReport(reportNumber)">Download report {{value.periodNumber}}
+								<md-button ng-repeat="(reportNumber, value) in reportGeneration.generatedReports track by $index" class="md-raised " ng-click="openReport(reportNumber)">Download report {{value.periodNumber}}
 									<md-icon aria-label="download" class="material-icons">file_download</md-icon>
 								</md-button>
-
 							</md-card-content>
 						</md-card>
 					</div>
@@ -174,6 +197,16 @@
 							<md-icon aria-label="delete" class="material-icons">delete_forever</md-icon>
 							<md-tooltip md-direction="botom">
 								This deletes all the saved settings you have and does a refresh (troubleshooting)
+							</md-tooltip>
+						</md-button>
+					</div>
+					<md-divider></md-divider>
+					<div layout="row" layout-align="center center">
+						<md-button class="md-raised " ng-disabled="isUpdating" href="mailto:pt-stca-pi-support@shell.com;Business-Assist-Engineering-ITV-TEE@shell.com&subject=PI Tools Web App">
+							Need Support
+							<md-icon aria-label="help" class="material-icons">help_outline</md-icon>
+							<md-tooltip md-direction="botom">
+								Email the support team
 							</md-tooltip>
 						</md-button>
 					</div>

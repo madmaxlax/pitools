@@ -1,0 +1,48 @@
+
+-------------------------------------------------------------------------------
+   ROBOCOPY     ::     Robust File Copy for Windows                              
+-------------------------------------------------------------------------------
+
+  Started : Tue Dec 12 17:49:43 2017
+
+   Source : \\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
+     Dest : \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\
+
+    Files : *
+	    
+Exc Files : file
+	    *.bat
+	    *.txt
+	    
+ Exc Dirs : dirs
+	    .git
+	    
+  Options : /S /E /COPY:DAT /PURGE /MIR /XO /MT:10 /R:1000000 /W:30 
+
+------------------------------------------------------------------------------
+
+	                   4	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
+	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\
+	                  10	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\directives\
+	    Newer     		    1305	pitools.html  0%  100%  100%  
+	    Newer     		    3495	pointretrievalmethod.html100%  
+	    Newer     		    2237	reportsettings.html100%  
+	    Newer     		    3009	tagselect.html100%  
+	    Newer     		    4089	tagwriter.html100%  
+	                   7	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\
+	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\
+	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\1.1.4\
+	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angularjs\
+	                   6	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angularjs\1.6.4\
+	                   8	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\styles\
+	    Newer     		     170	styles.css100%  
+
+------------------------------------------------------------------------------
+
+               Total    Copied   Skipped  Mismatch    FAILED    Extras
+    Dirs :        10         0        10         0         0         0
+   Files :        39         6        33         0         0         0
+   Bytes :    1.40 m    13.9 k    1.38 m         0         0         0
+   Times :   0:00:46   0:00:07                       0:00:00   0:00:02
+
+   Ended : Tue Dec 12 17:49:54 2017

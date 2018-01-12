@@ -1,0 +1,1 @@
+robocopy "\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools" "\\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsProduction\pitools" * /XD dirs .git /XF file *.bat *.txt /XO /mt:10 /MIR /log:"\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\copytobeta.txt"
