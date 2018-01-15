@@ -6,3 +6,9 @@ body.md-toast-animating { overflow: auto !important; }
 md-tooltip.tt-multiline{
   height: auto;
 }
+/* Keep toast at bottom
+https://github.com/angular/material/issues/1106
+*/
+md-toast {
+  position: fixed !important;
+}
