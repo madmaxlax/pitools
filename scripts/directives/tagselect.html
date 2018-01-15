@@ -14,12 +14,14 @@
             <div flex-xs flex-gt-xs="50">
                 Tags available ({{virtualTagsList.getLength()}})
                 <md-button class="md-raised" ng-click="selectAllTags()">Select all {{(selectTagsFiltertext != null && selectTagsFiltertext !== '')?'filtered ':''}}tags
-                </md-button>
+                        <md-icon aria-label="select" class="material-icons">chevron_right</md-icon>
+                    </md-button>
             </div>
             <div flex-xs flex-gt-xs="50">
                 Tags selected ({{currentPlantReportSettings.selectedTags.length}})
                 <md-button ng-show="currentPlantReportSettings.selectedTags.length" class="md-raised" ng-click="removeAllTags()">Remove all selected tags
-                </md-button>
+                        <md-icon aria-label="remove" class="material-icons">chevron_left</md-icon>
+                    </md-button>
             </div>
         </div>
 

@@ -3,10 +3,10 @@
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Mon Jan 15 16:32:56 2018
+  Started : Mon Jan 15 17:34:58 2018
 
    Source : \\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
-     Dest : \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsProduction\pitools\
+     Dest : \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\
 
     Files : *
 	    
@@ -22,30 +22,26 @@ Exc Files : file
 ------------------------------------------------------------------------------
 
 	                   5	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
-	    Newer     		   11516	index.html100%  
+	    Newer     		   11857	index.html  0%  100%  100%  
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\
-	    Newer     		   37752	app.js100%  
+	    Newer     		   38083	app.js100%  
 	                  10	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\directives\
 	    Newer     		    4513	experimentandperiodnumbers.html100%  
-	    Newer     		    1305	pitools.html100%  
-	    Newer     		    3495	pointretrievalmethod.html100%  
 	    Newer     		    2227	reportsettings.html100%  
-	    Newer     		    3009	tagselect.html100%  
-	    Newer     		    4089	tagwriter.html100%  
 	                   7	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\1.1.4\
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angularjs\
 	                   6	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angularjs\1.6.4\
 	                   8	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\styles\
-	    Newer     		     216	styles.css  0%  100%  100%  
+	    Newer     		     340	styles.css100%  
 
 ------------------------------------------------------------------------------
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
     Dirs :        10         0        10         0         0         0
-   Files :        40         9        31         0         0         0
-   Bytes :    1.40 m    66.5 k    1.33 m         0         0         0
-   Times :   0:00:38   0:00:08                       0:00:00   0:00:04
+   Files :        40         5        35         0         0         0
+   Bytes :    1.40 m    55.6 k    1.34 m         0         0         0
+   Times :   0:00:21   0:00:04                       0:00:00   0:00:02
 
-   Ended : Mon Jan 15 16:33:10 2018
+   Ended : Mon Jan 15 17:35:07 2018

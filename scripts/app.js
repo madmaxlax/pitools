@@ -166,7 +166,33 @@
     //function to clear any current errors (when the user clicks the x on the errors display)
     $scope.clearErrors = function () {
       $scope.errors = [];
+      $mdDialog.hide();
     };
+
+    //set up a watch on the errors var, and show the dialog if there's ever anything
+    $scope.errorPush = function (errorObj) {
+      $scope.errors.push(errorObj);
+      if ($scope.errors.length > 0) {
+        $mdDialog.show({
+          contentElement: '#errorsDialog',
+          parent: angular.element(document.body),
+          // targetEvent: ev,
+          clickOutsideToClose: true
+        });
+      }
+    };
+
+    //debugging functions
+    $scope.toastTest = function () {
+      $mdToast.show($mdToast.simple().textContent('Hello!').action("ok").hideDelay(300000));
+    }
+    $scope.errorTest = function () {
+      setTimeout(function () {
+        $scope.errorPush({ "This error was on purpose": "derpus" });
+        console.log('error pushed');
+      }, 500);
+    }
+
 
     //function to open/close the right panel that contains the preferences (when the user clicks the settings icon on narrower screens)
     $scope.toggleLeft = function () {
@@ -262,18 +288,14 @@
         }
       }, function (resp) {
         //there was an error
-        $scope.errors.push({ "Error with getting plants": resp });
+        $scope.errorPush({ "Error with getting plants": resp });
         $scope.finishedUpdating();
       });
     };
     //call this function now that it's ready and the app is loading at first
     $scope.getPlants();
 
-    //debugging function
-    $scope.toastTest = function(){
-      $mdToast.show($mdToast.simple().textContent('Hello!').action("ok").hideDelay(300000));
-      
-    }
+
 
     //function for when a plant is selected
     $scope.getPlantData = function () {
@@ -349,7 +371,7 @@
           setTimeout($scope.checkSelectedTagsAtStartup, 0);
         }, function (resp) {
           //there was an error
-          $scope.errors.push({ "Error with searching for tags": resp });
+          $scope.errorPush({ "Error with searching for tags": resp });
         });
       }
     };
@@ -366,7 +388,7 @@
           $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.curVal = valresp;
         }, function (resp) {
           //there was an error
-          $scope.errors.push({ "Error with getting values": resp });
+          $scope.errorPush({ "Error with getting values": resp });
         });
       }
     };
@@ -388,7 +410,7 @@
           $scope.getTagValue();
         }, function (resp) {
           //there was an error
-          $scope.errors.push({ "Error with updating values": resp });
+          $scope.errorPush({ "Error with updating values": resp });
         });
     };
 
@@ -537,6 +559,8 @@
      * @returns 
      */
     $scope.generateReports = function () {
+      $scope.totalAsyncCallsFinished = 0;
+      $scope.totalAsyncCallsSent = 0;
       //
       //TODO If statement that everything is ok, and tags are selected
       //
@@ -562,7 +586,7 @@
           angular.copy($filter('filter')($scope.data.availableTagWriterTags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false)[0], $scope.reportGeneration.runhourTag);
         }
         else {
-          $scope.errors.push({ "No RunHour": "No run hour tag found for this plant to use in the report" });
+          $scope.errorPush({ "No RunHour": "No run hour tag found for this plant to use in the report" });
         }
 
         $scope.reportGeneration.generatedReports = [];
@@ -591,7 +615,7 @@
           }
         }, function (resp) {
           //there was an error
-          $scope.errors.push({ "Error with getting RunHour data for the periods": resp });
+          $scope.errorPush({ "Error with getting RunHour data for the periods": resp });
         });
       }
       else {
@@ -660,14 +684,17 @@
         // console.log(resp);
         newReport.summaryData = PIWebCalls.reformatArray(resp.Items, 'WebId');
         newReport.asyncCallsStillWaiting--
+        $scope.totalAsyncCallsFinished++;
+
         //check;    
         //in non blocking way
         setTimeout($scope.checkAndFinishReport(newReport), 0);
       }, function (resp) {
         //there was an error
-        $scope.errors.push({ "Error with getting calculated data for tags": resp });
+        $scope.errorPush({ "Error with getting calculated data for tags": resp });
       });
       newReport.asyncCallsStillWaiting++;
+      $scope.totalAsyncCallsSent ++;
 
       //get the first and last values
       PIWebCalls.SampledValues.get({
@@ -679,15 +706,17 @@
         // console.log(resp);
         newReport.sampledData = PIWebCalls.reformatArray(resp.Items, 'WebId');
         newReport.asyncCallsStillWaiting--
+        $scope.totalAsyncCallsFinished ++;
         //check;       
         //in non blocking way
         setTimeout($scope.checkAndFinishReport(newReport), 0);
 
       }, function (resp) {
         //there was an error
-        $scope.errors.push({ "Error with getting first and last value data for tags": resp });
+        $scope.errorPush({ "Error with getting first and last value data for tags": resp });
       });
       newReport.asyncCallsStillWaiting++;
+      $scope.totalAsyncCallsSent ++;
     };
     /**
      * Checks if there are any outstanding async calls still waiting
@@ -728,6 +757,14 @@
           newReport.csvFile += '\n***END OF LIST'
         }
         $scope.reportGeneration.generatedReports.push(newReport);
+
+        //automatically update the periods 
+        if ($scope.reportGeneration.periodsCount === $scope.reportGeneration.generatedReports.length) {
+          $scope.currentPlantReportSettings.periodNumber += $scope.reportGeneration.periodsCount;
+          $mdToast.showSimple("Updating Period Count to '" + $scope.currentPlantReportSettings.periodNumber + "' and saving your settings");
+          $scope.savePreferences(false);
+        }
+
       }
     }
 

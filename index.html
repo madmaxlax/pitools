@@ -43,7 +43,7 @@
 		<md-button class="md-raised" ng-click="savePreferences()">Save Settings
 			<md-icon aria-label="save" class="material-icons">save</md-icon>
 		</md-button>
-		<md-button class="md-raised " ng-disabled="isUpdating" href="mailto:pt-stca-pi-support@shell.com;Business-Assist-Engineering-ITV-TEE@shell.com&subject=PI Tools Web App">
+		<md-button class="md-raised " href="mailto:pt-stca-pi-support@shell.com;Business-Assist-Engineering-ITV-TEE@shell.com&subject=PI Tools Web App">
 			Need Support
 			<md-icon aria-label="help" class="material-icons">help_outline</md-icon>
 			<md-tooltip md-direction="botom">
@@ -56,20 +56,53 @@
 	</md-toolbar>
 
 	<div flex layout="row" ng-cloak>
-		<div ng-show="errors.length" class="md-warn">
-			<div ng-repeat="error in errors">
-				<div ng-repeat="(errname, errmsg) in error">
-					<strong>{{errname}}</strong>: {{errmsg}}
-					<!-- <ul>
-						<li ng-repeat="(errmsgname, errmsgdetail) in errmsg">{{errmsgname+':'+errmsgdetail}}</li>
-					</ul> -->
-				</div>
+		<!-- errors modal / dialog -->
+		<div style="visibility: hidden">
+			<div class="md-dialog-container"  id="errorsDialog">
+				<md-dialog>
+					<form ng-cloak>
+						<md-toolbar>
+							<div class="md-toolbar-tools md-warn" md-colors="{background:'default-warn'}">
+								<h2>Error!</h2>
+								<span flex></span>
+								<md-button class="md-icon-button" ng-click="clearErrors()">
+									<md-icon aria-label="close" class="material-icons">close</md-icon>
+								</md-button>
+							</div>
+						</md-toolbar>
+						<md-dialog-content>
+							<div class="md-dialog-content">
+								<!-- <h2>Errors:</h2> -->
+								<div ng-repeat="error in errors">
+									<div ng-repeat="(errname, errmsg) in error">
+										<strong>{{errname}}</strong>: {{errmsg}}
+										<!-- <ul>
+										<li ng-repeat="(errmsgname, errmsgdetail) in errmsg">{{errmsgname+':'+errmsgdetail}}</li>
+									</ul> -->
+									</div>
+								</div>
+							</div>
+						</md-dialog-content>
+
+						<md-dialog-actions layout="row">
+							<md-button class="md-raised " href="mailto:pt-stca-pi-support@shell.com;Business-Assist-Engineering-ITV-TEE@shell.com&subject=PI Tools Web App">
+								<md-icon aria-label="help" class="material-icons">help_outline</md-icon>
+								Need Support
+								<md-tooltip md-direction="Top">
+									Email the support team
+								</md-tooltip>
+							</md-button>
+							<span flex></span>
+							<md-button class="md-raised " ng-disabled="isUpdating" ng-click="clearErrors()">
+								Close and Clear Errors
+								<md-icon aria-label="close" class="material-icons">close</md-icon>
+							</md-button>
+						</md-dialog-actions>
+					</form>
+				</md-dialog>
 			</div>
-			<button type="button" class="close" ng-click="clearErrors()" aria-label="Close">
-				<md-icon aria-label="close" class="material-icons">close</md-icon>
-				Close and Clear Errors
-			</button>
 		</div>
+
 		<div layout="column" flex>
 			<div>
 				<md-card>
@@ -140,23 +173,24 @@
 								Ready to generate {{reportGeneration.periodsCount?reportGeneration.periodsCount+' ':''}}reports based on your settings?
 
 
-								<md-button ng-disabled="totalAsyncCallsFinished<totalAsyncCallsSent"  class="md-raised md-accent" ng-click="generateReports()">{{((totalAsyncCallsFinished
-									< totalAsyncCallsSent)? "Generating...": "Get Report files")}} 
+								<md-button ng-disabled="totalAsyncCallsFinished<totalAsyncCallsSent" class="md-raised md-accent" ng-click="generateReports()">
+									{{((totalAsyncCallsFinished < totalAsyncCallsSent)? "Generating...": "Get Report files")}} 
 								</md-button>
-								<span ng-show="totalAsyncCallsFinished<totalAsyncCallsSent">
-									<md-button class="md-raised" ng-click="cancelGenerate()">
-										<md-icon aria-label="close" class="material-icons">close</md-icon>
-										Cancel </md-button>
-									Report Progress: {{(totalAsyncCallsFinished/totalAsyncCallsSent * 100) | number:0}}%
-								</span>
-								<br>
-								<md-progress-linear md-mode="{{((totalAsyncCallsFinished===0) && (totalAsyncCallsSent>0))?'indeterminate':'determinate'}}" value="{{totalAsyncCallsFinished/totalAsyncCallsSent * 100}}"></md-progress-linear>
-								<br> Reports:
-								<br>
+										<span ng-show="totalAsyncCallsFinished<totalAsyncCallsSent">
+											<md-button class="md-raised" ng-click="cancelGenerate()">
+												<md-icon aria-label="close" class="material-icons">close</md-icon>
+												Cancel </md-button>
+											Report Progress: {{(totalAsyncCallsFinished/totalAsyncCallsSent * 100) +1 | number:0}}%
+										</span>
+										<br>
+										<md-progress-linear md-mode="{{((totalAsyncCallsFinished===0) && (totalAsyncCallsSent>0))?'indeterminate':'determinate'}}"
+										 value="{{totalAsyncCallsFinished/totalAsyncCallsSent * 100}}"></md-progress-linear>
+										<br> Reports:
+										<br>
 
-								<md-button ng-repeat="(reportNumber, value) in reportGeneration.generatedReports track by $index" class="md-raised " ng-click="openReport(reportNumber)">Download report {{value.periodNumber}}
-									<md-icon aria-label="download" class="material-icons">file_download</md-icon>
-								</md-button>
+										<md-button ng-repeat="(reportNumber, value) in reportGeneration.generatedReports track by $index" class="md-raised " ng-click="openReport(reportNumber)">Download report {{value.periodNumber}}
+											<md-icon aria-label="download" class="material-icons">file_download</md-icon>
+										</md-button>
 							</md-card-content>
 						</md-card>
 					</div>
@@ -187,6 +221,10 @@
 						<md-button class="md-raised md-accent" ng-click="toastTest()">Toast Test
 						</md-button>
 					</div> -->
+					<!-- <div layout="row" layout-align="center center">
+						<md-button class="md-raised md-accent" ng-click="errorTest()">Error Test
+						</md-button>
+					</div> -->
 					<div layout="row" layout-align="center center">
 						<md-button class="md-raised " ng-click="deletePlantPrefernces()">Delete Plant Settings
 							<md-icon aria-label="delete" class="material-icons">delete</md-icon>
@@ -205,7 +243,7 @@
 					</div>
 					<md-divider></md-divider>
 					<div layout="row" layout-align="center center">
-						<md-button class="md-raised " ng-disabled="isUpdating" href="mailto:pt-stca-pi-support@shell.com;Business-Assist-Engineering-ITV-TEE@shell.com&subject=PI Tools Web App">
+						<md-button class="md-raised" href="mailto:pt-stca-pi-support@shell.com;Business-Assist-Engineering-ITV-TEE@shell.com&subject=PI Tools Web App">
 							Need Support
 							<md-icon aria-label="help" class="material-icons">help_outline</md-icon>
 							<md-tooltip md-direction="botom">
