@@ -269,6 +269,11 @@
     //call this function now that it's ready and the app is loading at first
     $scope.getPlants();
 
+    //debugging function
+    $scope.toastTest = function(){
+      $mdToast.show($mdToast.simple().textContent('Hello!').action("ok").hideDelay(300000));
+      
+    }
 
     //function for when a plant is selected
     $scope.getPlantData = function () {
@@ -580,7 +585,9 @@
             //period number from the user plus the offset of how many periods have already been generated
             newReport.periodNumber = $scope.currentPlantReportSettings.periodNumber + i;
             //go set up the CSV
-            $scope.setUpCSVFile(newReport);
+            //(in a non-blocking way)
+            setTimeout($scope.setUpCSVFile(newReport), 0);
+            //blocking way: $scope.setUpCSVFile(newReport)
           }
         }, function (resp) {
           //there was an error
@@ -603,12 +610,12 @@
       newReport.filename = $scope.getCurrentFileName(newReport.periodNumber);
       var currentTime = Date.now();
       if ($scope.currentPlantReportSettings.reportType === 'hydra') {
-        newReport.csvFile = '[HEADER]\n' +
+        newReport.csvFile = '[Header]\n' +
           'Lay-out version=\t3.0\n' +
           'Date=\t' + $filter('date')(currentTime, 'yyyy-MM-dd') + '\n' + //current date
           'Time=\t' + $filter('date')(currentTime, 'HH:mm') + '\n' + //current time
           'Plant name=\t' + $scope.getCurrentPlantID() + '\n' +
-          'Reactor name=\n' +
+          'Reactor name=	R101\n' +
           'Group name=\t' + $scope.currentPlantReportSettings.experimentName + '\n' +
           'Experiment nr=\t' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
           'Condition ID=\t' + $scope.currentPlantReportSettings.periodName + '\n' +
@@ -619,7 +626,7 @@
           'Period end time=\t' + $filter('date')(newReport.periodEndTime, 'HH:mm') + '\n' +
           'Start run hour=\t' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' +
           'End run hour=\t' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' +
-          '[DATA]\n' +
+          '[Data]\n' +
           'Tagnames\tSI-units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
       }
       else {
@@ -630,7 +637,7 @@
           '    PLANT ' + $scope.getCurrentPlantID() + ' PERIOD ' + newReport.periodNumber + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
           '    PERIOD START TIME ' + $filter('date')(newReport.periodStartTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodStartTime, 'dd MMM yyyy') + '  START RUN HOUR ' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' +
           '    PERIOD END   TIME ' + $filter('date')(newReport.periodEndTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodEndTime, 'dd MMM yyyy') + '  END   RUN HOUR ' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' +
-          '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL';
+          '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL\n';
       }
 
 
@@ -654,7 +661,8 @@
         newReport.summaryData = PIWebCalls.reformatArray(resp.Items, 'WebId');
         newReport.asyncCallsStillWaiting--
         //check;    
-        $scope.checkAndFinishReport(newReport);
+        //in non blocking way
+        setTimeout($scope.checkAndFinishReport(newReport), 0);
       }, function (resp) {
         //there was an error
         $scope.errors.push({ "Error with getting calculated data for tags": resp });
@@ -671,8 +679,10 @@
         // console.log(resp);
         newReport.sampledData = PIWebCalls.reformatArray(resp.Items, 'WebId');
         newReport.asyncCallsStillWaiting--
-        //check;        
-        $scope.checkAndFinishReport(newReport);
+        //check;       
+        //in non blocking way
+        setTimeout($scope.checkAndFinishReport(newReport), 0);
+
       }, function (resp) {
         //there was an error
         $scope.errors.push({ "Error with getting first and last value data for tags": resp });
@@ -704,7 +714,7 @@
             var tagShortName = ' ' + tag.Name.replace('STCA', '').substr(4, 10);
             while (tagShortName.length < 12) //need to add spaces if < 11 characters
             {
-              tagShortName += '';
+              tagShortName += ' ';
             }
             newReport.csvFile += $scope.getPrintableValue(newReport.summaryData, tag.WebID, 1, 5).toString().substr(0, 7) + '    ' +//minimum, this is just the order it is returned by PI web API 
               $scope.getPrintableValue(newReport.summaryData, tag.WebID, 2) + '    ' +//maximum
