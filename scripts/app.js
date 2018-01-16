@@ -814,7 +814,7 @@
         return '_.NOX';
       }
       //default value for period number
-      periodNumber = (typeof periodNumber !== 'undefined') ? periodNumber : $scope.currentPlantReportSettings.experimentNumber;
+      periodNumber = (typeof periodNumber !== 'undefined') ? periodNumber : $scope.currentPlantReportSettings.periodNumber;
       if (!$scope.currentPlantReportSettings.reportFileNameWithExpPerNums) {
         return 'plant' + $scope.getCurrentPlantID(true) + ($scope.currentPlantReportSettings.reportType === 'hydra' ? '.R02' : '.NOX');
       }
