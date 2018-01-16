@@ -301,6 +301,10 @@
     $scope.getPlantData = function () {
       //check that an actual plant was selected
       if ($scope.data.selectedPlant != null && $scope.data.selectedPlant.both != null) {
+
+        //reset report generation info since new ones will be generated
+        $scope.resetGeneratedReports();
+
         //save previous plant settings
         if ($scope.previousPlant != null) {
           $scope.preferences.plantSettings[$scope.previousPlant].plantReportSettings = $scope.currentPlantReportSettings;
@@ -322,9 +326,14 @@
     };
 
     //helper function for renaming plant names from "Plant ID xxxx" to just the number, "xxxx"
-    $scope.getCurrentPlantID = function () {
+    $scope.getCurrentPlantID = function (checkPrefixSetting) {
+
       if ($scope.data.selectedPlant != null && $scope.data.selectedPlant.both != null) {
-        return $scope.data.selectedPlant.both.Name.replace('Plant ID ', '');
+        var cleanName = $scope.data.selectedPlant.both.Name.replace('Plant ID ', '');
+        if (checkPrefixSetting && $scope.currentPlantReportSettings != null && $scope.currentPlantReportSettings.removeSTCAprefix) {
+          cleanName = cleanName.replace("STCA", '');
+        }
+        return cleanName;
       }
       else {
         return "NoPlant";
@@ -346,6 +355,10 @@
     $scope.newTagSearch = function () {
       $scope.data.availableTagWriterTags = [];
       $scope.data.availablePlantTags = [];
+      if ($scope.preferences.plantSettings[$scope.getCurrentPlantID()] == null) {
+        //plants still loading, exit function
+        return;
+      }
       $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag = null;
       //make sure the value exists (sometimes doesnt with new users)
       if ($scope.data.selectedPlant != null) {
@@ -381,7 +394,7 @@
     //get the current value of the selected tag
     $scope.getTagValue = function () {
       $scope.preferences.tagWriterNewTagSearch = "";
-      if ($scope.preferences.plantSettings != null && $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag != null) {
+      if ($scope.preferences.plantSettings != null && $scope.preferences.plantSettings[$scope.getCurrentPlantID()] != null && $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag != null) {
         PIWebCalls.TagValue.get({
           webid: $scope.preferences.plantSettings[$scope.getCurrentPlantID()].selectedTagWriterTag.WebID
         }, function (valresp) {
@@ -458,7 +471,7 @@
      */
     $scope.checkSelectedTagsAtStartup = function () {
       //check if there are any tags at all, if not, do nothing
-      if ($scope.currentPlantReportSettings.selectedTags == null || $scope.currentPlantReportSettings.selectedTags.length === 0) {
+      if ($scope.currentPlantReportSettings == null || $scope.currentPlantReportSettings.selectedTags == null || $scope.currentPlantReportSettings.selectedTags.length === 0) {
         return;
       }
       //go through all selected tags, then try to find a match
@@ -550,8 +563,14 @@
       $scope.currentPlantReportSettings.selectedTags = []
     };
 
-
-
+    $scope.resetGeneratedReports = function () {
+      $scope.totalAsyncCallsFinished = 0;
+      $scope.totalAsyncCallsSent = 0;
+      //this will not be saved to the preferences
+      $scope.reportGeneration = {};
+      //figure out how many periods are in the selected start and end times
+      $scope.reportGeneration.periodsCount = 0;
+    }
 
     /**
      * Function that sets off the functions that generate reports from the user info
@@ -559,17 +578,14 @@
      * @returns 
      */
     $scope.generateReports = function () {
-      $scope.totalAsyncCallsFinished = 0;
-      $scope.totalAsyncCallsSent = 0;
+      //reset report generation info since new ones will be generated
+      $scope.resetGeneratedReports();
+
       //
       //TODO If statement that everything is ok, and tags are selected
       //
       if ($scope.currentPlantReportSettings.selectedTags.length) {
         //set up new scope var, reportGeneration
-        //this will not be saved to the preferences
-        $scope.reportGeneration = {};
-        //figure out how many periods are in the selected start and end times
-        $scope.reportGeneration.periodsCount = 0;
         var timeSpan = (new Date($scope.currentPlantReportSettings.endDate)) - (new Date($scope.currentPlantReportSettings.startDate));
         $scope.reportGeneration.periodsCount = Math.floor(timeSpan / ($scope.currentPlantReportSettings.intervalMinutes * 60000));//minutes to milliseconds, then divide to find the periods
 
@@ -634,11 +650,12 @@
       newReport.filename = $scope.getCurrentFileName(newReport.periodNumber);
       var currentTime = Date.now();
       if ($scope.currentPlantReportSettings.reportType === 'hydra') {
+        //hydra format .R02
         newReport.csvFile = '[Header]\n' +
           'Lay-out version=\t3.0\n' +
           'Date=\t' + $filter('date')(currentTime, 'yyyy-MM-dd') + '\n' + //current date
           'Time=\t' + $filter('date')(currentTime, 'HH:mm') + '\n' + //current time
-          'Plant name=\t' + $scope.getCurrentPlantID() + '\n' +
+          'Plant name=\t' + $scope.getCurrentPlantID(true) + '\n' +
           'Reactor name=	R101\n' +
           'Group name=\t' + $scope.currentPlantReportSettings.experimentName + '\n' +
           'Experiment nr=\t' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
@@ -653,12 +670,12 @@
           '[Data]\n' +
           'Tagnames\tSI-units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
       }
-      else {
+      else {//runlist format .nox
         newReport.csvFile = 'DATACOL\n' +
           '\n' +
-          '***PERIOD ' + newReport.periodNumber + '\n' +
+          '***PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + newReport.periodNumber + '\n' +
           '\n' +
-          '    PLANT ' + $scope.getCurrentPlantID() + ' PERIOD ' + newReport.periodNumber + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
+          '    PLANT ' + $scope.getCurrentPlantID(true) + ' PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + newReport.periodNumber + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
           '    PERIOD START TIME ' + $filter('date')(newReport.periodStartTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodStartTime, 'dd MMM yyyy') + '  START RUN HOUR ' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' +
           '    PERIOD END   TIME ' + $filter('date')(newReport.periodEndTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodEndTime, 'dd MMM yyyy') + '  END   RUN HOUR ' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' +
           '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL\n';
@@ -694,7 +711,7 @@
         $scope.errorPush({ "Error with getting calculated data for tags": resp });
       });
       newReport.asyncCallsStillWaiting++;
-      $scope.totalAsyncCallsSent ++;
+      $scope.totalAsyncCallsSent++;
 
       //get the first and last values
       PIWebCalls.SampledValues.get({
@@ -706,7 +723,7 @@
         // console.log(resp);
         newReport.sampledData = PIWebCalls.reformatArray(resp.Items, 'WebId');
         newReport.asyncCallsStillWaiting--
-        $scope.totalAsyncCallsFinished ++;
+        $scope.totalAsyncCallsFinished++;
         //check;       
         //in non blocking way
         setTimeout($scope.checkAndFinishReport(newReport), 0);
@@ -716,7 +733,7 @@
         $scope.errorPush({ "Error with getting first and last value data for tags": resp });
       });
       newReport.asyncCallsStillWaiting++;
-      $scope.totalAsyncCallsSent ++;
+      $scope.totalAsyncCallsSent++;
     };
     /**
      * Checks if there are any outstanding async calls still waiting
@@ -745,12 +762,13 @@
             {
               tagShortName += ' ';
             }
-            newReport.csvFile += $scope.getPrintableValue(newReport.summaryData, tag.WebID, 1, 5).toString().substr(0, 7) + '    ' +//minimum, this is just the order it is returned by PI web API 
-              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 2) + '    ' +//maximum
-              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 0) + '    ' +//average
-              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 3) + '    ' +//std
-              $scope.getPrintableValue(newReport.sampledData, tag.WebID, 0) + '    ' +//firstval
-              $scope.getPrintableValue(newReport.sampledData, tag.WebID, 1) + '\n';//lastval
+            newReport.csvFile += tagShortName +
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 1, 5).toString().substr(0, 7) + '    ' +//minimum, this is just the order it is returned by PI web API 
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 2, 5).toString().substr(0, 7) + '    ' +//maximum
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 0, 5).toString().substr(0, 7) + '    ' +//average
+              $scope.getPrintableValue(newReport.summaryData, tag.WebID, 3, 5).toString().substr(0, 7) + '    ' +//std
+              $scope.getPrintableValue(newReport.sampledData, tag.WebID, 0, 5).toString().substr(0, 7) + '    ' +//firstval
+              $scope.getPrintableValue(newReport.sampledData, tag.WebID, 1, 5).toString().substr(0, 7) + '\n';//lastval
           }
         });
         if ($scope.currentPlantReportSettings.reportType === 'run') {
@@ -784,19 +802,30 @@
       var Value = webIDArray[webID].Items[index].Value;
       if (Value.Value != null && typeof Value.Value === 'number') {
         //return the value to 4 decimal places
-        return $filter('number')(Value.Value, 4);
+        return $filter('number')(Value.Value, decimals);
       }
       else
-        return '0.0000';
+        return $filter('number')(0, decimals);
     };
 
     //helper function to get the file name based on the currently set variables
     $scope.getCurrentFileName = function (periodNumber) {
+      if ($scope.currentPlantReportSettings == null) {
+        return '_.NOX';
+      }
+      //default value for period number
       periodNumber = (typeof periodNumber !== 'undefined') ? periodNumber : $scope.currentPlantReportSettings.experimentNumber;
-      //always .nox Hydra files for now, 
-      return ($scope.currentPlantReportSettings.reportFileNameWithExpPerNums ? $scope.currentPlantReportSettings.experimentName +
-        $scope.currentPlantReportSettings.experimentNumber + '-' + $scope.currentPlantReportSettings.periodName + periodNumber :
-        'plant' + $scope.getCurrentPlantID()) + ($scope.currentPlantReportSettings.reportType === 'hydra' ? '.R02' : '.NOX');
+      if (!$scope.currentPlantReportSettings.reportFileNameWithExpPerNums) {
+        return 'plant' + $scope.getCurrentPlantID(true) + ($scope.currentPlantReportSettings.reportType === 'hydra' ? '.R02' : '.NOX');
+      }
+      else {
+        if ($scope.currentPlantReportSettings.reportType === 'hydra') {
+          return $scope.currentPlantReportSettings.experimentName + $scope.currentPlantReportSettings.experimentNumber + '-' + $scope.currentPlantReportSettings.periodName + periodNumber + '.R02';
+        }
+        else {
+          return $scope.currentPlantReportSettings.experimentName + '_' + $scope.currentPlantReportSettings.experimentNumber + '_' + $scope.currentPlantReportSettings.periodName + '_' + periodNumber + '.NOX';
+        }
+      }
     };
 
     //function to force the download of the file
