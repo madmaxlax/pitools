@@ -36,6 +36,7 @@
 
   //a custom set of web calls for calling certain PI Web API functions
   app.factory("PIWebCalls", ['$resource', function PIWebCallsFactory($resource) {
+    var _PIWebAPIURL = 'https://muntse-s-08817.europe.shell.com/piwebapi/';
     return {
       //small helper function for reformatting PI Web API arrays into a key-value object
       reformatArray: function reformatArray(arr, keyName) {
@@ -49,24 +50,28 @@
         return obj;
       },
 
-      //all the web calls, set up as an angular $resource
-      plantsCall: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/assetdatabases/D0-d52kj1VR0aWEZdcjlIq7g8ZG7ICOjAkiCmRVNEn1oZgU1RDQSBBRiBTRVJWRVJcU1RDQS1BRg/elements?searchFullHierarchy=true&templateName=Plant"),
-      elementAttrValuesCall: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streamsets/:webid/value"),
-      interfacesCall: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/elements/:webid/elements?templateName=Interface"),
-      updateValueCall: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streams/:webid/value"),
-      getValuesAdHocCall: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streamsets/value"),
-      openIssuesEventFramesCall: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/assetdatabases/D0-d52kj1VR0aWEZdcjlIq7g8ZG7ICOjAkiCmRVNEn1oZgU1RDQSBBRiBTRVJWRVJcU1RDQS1BRg/eventframes?templateName=Issue&searchMode=InProgress&startTime=*-4w"),//default last 8 hours. added 4 weeks in case something is older
-      recentIssuesEventFramesCall: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/assetdatabases/D0-d52kj1VR0aWEZdcjlIq7g8ZG7ICOjAkiCmRVNEn1oZgU1RDQSBBRiBTRVJWRVJcU1RDQS1BRg/eventframes?templateName=Issue"), //default last 8 hours. 
-      getArchivedValues: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streams/:webid/recorded"),
-      //TagSearch: $resource('https://muntse-s-08817.europe.shell.com/piwebapi/dataservers/s0Zwm3Ai1HVUiBciNvrmWsBQU1RDQVBJQ09MTA/points?namefilter=:name&maxCount=:max'),
-      TagSearch: $resource('https://muntse-s-08817.europe.shell.com/piwebapi/search/query?scope=pi::piserver&count=:max&q=(name::name AND pointsource::pointsource)'),
-      TagValue: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streams/:webid/value"),
-      TagValueGroup: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streamsets/value"),
-      CalculatedValues: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streamsets/summary"),
-      SampledValues: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streamsets/interpolated"), //can get a set intervals
-      TagRecordedValues: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/streams/:webid/recorded?maxCount=:max&startTime=*&endTime=*-5y"),
-      TagAttributes: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/points/:webid/attributes"),
-      TagAttributesDescriptor: $resource("https://muntse-s-08817.europe.shell.com/piwebapi/points/:webid/attributes/descriptor"),
+      //all the web calls, set up as an angular $resource, and packaged in a factory, which is like a static set of functions
+      plantsCall: $resource(_PIWebAPIURL + "assetdatabases/D0-d52kj1VR0aWEZdcjlIq7g8ZG7ICOjAkiCmRVNEn1oZgU1RDQSBBRiBTRVJWRVJcU1RDQS1BRg/elements?searchFullHierarchy=true&templateName=Plant"),
+      elementAttrValuesCall: $resource(_PIWebAPIURL + "streamsets/:webid/value"),
+      interfacesCall: $resource(_PIWebAPIURL + "elements/:webid/elements?templateName=Interface"),
+      updateValueCall: $resource(_PIWebAPIURL + "streams/:webid/value"),
+      getValuesAdHocCall: $resource(_PIWebAPIURL + "streamsets/value"),
+      openIssuesEventFramesCall: $resource(_PIWebAPIURL + "assetdatabases/D0-d52kj1VR0aWEZdcjlIq7g8ZG7ICOjAkiCmRVNEn1oZgU1RDQSBBRiBTRVJWRVJcU1RDQS1BRg/eventframes?templateName=Issue&searchMode=InProgress&startTime=*-4w"),//default last 8 hours. added 4 weeks in case something is older
+      recentIssuesEventFramesCall: $resource(_PIWebAPIURL + "assetdatabases/D0-d52kj1VR0aWEZdcjlIq7g8ZG7ICOjAkiCmRVNEn1oZgU1RDQSBBRiBTRVJWRVJcU1RDQS1BRg/eventframes?templateName=Issue"), //default last 8 hours. 
+      getArchivedValues: $resource(_PIWebAPIURL + "streams/:webid/recorded"),
+      //TagSearch: $resource(_PIWebAPIURL+'dataservers/s0Zwm3Ai1HVUiBciNvrmWsBQU1RDQVBJQ09MTA/points?namefilter=:name&maxCount=:max'),
+      TagSearch: $resource(_PIWebAPIURL + 'search/query?scope=pi::piserver&count=:max&q=(name::name AND pointsource::pointsource)'),
+      TagValue: $resource(_PIWebAPIURL + "streams/:webid/value"),
+      TagValueGroup: $resource(_PIWebAPIURL + "streamsets/value"),
+      CalculatedValues: $resource(_PIWebAPIURL + "streamsets/summary"),
+      SampledValues: $resource(_PIWebAPIURL + "streamsets/interpolated"), //can get a set intervals
+      TagRecordedValues: $resource(_PIWebAPIURL + "streams/:webid/recorded?maxCount=:max&startTime=*&endTime=*-5y"),
+      CompressedValues: $resource(_PIWebAPIURL + "streams/:webid/recorded"),
+      TagAttributes: $resource(_PIWebAPIURL + "points/:webid/attributes"),
+      TagAttributesDescriptor: $resource(_PIWebAPIURL + "points/:webid/attributes/descriptor"),
+      TagAttributesDigitalSet: $resource(_PIWebAPIURL + "points/:webid/attributes/digitalset"),
+      getDigitalSet: $resource(_PIWebAPIURL + "enumerationsets/?path=\\\\PIServers[STCAPICOLL]\\StateSets[:statename]"),
+      getDigitalSetValues: $resource(_PIWebAPIURL + "enumerationsets/[enumeration set webid]/enumerationvalues")
     };
   }]);
 
@@ -199,11 +204,23 @@
       $mdSidenav('right').toggle();
     };
 
-
-    $scope.focusPeriodTypeSelected = function () {
-      if (true) {
+    /**
+     * UI helper function to bring focus to the next logical spot
+     * 
+     */
+    $scope.focusNextInput = function (IDtoFocus) {
+      if (angular.element('#' + IDtoFocus) == null) {
+        return;
+      }
+      if (angular.element('#' + IDtoFocus)[0].nodeType = "INPUT") {
         setTimeout(function () {
-          angular.element('#interval-minutes-input').focus();
+          angular.element('#' + IDtoFocus)[0].focus();
+        }, 0);
+      }
+      //md-select doesnt work with focus
+      if (angular.element('#' + IDtoFocus)[0].nodeType = "MD-SELECT") {
+        setTimeout(function () {
+          angular.element('#' + IDtoFocus)[0].click();
         }, 0);
       }
     };
@@ -407,6 +424,55 @@
     };
 
     /**
+     * Function to get eventTagInformation like digital states
+     * 
+     */
+    $scope.eventTagSelected = function () {
+      $scope.currentPlantReportSettings.eventTag.digitalSetValues = [];
+      $scope.currentPlantReportSettings.eventTagTriggerValue = null;
+
+      if ($scope.currentPlantReportSettings.eventTag && $scope.currentPlantReportSettings.eventTag.DataType == 'digital') {
+        //it's a digital tag, get digitalset attribute from eventtag
+        PIWebCalls.TagAttributesDigitalSet.get({
+          webid: $scope.currentPlantReportSettings.eventTag.WebID
+        }, function (resp) {
+          //console.log(resp);
+          //now get the digital stateweb id
+          PIWebCalls.getDigitalSet.get(
+            {
+              statename: resp.Value
+            }, function (resp) {
+              //console.log(resp);
+              //now get the digital state value possibilities for digital state
+              PIWebCalls.getDigitalSetValues.get(
+                {
+                  //WebId instead of WebID??
+                  webid: resp.WebId
+                }, function (resp) {
+                  //console.log(resp);
+                  //now get the digital state value possibilities for digital state
+                  $scope.currentPlantReportSettings.eventTag.digitalSetValues = resp.Items;
+                }
+                , function (resp) {
+                  //there was an error
+                  $scope.errorPush({ "Error with getting EventTag digital set info ": $scope.currentPlantReportSettings.eventTag.Name + ': ' + resp });
+                }
+              );
+            }
+            , function (resp) {
+              //there was an error
+              $scope.errorPush({ "Error with getting EventTag digital set info ": $scope.currentPlantReportSettings.eventTag.Name + ': ' + resp });
+            }
+          );
+
+        }, function (resp) {
+          //there was an error
+          $scope.errorPush({ "Error with getting EventTag info ": $scope.currentPlantReportSettings.eventTag.Name + ': ' + resp });
+        });
+      }
+    };
+
+    /**
      * Function that stores a new value to a specified webID tag (for TagWriter)
      * 
      */
@@ -492,6 +558,23 @@
         }
       }
 
+      matchFound = false;
+      //do the same if there's an eventtag chosen and it's not a good one
+      if ($scope.currentPlantReportSettings.eventTag != null) {
+        //go through all available plant tags looking for a match
+        for (var c = 0; c < $scope.data.availableTagWriterTags.length; c++) {
+          if ($scope.currentPlantReportSettings.eventTag.WebID === $scope.data.availableTagWriterTags[c].WebID) {
+            //eventtag exists,no problem
+            return;
+          }
+        }
+        if (!matchFound) {
+          //remove eventtag, user will have to select a new one
+          $mdToast.showSimple("The selected eventtag " + $scope.currentPlantReportSettings.eventTag.Name + " cannot be found. It has been removed from your settings");
+          console.log("The selected eventtag " + $scope.currentPlantReportSettings.eventTag.Name + " cannot be found. It has been removed from your settings");
+          $scope.currentPlantReportSettings.eventTag = null;
+        }
+      }
     };
 
     /**
@@ -584,17 +667,7 @@
       //
       //TODO If statement that everything is ok, and tags are selected
       //
-      if ($scope.currentPlantReportSettings.selectedTags.length) {
-        //set up new scope var, reportGeneration
-        var timeSpan = (new Date($scope.currentPlantReportSettings.endDate)) - (new Date($scope.currentPlantReportSettings.startDate));
-        $scope.reportGeneration.periodsCount = Math.floor(timeSpan / ($scope.currentPlantReportSettings.intervalMinutes * 60000));//minutes to milliseconds, then divide to find the periods
-
-        //if there are no periods, we're done here
-        if (!($scope.reportGeneration.periodsCount > 0)) {
-          $mdToast.showSimple("No periods found!! Check your start/end time and intervals then try again");
-          return;
-        }
-        $mdToast.showSimple($scope.reportGeneration.periodsCount + " periods found, generating reports");
+      if ($scope.currentPlantReportSettings.selectedTags.length) {//do more validation here
 
         //grab the run hour tag, same as how tagwriter does it
         $scope.reportGeneration.runhourTag = {};
@@ -604,35 +677,119 @@
         else {
           $scope.errorPush({ "No RunHour": "No run hour tag found for this plant to use in the report" });
         }
-
         $scope.reportGeneration.generatedReports = [];
-        var newReport;
-        //Get the periods via interval interpolation from PI Web API for RunHour, this will set up the reports and timing
-        PIWebCalls.SampledValues.get({
-          webid: $scope.reportGeneration.runhourTag.WebID,
-          startTime: $scope.currentPlantReportSettings.startDate,
-          endTime: $scope.currentPlantReportSettings.endDate,
-          interval: $scope.currentPlantReportSettings.intervalMinutes + "m",
-        }, function (resp) {
-          var runhourValues = resp.Items[0];
-          for (var i = 0; i < $scope.reportGeneration.periodsCount; i++) {
-            newReport = { tags: [], webIDs: [] };
-            newReport.runhourTag = $scope.reportGeneration.runhourTag;
-            newReport.runhourTag.periodStartValue = runhourValues.Items[i];
-            newReport.runhourTag.periodEndValue = runhourValues.Items[i + 1];
-            newReport.periodStartTime = runhourValues.Items[i].Timestamp;
-            newReport.periodEndTime = runhourValues.Items[i + 1].Timestamp;
-            //period number from the user plus the offset of how many periods have already been generated
-            newReport.periodNumber = $scope.currentPlantReportSettings.periodNumber + i;
-            //go set up the CSV
-            //(in a non-blocking way)
-            setTimeout($scope.setUpCSVFile(newReport), 0);
-            //blocking way: $scope.setUpCSVFile(newReport)
+        var newReport = { tags: [], webIDs: [] };
+
+        //find the periods based on intervals
+        if ($scope.currentPlantReportSettings.periodMethod === 'interval') {
+          //set up new scope var, reportGeneration
+          var timeSpan = (new Date($scope.currentPlantReportSettings.endDate)) - (new Date($scope.currentPlantReportSettings.startDate));
+          $scope.reportGeneration.periodsCount = Math.floor(timeSpan / ($scope.currentPlantReportSettings.intervalMinutes * 60000));//minutes to milliseconds, then divide to find the periods
+
+          //if there are no periods, we're done here
+          if (!($scope.reportGeneration.periodsCount > 0)) {
+            $mdToast.showSimple("No periods found!! Check your start/end time and interval then try again");
+            return;
           }
-        }, function (resp) {
-          //there was an error
-          $scope.errorPush({ "Error with getting RunHour data for the periods": resp });
-        });
+          $mdToast.showSimple($scope.reportGeneration.periodsCount + " periods found, generating reports");
+
+
+          //Get the periods via interval interpolation from PI Web API for RunHour, this will set up the reports and timing
+          PIWebCalls.SampledValues.get({
+            webid: $scope.reportGeneration.runhourTag.WebID,
+            startTime: $scope.currentPlantReportSettings.startDate,
+            endTime: $scope.currentPlantReportSettings.endDate,
+            interval: $scope.currentPlantReportSettings.intervalMinutes + "m",
+          }, function (resp) {
+            var runhourValues = resp.Items[0];
+            for (var i = 0; i < $scope.reportGeneration.periodsCount; i++) {
+
+              //go set up the CSV
+              //(in a non-blocking way)
+              //period number from the user plus the offset of how many periods have already been generated
+              setTimeout($scope.setUpCSVFile(newReport, runhourValues.Items[i], runhourValues.Items[i + 1], $scope.currentPlantReportSettings.periodNumber + i), 0);
+              //blocking way: $scope.setUpCSVFile(newReport)
+            }
+          }, function (resp) {
+            //there was an error
+            $scope.errorPush({ "Error with getting RunHour data for the periods": resp });
+          });
+        }
+        else {//event tag
+          //get the values for the eventTag
+          $scope.reportGeneration.periodsCount = 0;
+          PIWebCalls.CompressedValues.get({
+            webid: $scope.currentPlantReportSettings.eventTag.WebID,
+            startTime: $scope.currentPlantReportSettings.startDate,
+            endTime: $scope.currentPlantReportSettings.endDate,
+            boundaryType: "Outside"
+          }, function (resp) {
+            console.log(resp);
+            var eventTagValues = resp;
+            var periodStartTime = null, periodEndTime = null, periodNumber;
+            for (var i = 0; i < eventTagValues.Items.length; i++) {
+              if (eventTagValues.Items[i].Value.Value === $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
+                if (i === 0) {
+                  //no periods found yet, beginning not found yet
+                  //TO DO look back and find start of period
+                  //------
+                  //for now, start period here
+
+                  periodStartTime = eventTagValues.Items[i].Timestamp;
+                }
+                else {
+                  //look 1 behind, if it's not a trigger value, then we found the start of a period
+                  if (eventTagValues.Items[i - 1].Value.Value !== $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
+
+                    //end the period
+                    periodEndTime = eventTagValues.Items[i].Timestamp;
+                    $scope.reportGeneration.periodsCount++;
+                    periodNumber = $scope.currentPlantReportSettings.periodNumber + $scope.reportGeneration.periodsCount;
+
+                    //Get the periods via interval interpolation from PI Web API for RunHour, this will set up the reports and timing
+                    PIWebCalls.SampledValues.get({
+                      webid: $scope.reportGeneration.runhourTag.WebID,
+                      startTime: periodStartTime,
+                      endTime: periodEndTime,
+                      interval: (new Date(periodEndTime) - new Date(periodStartTime)) / 1000 + 's'
+                    }, function (resp) {
+                      var runhourValues = resp.Items[0];
+
+                      //go set up the CSV
+                      //(in a non-blocking way)
+                      //period number from the user plus the offset of how many periods have already been generated
+                      setTimeout($scope.setUpCSVFile(newReport, runhourValues.Items[0], runhourValues.Items[1], periodNumber), 0);
+                      //blocking way: $scope.setUpCSVFile(newReport)
+
+                    }, function (resp) {
+                      //there was an error
+                      $scope.errorPush({ "Error with getting RunHour data for the periods in event tags": resp });
+                    });
+
+                    //set the beginning of new period
+                    periodStartTime = eventTagValues.Items[i].Timestamp;
+
+                  }
+                }
+                //   else {
+                //   //TODO find end of period
+
+                //   //for now, skip last period
+
+                // }
+
+              }
+              else {
+                //not a trigger value, so this is just part of the period
+              }
+
+
+            }
+          }, function (resp) {
+            //there was an error
+            $scope.errorPush({ "Error with getting RunHour data for the periods": resp });
+          });
+        }
       }
       else {
         $mdToast.showSimple("You must select tags for the report");
@@ -640,12 +797,28 @@
     };
 
     /**
+     * 
+     * 
+     * @param {any} newReport 
+     */
+    $scope.spawnNewPeriod = function (newReport) {
+
+    };
+    /**
      * Function that sets up the actual CSV file
      * 
      * @param {object} newReport expected to have the following values: runhourTag (with start and end values), periodStartTime, periodEndTime, periodNumber
      * the rest of the data like selected tags will come from the preferences
      */
-    $scope.setUpCSVFile = function (newReport) {
+    $scope.setUpCSVFile = function (newReport, runHourStartValue, runHourEndValue, periodNumber) {
+      newReport = { tags: [], webIDs: [] };
+      newReport.runhourTag = $scope.reportGeneration.runhourTag;
+      newReport.runhourTag.periodStartValue = runHourStartValue;
+      newReport.runhourTag.periodEndValue = runHourEndValue;
+      newReport.periodStartTime = runHourStartValue.Timestamp;
+      newReport.periodEndTime = runHourEndValue.Timestamp;
+
+
 
       newReport.filename = $scope.getCurrentFileName(newReport.periodNumber);
       var currentTime = Date.now();

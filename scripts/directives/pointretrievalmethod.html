@@ -5,35 +5,58 @@
         </md-card-title-text>
     </md-card-title>
     <md-card-content>
-        <md-radio-group ng-model="currentPlantReportSettings.method">
+        <md-radio-group ng-model="currentPlantReportSettings.periodMethod">
             <div layout="row">
                 <md-input-container>
-                    <md-radio-button value="interval" class="md-primary" ng-selected="true" ng-click="focusPeriodTypeSelected()">Interval Time (mins)</md-radio-button>
+                    <md-radio-button value="interval" class="md-primary" ng-selected="true" ng-click="focusNextInput('interval-minutes-input')">Interval Time (mins)</md-radio-button>
                 </md-input-container>
                 <md-input-container class="md-block" flex-gt-xs>
                     <label>minutes</label>
-                    <input ng-disabled="!(currentPlantReportSettings.method=='interval')" ng-model="currentPlantReportSettings.intervalMinutes"
+                    <input ng-disabled="!(currentPlantReportSettings.periodMethod==='interval')" ng-model="currentPlantReportSettings.intervalMinutes"
                         id="interval-minutes-input" type="number" ng-step="1" ng-min="0" string-to-number>
                 </md-input-container>
             </div>
-            <div layout="row">
+            <div layout="row" layout-wrap>
                 <!-- Event tag -->
-                <md-tooltip md-direction="top">
+                <!-- <md-tooltip md-direction="top">
                     Event tag feature not enabled yet
-                </md-tooltip>
-                <div flex-xs flex-gt-xs="50">
-                    <md-radio-button value="eventTag" ng-disabled="true" ng-click="focusPeriodTypeSelected()"> Event Tag </md-radio-button>
+                </md-tooltip> -->
+                <div flex="50" flex-gt-md="25" flex-order="1" flex-order-gt-md="">
+                    <md-radio-button value="eventTag" ng-disabled="false" ng-click="focusNextInput('event-tag-select')"> Event Tag </md-radio-button>
                 </div>
-                <div flex-xs flex-gt-xs="50">
+                <div flex="50" flex-gt-md="25" flex-order="3" flex-order-gt-md="2">
                     <md-input-container>
-                        <label>Select Event Tag</label>
-                        <md-select ng-disabled="!(currentPlantReportSettings.method=='eventTag')" ng-model="currentPlantReportSettings.eventTag">
-                            <md-option>
+                        <label>Select Event Tag to Find Periods</label>
+                        <md-select id="event-tag-select" ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag')" ng-model="currentPlantReportSettings.eventTag"
+                            ng-change="eventTagSelected()" ng-model-options="{trackBy: '$value.Name'}">
+                            <md-option ng-if="!data.availableTagWriterTags.length">
                                 <em>None</em>
                             </md-option>
-                            <md-option>Eventtag1</md-option>
-                            <md-option>Eventtag2</md-option>
-                            <md-option>...</md-option>
+                            <md-option ng-repeat="tag in data.availableTagWriterTags | filter:{DataType:'digital'}" ng-value="tag">{{tag.Name}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div flex="50" flex-gt-md="25" flex-order="2" flex-order-gt-md="3">
+                    <md-radio-group ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag')" ng-model="currentPlantReportSettings.eventagPeriodType">
+                        <md-radio-button value="specifiedValue" ng-selected="true"
+                            ng-click="focusNextInput('event-tag-trigger-value-select')">Specified Value: </md-radio-button>
+                        <md-radio-button value="anyValueChange" ng-disabled="true">
+                            <md-tooltip md-direction="top">
+                                Event tag feature not enabled yet
+                            </md-tooltip>
+                            Any value change</md-radio-button>
+                    </md-radio-group>
+                </div>
+                <div flex="50" flex-gt-md="25" flex-order="4">
+                    <md-input-container>
+                        <label>Select Event Tag Trigger Value</label>
+                        <md-select ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag' && currentPlantReportSettings.eventagPeriodType ==='specifiedValue')"
+                            ng-model="currentPlantReportSettings.eventTagTriggerValue" ng-model-options="{trackBy: '$value.Name'}"
+                            id="event-tag-trigger-value-select">
+                            <md-option ng-if="!data.availableTagWriterTags.length">
+                                <em>None</em>
+                            </md-option>
+                            <md-option ng-repeat="digitalValue in currentPlantReportSettings.eventTag.digitalSetValues" ng-value="digitalValue">{{digitalValue.Name}}</md-option>
                         </md-select>
                     </md-input-container>
                 </div>
