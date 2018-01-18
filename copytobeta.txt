@@ -3,7 +3,7 @@
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Tue Jan 16 15:57:13 2018
+  Started : Thu Jan 18 17:19:41 2018
 
    Source : \\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
      Dest : \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\
@@ -23,9 +23,10 @@ Exc Files : file
 
 	                   5	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\
-	    Newer     		   40880	app.js100%  
+	    Newer     		   48297	app.js100%  
 	                  10	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\directives\
-	    Newer     		    4469	experimentandperiodnumbers.html100%  
+	    Newer     		    4503	experimentandperiodnumbers.html  0%  100%  100%  
+	    Newer     		    5647	pointretrievalmethod.html100%  
 	                   7	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\1.1.4\
@@ -37,8 +38,8 @@ Exc Files : file
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
     Dirs :        10         0        10         0         0         0
-   Files :        40         2        38         0         0         0
-   Bytes :    1.40 m    44.2 k    1.36 m         0         0         0
-   Times :   0:00:10   0:00:02                       0:00:00   0:00:04
+   Files :        40         3        37         0         0         0
+   Bytes :    1.41 m    57.0 k    1.36 m         0         0         0
+   Times :   0:00:38   0:00:09                       0:00:00   0:00:06
 
-   Ended : Tue Jan 16 15:57:22 2018
+   Ended : Thu Jan 18 17:19:58 2018

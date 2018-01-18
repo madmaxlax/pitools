@@ -678,7 +678,6 @@
           $scope.errorPush({ "No RunHour": "No run hour tag found for this plant to use in the report" });
         }
         $scope.reportGeneration.generatedReports = [];
-        var newReport = { tags: [], webIDs: [] };
 
         //find the periods based on intervals
         if ($scope.currentPlantReportSettings.periodMethod === 'interval') {
@@ -707,7 +706,7 @@
               //go set up the CSV
               //(in a non-blocking way)
               //period number from the user plus the offset of how many periods have already been generated
-              setTimeout($scope.setUpCSVFile(newReport, runhourValues.Items[i], runhourValues.Items[i + 1], $scope.currentPlantReportSettings.periodNumber + i), 0);
+              setTimeout($scope.setUpCSVFile(runhourValues.Items[i], runhourValues.Items[i + 1], $scope.currentPlantReportSettings.periodNumber + i), 0);
               //blocking way: $scope.setUpCSVFile(newReport)
             }
           }, function (resp) {
@@ -715,7 +714,10 @@
             $scope.errorPush({ "Error with getting RunHour data for the periods": resp });
           });
         }
-        else {//event tag
+        else {
+          //Event tag handling
+          //-------
+
           //get the values for the eventTag
           $scope.reportGeneration.periodsCount = 0;
           PIWebCalls.CompressedValues.get({
@@ -726,7 +728,7 @@
           }, function (resp) {
             // console.log(resp);
             var eventTagValues = resp;
-            var periodStartTime = null, periodEndTime = null, periodNumber;
+            var periodStartTime = null, periodEndTime = null, periodNumber = 0;
             for (var i = 0; i < eventTagValues.Items.length; i++) {
               if (eventTagValues.Items[i].Value.Value === $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
                 if (i === 0) {
@@ -743,28 +745,10 @@
 
                     //end the period
                     periodEndTime = eventTagValues.Items[i].Timestamp;
-                    $scope.reportGeneration.periodsCount++;
                     periodNumber = $scope.currentPlantReportSettings.periodNumber + $scope.reportGeneration.periodsCount;
+                    $scope.reportGeneration.periodsCount++;
 
-                    //Get the periods via interval interpolation from PI Web API for RunHour, this will set up the reports and timing
-                    PIWebCalls.SampledValues.get({
-                      webid: $scope.reportGeneration.runhourTag.WebID,
-                      startTime: periodStartTime,
-                      endTime: periodEndTime,
-                      interval: Math.floor((new Date(periodEndTime) - new Date(periodStartTime)) / 1000) + 's'
-                    }, function (resp) {
-                      var runhourValues = resp.Items[0];
-
-                      //go set up the CSV
-                      //(in a non-blocking way)
-                      //period number from the user plus the offset of how many periods have already been generated
-                      setTimeout($scope.setUpCSVFile(newReport, runhourValues.Items[0], runhourValues.Items[1], periodNumber), 0);
-                      //blocking way: $scope.setUpCSVFile(newReport)
-
-                    }, function (resp) {
-                      //there was an error
-                      $scope.errorPush({ "Error with getting RunHour data for the periods in event tags": resp });
-                    });
+                    $scope.spawnNewPeriod(periodStartTime, periodEndTime, periodNumber);
 
                     //set the beginning of new period
                     periodStartTime = eventTagValues.Items[i].Timestamp;
@@ -797,13 +781,40 @@
     };
 
     /**
+     * Function to 
+     * was necessary to pass the period number through
+     */
+    $scope.spawnNewPeriod = function (periodStartTime, periodEndTime, periodNumber) {
+
+      //Get the periods via interval interpolation from PI Web API for RunHour, this will set up the reports and timing
+      PIWebCalls.SampledValues.get({
+        webid: $scope.reportGeneration.runhourTag.WebID,
+        startTime: periodStartTime,
+        endTime: periodEndTime,
+        interval: Math.floor((new Date(periodEndTime) - new Date(periodStartTime)) / 1000) + 's'
+      }, function (resp) {
+        var runhourValues = resp.Items[0];
+
+        //go set up the CSV
+        //(in a non-blocking way)
+        //period number from the user plus the offset of how many periods have already been generated
+        setTimeout($scope.setUpCSVFile(runhourValues.Items[0], runhourValues.Items[1], periodNumber), 0);
+        //blocking way: $scope.setUpCSVFile(newReport)
+
+      }, function (resp) {
+        //there was an error
+        $scope.errorPush({ "Error with getting RunHour data for the periods in event tags": resp });
+      });
+    };
+
+    /**
      * Function that sets up the actual CSV file
      * 
      * @param {object} newReport expected to have the following values: runhourTag (with start and end values), periodStartTime, periodEndTime, periodNumber
      * the rest of the data like selected tags will come from the preferences
      */
-    $scope.setUpCSVFile = function (newReport, runHourStartValue, runHourEndValue, periodNumber) {
-      newReport = { tags: [], webIDs: [] };
+    $scope.setUpCSVFile = function (runHourStartValue, runHourEndValue, periodNumber) {
+      var newReport = { tags: [], webIDs: [] };
       newReport.runhourTag = $scope.reportGeneration.runhourTag;
       newReport.runhourTag.periodStartValue = runHourStartValue;
       newReport.runhourTag.periodEndValue = runHourEndValue;
