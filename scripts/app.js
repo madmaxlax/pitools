@@ -724,7 +724,7 @@
             endTime: $scope.currentPlantReportSettings.endDate,
             boundaryType: "Outside"
           }, function (resp) {
-            console.log(resp);
+            // console.log(resp);
             var eventTagValues = resp;
             var periodStartTime = null, periodEndTime = null, periodNumber;
             for (var i = 0; i < eventTagValues.Items.length; i++) {
@@ -751,7 +751,7 @@
                       webid: $scope.reportGeneration.runhourTag.WebID,
                       startTime: periodStartTime,
                       endTime: periodEndTime,
-                      interval: (new Date(periodEndTime) - new Date(periodStartTime)) / 1000 + 's'
+                      interval: Math.floor((new Date(periodEndTime) - new Date(periodStartTime)) / 1000) + 's'
                     }, function (resp) {
                       var runhourValues = resp.Items[0];
 
@@ -797,14 +797,6 @@
     };
 
     /**
-     * 
-     * 
-     * @param {any} newReport 
-     */
-    $scope.spawnNewPeriod = function (newReport) {
-
-    };
-    /**
      * Function that sets up the actual CSV file
      * 
      * @param {object} newReport expected to have the following values: runhourTag (with start and end values), periodStartTime, periodEndTime, periodNumber
@@ -817,7 +809,7 @@
       newReport.runhourTag.periodEndValue = runHourEndValue;
       newReport.periodStartTime = runHourStartValue.Timestamp;
       newReport.periodEndTime = runHourEndValue.Timestamp;
-
+      newReport.periodNumber = periodNumber;
 
 
       newReport.filename = $scope.getCurrentFileName(newReport.periodNumber);
@@ -891,7 +883,7 @@
         webid: newReport.webIDs,
         startTime: newReport.periodStartTime,
         endTime: newReport.periodEndTime,
-        interval: (new Date(newReport.periodEndTime) - new Date(newReport.periodStartTime)) / 1000 + 's'
+        interval: Math.floor((new Date(newReport.periodEndTime) - new Date(newReport.periodStartTime)) / 1000) + 's'
       }, function (resp) {
         // console.log(resp);
         newReport.sampledData = PIWebCalls.reformatArray(resp.Items, 'WebId');
