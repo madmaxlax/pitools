@@ -1,6 +1,8 @@
 /// <reference path="C:\Apps\Dropbox\Dev\typings\angularjs\angular.d.ts" />
 //Author: Maxwell Struever maxwell.c.struever@shell.com
 
+
+
 (function () {
   //set up the angular app
   var app = angular.module('myapp', ['ngResource', 'LocalStorageModule', 'yaru22.angular-timeago', 'ngMaterial']);
@@ -331,7 +333,6 @@
         if ($scope.preferences.plantSettings[$scope.getCurrentPlantID()] != null)//there are already preferences for that plant ID
         {
           $scope.currentPlantReportSettings = $scope.preferences.plantSettings[$scope.getCurrentPlantID()].plantReportSettings;
-          console.log($scope.currentPlantReportSettings);
           $mdToast.showSimple("Restoring your locally saved settings for this plant");
         }
         else {
@@ -456,7 +457,7 @@
                   if ($scope.currentPlantReportSettings.eventTagTriggerValue != null) {
                     var found = false;
                     $scope.currentPlantReportSettings.eventTag.digitalSetValues.forEach(function (digitalSetValue, index) {
-                      if(digitalSetValue.Name === $scope.currentPlantReportSettings.eventTagTriggerValue.Name){
+                      if (digitalSetValue.Name === $scope.currentPlantReportSettings.eventTagTriggerValue.Name) {
                         $scope.currentPlantReportSettings.eventTagTriggerValue = digitalSetValue;
                         found = true;
                       }
@@ -692,7 +693,17 @@
           angular.copy($filter('filter')($scope.data.availableTagWriterTags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false)[0], $scope.reportGeneration.runhourTag);
         }
         else {
-          $scope.errorPush({ "No RunHour": "No run hour tag found for this plant to use in the report" });
+          $scope.errorPush({ "No RunHour": "No run hour tag found for this plant to use in the report, using decoy tag instead" });
+
+          //need to have a default tag in its place because the run hour tag kind of drives the rest of the report generation
+          $scope.reportGeneration.runhourTag = {
+            DataType: "float32",
+            Description: "12 Hour Sine Wave",
+            ItemType: "pipoint",
+            Name: "SINUSOID",
+            UniqueID: "\\{02b70967-472d-4855-8172-236fae65ac05}\?1",
+            WebID: "P0Zwm3Ai1HVUiBciNvrmWsBQAQAAAAU1RDQVBJQ09MTFxTSU5VU09JRA"
+          };
         }
         $scope.reportGeneration.generatedReports = [];
 
@@ -1046,6 +1057,17 @@
         }
         document.body.removeChild(link);
       }
+    };
+
+    /**
+     * function that, when clicked, downloads all available reports
+     * 
+     */
+    $scope.downloadAll = function () {
+
+      $scope.reportGeneration.generatedReports.forEach(function (report, index) {
+        $scope.openReport(index);
+      });
     };
   }]);
 })();
