@@ -331,6 +331,7 @@
         if ($scope.preferences.plantSettings[$scope.getCurrentPlantID()] != null)//there are already preferences for that plant ID
         {
           $scope.currentPlantReportSettings = $scope.preferences.plantSettings[$scope.getCurrentPlantID()].plantReportSettings;
+          console.log($scope.currentPlantReportSettings);
           $mdToast.showSimple("Restoring your locally saved settings for this plant");
         }
         else {
@@ -428,8 +429,6 @@
      * 
      */
     $scope.eventTagSelected = function () {
-      $scope.currentPlantReportSettings.eventTag.digitalSetValues = [];
-      $scope.currentPlantReportSettings.eventTagTriggerValue = null;
 
       if ($scope.currentPlantReportSettings.eventTag && $scope.currentPlantReportSettings.eventTag.DataType == 'digital') {
         //it's a digital tag, get digitalset attribute from eventtag
@@ -452,6 +451,20 @@
                   //console.log(resp);
                   //now get the digital state value possibilities for digital state
                   $scope.currentPlantReportSettings.eventTag.digitalSetValues = resp.Items;
+
+                  //check if the new set of digital states has a value of the already set one
+                  if ($scope.currentPlantReportSettings.eventTagTriggerValue != null) {
+                    var found = false;
+                    $scope.currentPlantReportSettings.eventTag.digitalSetValues.forEach(function (digitalSetValue, index) {
+                      if(digitalSetValue.Name === $scope.currentPlantReportSettings.eventTagTriggerValue.Name){
+                        $scope.currentPlantReportSettings.eventTagTriggerValue = digitalSetValue;
+                        found = true;
+                      }
+                    });
+                    if (!found) {
+                      $scope.currentPlantReportSettings.eventTagTriggerValue = null;
+                    }
+                  }
                 }
                 , function (resp) {
                   //there was an error
@@ -469,6 +482,10 @@
           //there was an error
           $scope.errorPush({ "Error with getting EventTag info ": $scope.currentPlantReportSettings.eventTag.Name + ': ' + resp });
         });
+      }
+      else {
+        $scope.currentPlantReportSettings.eventTag.digitalSetValues = [];
+        $scope.currentPlantReportSettings.eventTagTriggerValue = null;
       }
     };
 
