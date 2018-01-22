@@ -21,10 +21,21 @@
                 <!-- <md-tooltip md-direction="top">
                     Event tag feature not enabled yet
                 </md-tooltip> -->
-                <div flex="50" flex-gt-md="25" flex-order="1" flex-order-gt-md="">
+                <div flex="50" flex-gt-md="25" >
                     <md-radio-button value="eventTag" ng-disabled="false" ng-click="focusNextInput('event-tag-select')"> Event Tag </md-radio-button>
                 </div>
-                <div flex="50" flex-gt-md="25" flex-order="3" flex-order-gt-md="2">
+                <div flex="50" flex-gt-md="25" >
+                    <md-radio-group ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag')" ng-model="currentPlantReportSettings.eventagPeriodType">
+                        <md-radio-button value="specifiedValue" ng-selected="true"
+                            ng-click="focusNextInput('event-tag-select')">Specified Value: </md-radio-button>
+                        <md-radio-button value="anyValueChange" >
+                            <!-- <md-tooltip md-direction="top">
+                                Event tag feature not enabled yet
+                            </md-tooltip> -->
+                            Any value change</md-radio-button>
+                    </md-radio-group>
+                </div>
+                <div flex="50" flex-gt-md="25" >
                     <md-input-container>
                         <label>Select Event Tag to Find Periods</label>
                         <md-select id="event-tag-select" ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag')" ng-model="currentPlantReportSettings.eventTag"
@@ -32,23 +43,12 @@
                             <md-option ng-if="!data.availableTagWriterTags.length">
                                 <em>None</em>
                             </md-option>
-                            <md-option ng-repeat="tag in data.availableTagWriterTags | filter:{DataType:'digital'}" ng-value="tag">{{tag.Name}}</md-option>
+                            <md-option ng-repeat="tag in data.availableTagWriterTags | filter:(currentPlantReportSettings.eventagPeriodType === 'specifiedValue'?{DataType:'digital'}:'') | orderBy:'Name'" ng-value="tag">{{tag.Name}}</md-option>
                         </md-select>
                     </md-input-container>
                 </div>
-                <div flex="50" flex-gt-md="25" flex-order="2" flex-order-gt-md="3">
-                    <md-radio-group ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag')" ng-model="currentPlantReportSettings.eventagPeriodType">
-                        <md-radio-button value="specifiedValue" ng-selected="true"
-                            ng-click="focusNextInput('event-tag-trigger-value-select')">Specified Value: </md-radio-button>
-                        <md-radio-button value="anyValueChange" ng-disabled="true">
-                            <md-tooltip md-direction="top">
-                                Event tag feature not enabled yet
-                            </md-tooltip>
-                            Any value change</md-radio-button>
-                    </md-radio-group>
-                </div>
-                <div flex="50" flex-gt-md="25" flex-order="4">
-                    <md-input-container>
+                <div flex="50" flex-gt-md="25" >
+                    <md-input-container ng-show="currentPlantReportSettings.eventagPeriodType ==='specifiedValue'">
                         <label>Select Event Tag Trigger Value</label>
                         <md-select ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag' && currentPlantReportSettings.eventagPeriodType ==='specifiedValue')"
                             ng-model="currentPlantReportSettings.eventTagTriggerValue" ng-model-options="{trackBy: '$value.Name'}"

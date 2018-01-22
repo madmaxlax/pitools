@@ -756,9 +756,9 @@
           }, function (resp) {
             // console.log(resp);
             $scope.data.eventTagValues = resp.Items;
-            var periodStartTime = null, periodEndTime = null, periodNumber = 0;
+            var periodStartTime = null, periodEndTime = null, periodNumber = 0, previousValue = null;
             for (var i = 0; i < $scope.data.eventTagValues.length; i++) {
-              if ($scope.data.eventTagValues[i].Value.Value === $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
+              if ($scope.currentPlantReportSettings.eventagPeriodType === "anyValueChange") {
                 if (i === 0) {
                   //no periods found yet, beginning not found yet
                   //TO DO look back and find start of period
@@ -768,36 +768,70 @@
                   periodStartTime = $scope.data.eventTagValues[i].Timestamp;
                   //this is used in the popup dialog showing the 
                   $scope.data.eventTagValues[i].isPeriod = true;
+                  previousValue = $scope.data.eventTagValues[i];
                 }
                 else {
-                  //look 1 behind, if it's not a trigger value, then we found the start of a period
-                  if ($scope.data.eventTagValues[i - 1].Value.Value !== $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
-
+                  //check if this new value is different from the last one
+                  if ((previousValue.Value.Value != null && $scope.data.eventTagValues[i].Value.Value != null && previousValue.Value.Value != $scope.data.eventTagValues[i].Value.Value) || (typeof previousValue.Value === 'number' && previousValue.Value !== $scope.data.eventTagValues[i].Value)) {
+                    //this is a new value, set up a period
                     //end the period
                     periodEndTime = $scope.data.eventTagValues[i].Timestamp;
                     periodNumber = $scope.currentPlantReportSettings.periodNumber + $scope.reportGeneration.periodsCount;
                     $scope.data.eventTagValues[i].isPeriod = true;
                     $scope.data.eventTagValues[i].periodNumber = periodNumber;
+                    $scope.data.eventTagValues[i].periodDurationMinutes = Math.floor((new Date(periodEndTime) - new Date(periodStartTime)) / 1000 / 60);
                     $scope.reportGeneration.periodsCount++;
+                    previousValue = $scope.data.eventTagValues[i];
 
                     $scope.spawnNewPeriod(periodStartTime, periodEndTime, periodNumber);
 
                     //set the beginning of new period
                     periodStartTime = $scope.data.eventTagValues[i].Timestamp;
-
                   }
                 }
-                //   else {
-                //   //TODO find end of period
-
-                //   //for now, skip last period
-
-                // }
-
               }
-              else {
-                //not a trigger value, so this is just part of the period
-              }
+              else // value trigger has been selected
+                if ($scope.data.eventTagValues[i].Value.Value === $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
+                  if (i === 0 || periodStartTime == null) {
+                    //no periods found yet, beginning not found yet
+                    //TO DO look back and find start of period
+                    //------
+                    //for now, start period here
+
+                    periodStartTime = $scope.data.eventTagValues[i].Timestamp;
+                    //this is used in the popup dialog showing the 
+                    $scope.data.eventTagValues[i].isPeriod = true;
+                  }
+                  else {
+                    //look 1 behind, if it's not a trigger value, then we found the start of a period
+                    if ($scope.data.eventTagValues[i - 1].Value.Value !== $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
+
+                      //end the period
+                      periodEndTime = $scope.data.eventTagValues[i].Timestamp;
+                      periodNumber = $scope.currentPlantReportSettings.periodNumber + $scope.reportGeneration.periodsCount;
+                      $scope.data.eventTagValues[i].isPeriod = true;
+                      $scope.data.eventTagValues[i].periodNumber = periodNumber;
+                      $scope.data.eventTagValues[i].periodDurationMinutes = Math.floor((new Date(periodEndTime) - new Date(periodStartTime)) / 1000 / 60);
+                      $scope.reportGeneration.periodsCount++;
+
+                      $scope.spawnNewPeriod(periodStartTime, periodEndTime, periodNumber);
+
+                      //set the beginning of new period
+                      periodStartTime = $scope.data.eventTagValues[i].Timestamp;
+
+                    }
+                  }
+                  //   else {
+                  //   //TODO find end of period
+
+                  //   //for now, skip last period
+
+                  // }
+
+                }
+                else {
+                  //not a trigger value, so this is just part of the period
+                }
             }
             $scope.eventTagValuesDialogPromise = $mdDialog.show({
               templateUrl: './scripts/directives/eventtagperiodsdialog.html',
