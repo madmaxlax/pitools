@@ -755,31 +755,35 @@
             boundaryType: "Outside"
           }, function (resp) {
             // console.log(resp);
-            var eventTagValues = resp;
+            $scope.data.eventTagValues = resp.Items;
             var periodStartTime = null, periodEndTime = null, periodNumber = 0;
-            for (var i = 0; i < eventTagValues.Items.length; i++) {
-              if (eventTagValues.Items[i].Value.Value === $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
+            for (var i = 0; i < $scope.data.eventTagValues.length; i++) {
+              if ($scope.data.eventTagValues[i].Value.Value === $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
                 if (i === 0) {
                   //no periods found yet, beginning not found yet
                   //TO DO look back and find start of period
                   //------
                   //for now, start period here
 
-                  periodStartTime = eventTagValues.Items[i].Timestamp;
+                  periodStartTime = $scope.data.eventTagValues[i].Timestamp;
+                  //this is used in the popup dialog showing the 
+                  $scope.data.eventTagValues[i].isPeriod = true;
                 }
                 else {
                   //look 1 behind, if it's not a trigger value, then we found the start of a period
-                  if (eventTagValues.Items[i - 1].Value.Value !== $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
+                  if ($scope.data.eventTagValues[i - 1].Value.Value !== $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
 
                     //end the period
-                    periodEndTime = eventTagValues.Items[i].Timestamp;
+                    periodEndTime = $scope.data.eventTagValues[i].Timestamp;
                     periodNumber = $scope.currentPlantReportSettings.periodNumber + $scope.reportGeneration.periodsCount;
+                    $scope.data.eventTagValues[i].isPeriod = true;
+                    $scope.data.eventTagValues[i].periodNumber = periodNumber;
                     $scope.reportGeneration.periodsCount++;
 
                     $scope.spawnNewPeriod(periodStartTime, periodEndTime, periodNumber);
 
                     //set the beginning of new period
-                    periodStartTime = eventTagValues.Items[i].Timestamp;
+                    periodStartTime = $scope.data.eventTagValues[i].Timestamp;
 
                   }
                 }
@@ -794,9 +798,20 @@
               else {
                 //not a trigger value, so this is just part of the period
               }
-
-
             }
+            $scope.eventTagValuesDialogPromise = $mdDialog.show({
+              templateUrl: './scripts/directives/eventtagperiodsdialog.html',
+              parent: angular.element(document.body),
+              scope: $scope,
+              clickOutsideToClose: true,
+              disableParentScroll: true,
+              preserveScope: true
+            })
+              .then(function (answer) {
+                $scope.status = 'You said the information was "' + answer + '".';
+              }, function () {
+                $scope.status = 'You cancelled the dialog.';
+              });
           }, function (resp) {
             //there was an error
             $scope.errorPush({ "Error with getting RunHour data for the periods": resp });
@@ -806,6 +821,9 @@
       else {
         $mdToast.showSimple("You must select tags for the report");
       }
+    };
+    $scope.hideDialog = function () {
+      $mdDialog.hide();
     };
 
     /**
@@ -983,7 +1001,11 @@
         //automatically update the periods 
         if ($scope.reportGeneration.periodsCount === $scope.reportGeneration.generatedReports.length) {
           $scope.currentPlantReportSettings.periodNumber += $scope.reportGeneration.periodsCount;
-          $mdToast.showSimple("Updating Period Count to '" + $scope.currentPlantReportSettings.periodNumber + "' and saving your settings");
+
+          //check if event tag dialog is open. if it is, skip this message because it causes weird scroll issues
+          if ($scope.eventTagValuesDialogPromise == null || $scope.eventTagValuesDialogPromise.$$state.status !== 0) {
+            $mdToast.showSimple("Updating Period Count to '" + $scope.currentPlantReportSettings.periodNumber + "' and saving your settings");
+          }
           $scope.savePreferences(false);
         }
 

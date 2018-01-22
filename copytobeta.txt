@@ -3,7 +3,7 @@
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Fri Jan 19 08:28:28 2018
+  Started : Fri Jan 19 17:26:07 2018
 
    Source : \\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
      Dest : \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\
@@ -22,8 +22,11 @@ Exc Files : file
 ------------------------------------------------------------------------------
 
 	                   5	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
+	    Newer     		   13340	index.html100%  
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\
+	    Newer     		   49951	app.js100%  
 	                  10	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\directives\
+	    Newer     		    5647	pointretrievalmethod.html100%  
 	                   7	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\1.1.4\
@@ -35,8 +38,8 @@ Exc Files : file
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
     Dirs :        10         0        10         0         0         0
-   Files :        40         0        40         0         0         0
-   Bytes :    1.41 m         0    1.41 m         0         0         0
-   Times :   0:00:14   0:00:00                       0:00:00   0:00:14
+   Files :        40         3        37         0         0         0
+   Bytes :    1.41 m    67.3 k    1.35 m         0         0         0
+   Times :   0:00:07   0:00:01                       0:00:00   0:00:04
 
-   Ended : Fri Jan 19 08:28:45 2018
+   Ended : Fri Jan 19 17:26:15 2018

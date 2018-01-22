@@ -1,0 +1,45 @@
+<md-dialog aria-label="">
+    <form ng-cloak>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Event Tag {{currentPlantReportSettings.eventTag.Name}}, {{reportGeneration.periodsCount}} Periods Found</h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click=" hideDialog()">
+                    <md-icon aria-label="close" class="material-icons">close</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content>
+            <div class="md-dialog-content">
+                <!-- <h2>Values for Event Tag: {{currentPlantReportSettings.eventTag.Name}}</h2>
+                <h3>Periods found: {{reportGeneration.periodsCount}}</h3> -->
+                <table class="event-tag-periods">
+                    <tr>
+                        <th>Value</th>
+                        <th>Timestamp</th>
+                        <th>Is a new period?</th>
+                    </tr>
+                    <tr ng-repeat="event in data.eventTagValues">
+                        <td>{{event.Value.Name?event.Value.Name:event.Value}}</td>
+                        <td>{{event.Timestamp | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        <td>{{event.isPeriod===true?(event.periodNumber?"End of period "+event.periodNumber:"Period start"):""}}</td>
+                    </tr>
+                </table>
+            </div>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row">
+            <!-- <md-button href="http://en.wikipedia.org/wiki/Mango" target="_blank" md-autofocus>
+                More on Wikipedia
+            </md-button>
+            <span flex></span> -->
+            <md-button class="md-raised" ng-click=" hideDialog()">
+                OK
+            </md-button>
+            <!-- <md-button ng-click="answer('useful')">
+                Useful
+            </md-button> -->
+        </md-dialog-actions>
+    </form>
+</md-dialog>

@@ -12,3 +12,12 @@ https://github.com/angular/material/issues/1106
 md-toast {
   position: fixed !important;
 }
+table.event-tag-periods{
+  width:100%;
+  border-collapse: collapse;
+}
+table.event-tag-periods td{
+  text-align: center;
+  padding: 4px;
+  border: 1px solid #000;
+}
