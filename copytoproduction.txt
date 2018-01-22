@@ -3,10 +3,10 @@
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Mon Jan 22 16:49:26 2018
+  Started : Mon Jan 22 16:49:43 2018
 
    Source : \\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
-     Dest : \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\
+     Dest : \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsProduction\pitools\
 
     Files : *
 	    
@@ -21,26 +21,29 @@ Exc Files : file
 
 ------------------------------------------------------------------------------
 
-	                   5	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
+	                   6	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
+	    Newer     		   13340	index.html  0%  100%  100%  
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\
 	    Newer     		   53571	app.js100%  
 	                  11	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\directives\
 	    New File  		    2076	eventtagperiodsdialog.html100%  
+	    Newer     		    4503	experimentandperiodnumbers.html100%  
 	    Newer     		    5669	pointretrievalmethod.html100%  
+	    Newer     		    3218	tagselect.html100%  
 	                   7	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\1.1.4\
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angularjs\
 	                   6	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angularjs\1.6.4\
 	                   8	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\styles\
-	    Newer     		     515	styles.css  0%  100%  100%  
+	    Newer     		     515	styles.css100%  
 
 ------------------------------------------------------------------------------
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
     Dirs :        10         0        10         0         0         0
-   Files :        41         4        37         0         0         0
-   Bytes :    1.42 m    60.3 k    1.36 m         0         0         0
-   Times :   0:00:28   0:00:07                       0:00:00   0:00:06
+   Files :        42         7        35         0         0         0
+   Bytes :    1.42 m    80.9 k    1.34 m         0         0         0
+   Times :   0:00:46   0:00:06                       0:00:00   0:00:01
 
-   Ended : Mon Jan 22 16:49:41 2018
+   Ended : Mon Jan 22 16:49:52 2018
