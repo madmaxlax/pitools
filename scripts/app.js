@@ -485,8 +485,10 @@
         });
       }
       else {
-        $scope.currentPlantReportSettings.eventTag.digitalSetValues = [];
-        $scope.currentPlantReportSettings.eventTagTriggerValue = null;
+        if ($scope.currentPlantReportSettings != null && $scope.currentPlantReportSettings.eventTag != null) {
+          $scope.currentPlantReportSettings.eventTag.digitalSetValues = [];
+          $scope.currentPlantReportSettings.eventTagTriggerValue = null;
+        }
       }
     };
 
@@ -547,7 +549,16 @@
         else return 0;
       }
     };
-
+    /**
+     * helper function for setting date to now
+     * 
+     */
+    $scope.setEndDateToNow = function () {
+      var coeff = 1000 * 60; //round to nearest minute
+      var date = new Date();  //or use any other date
+      var rounded = new Date(Math.floor(date.getTime() / coeff) * coeff)
+      $scope.currentPlantReportSettings.endDate = (rounded);
+    }
     /**
      * Function that checks the list of selected tags that were loaded from the settings and:
      * 1 checks that they exist
@@ -685,7 +696,7 @@
       //
       //TODO If statement that everything is ok, and tags are selected
       //
-      if ($scope.currentPlantReportSettings.selectedTags.length) {//do more validation here
+      if ($scope.piToolsForm.$valid) {//do more validation here
 
         //grab the run hour tag, same as how tagwriter does it
         $scope.reportGeneration.runhourTag = {};
@@ -853,10 +864,15 @@
         }
       }
       else {
-        $mdToast.showSimple("You must select tags for the report");
+        $mdToast.showSimple("You still need to correctly fill some fiels before getting reports");
       }
     };
+    /**
+     * little helper function for closing dialogs that is available on the scope
+     * 
+     */
     $scope.hideDialog = function () {
+
       $mdDialog.hide();
     };
 
@@ -907,34 +923,34 @@
       var currentTime = Date.now();
       if ($scope.currentPlantReportSettings.reportType === 'hydra') {
         //hydra format .R02
-        newReport.csvFile = '[Header]\n' +
-          'Lay-out version=\t3.0\n' +
-          'Date=\t' + $filter('date')(currentTime, 'yyyy-MM-dd') + '\n' + //current date
-          'Time=\t' + $filter('date')(currentTime, 'HH:mm') + '\n' + //current time
-          'Plant name=\t' + $scope.getCurrentPlantID(true) + '\n' +
-          'Reactor name=	R101\n' +
-          'Group name=\t' + $scope.currentPlantReportSettings.experimentName + '\n' +
-          'Experiment nr=\t' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
-          'Condition ID=\t' + $scope.currentPlantReportSettings.periodName + '\n' +
-          'Period nr=\t' + newReport.periodNumber + '\n' + //use period number with the offset
-          'Period start date=\t' + $filter('date')(newReport.periodStartTime, 'yyyy-MM-dd') + '\n' +
-          'Period start time=\t' + $filter('date')(newReport.periodStartTime, 'HH:mm') + '\n' +
-          'Period end date=\t' + $filter('date')(newReport.periodEndTime, 'yyyy-MM-dd') + '\n' +
-          'Period end time=\t' + $filter('date')(newReport.periodEndTime, 'HH:mm') + '\n' +
-          'Start run hour=\t' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' +
-          'End run hour=\t' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' +
-          '[Data]\n' +
-          'Tagnames\tSI-units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\n';
+        newReport.csvFile = '[Header]\r\n' +
+          'Lay-out version=\t3.0\r\n' +
+          'Date=\t' + $filter('date')(currentTime, 'yyyy-MM-dd') + '\r\n' + //current date
+          'Time=\t' + $filter('date')(currentTime, 'HH:mm') + '\r\n' + //current time
+          'Plant name=\t' + $scope.getCurrentPlantID(true) + '\r\n' +
+          'Reactor name=	R101\r\n' +
+          'Group name=\t' + $scope.currentPlantReportSettings.experimentName + '\r\n' +
+          'Experiment nr=\t' + $scope.currentPlantReportSettings.experimentNumber + '\r\n' +
+          'Condition ID=\t' + $scope.currentPlantReportSettings.periodName + '\r\n' +
+          'Period nr=\t' + newReport.periodNumber + '\r\n' + //use period number with the offset
+          'Period start date=\t' + $filter('date')(newReport.periodStartTime, 'yyyy-MM-dd') + '\r\n' +
+          'Period start time=\t' + $filter('date')(newReport.periodStartTime, 'HH:mm') + '\r\n' +
+          'Period end date=\t' + $filter('date')(newReport.periodEndTime, 'yyyy-MM-dd') + '\r\n' +
+          'Period end time=\t' + $filter('date')(newReport.periodEndTime, 'HH:mm') + '\r\n' +
+          'Start run hour=\t' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\r\n' +
+          'End run hour=\t' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\r\n' +
+          '[Data]\r\n' +
+          'Tagnames\tSI-units\tMinimum\tMaximum\tAverage\tDeviation\tFirstval\tLastval\r\n';
       }
       else {//runlist format .nox
-        newReport.csvFile = 'DATACOL\n' +
-          '\n' +
-          '***PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + newReport.periodNumber + '\n' +
-          '\n' +
-          '    PLANT ' + $scope.getCurrentPlantID(true) + ' PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + newReport.periodNumber + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\n' +
-          '    PERIOD START TIME ' + $filter('date')(newReport.periodStartTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodStartTime, 'dd MMM yyyy') + '  START RUN HOUR ' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\n' +
-          '    PERIOD END   TIME ' + $filter('date')(newReport.periodEndTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodEndTime, 'dd MMM yyyy') + '  END   RUN HOUR ' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\n' +
-          '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL\n';
+        newReport.csvFile = 'DATACOL\r\n' +
+          '\r\n' +
+          '***PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + newReport.periodNumber + '\r\n' +
+          '\r\n' +
+          '    PLANT ' + $scope.getCurrentPlantID(true) + ' PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + newReport.periodNumber + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\r\n' +
+          '    PERIOD START TIME ' + $filter('date')(newReport.periodStartTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodStartTime, 'dd MMM yyyy') + '  START RUN HOUR ' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\r\n' +
+          '    PERIOD END   TIME ' + $filter('date')(newReport.periodEndTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodEndTime, 'dd MMM yyyy') + '  END   RUN HOUR ' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\r\n' +
+          '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL\r\n';
       }
 
 
@@ -1009,7 +1025,7 @@
               $scope.getPrintableValue(newReport.summaryData, tag.WebID, 3).toString() + '\t' +//std
               $scope.getPrintableValue(newReport.sampledData, tag.WebID, 0).toString() + '\t' +//firstval
               $scope.getPrintableValue(newReport.sampledData, tag.WebID, 1).toString() +//lastval
-              '\n';
+              '\r\n';
           }
           else {//runlist .nox
             //tagname must be shortened to 10 chars
@@ -1024,11 +1040,11 @@
               $scope.getPrintableValue(newReport.summaryData, tag.WebID, 0, 5).toString().substr(0, 7) + '    ' +//average
               $scope.getPrintableValue(newReport.summaryData, tag.WebID, 3, 5).toString().substr(0, 7) + '    ' +//std
               $scope.getPrintableValue(newReport.sampledData, tag.WebID, 0, 5).toString().substr(0, 7) + '    ' +//firstval
-              $scope.getPrintableValue(newReport.sampledData, tag.WebID, 1, 5).toString().substr(0, 7) + '\n';//lastval
+              $scope.getPrintableValue(newReport.sampledData, tag.WebID, 1, 5).toString().substr(0, 7) + '\r\n';//lastval
           }
         });
         if ($scope.currentPlantReportSettings.reportType === 'run') {
-          newReport.csvFile += '\n***END OF LIST'
+          newReport.csvFile += '\r\n***END OF LIST'
         }
         $scope.reportGeneration.generatedReports.push(newReport);
 

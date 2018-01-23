@@ -5,7 +5,7 @@
         </md-card-title-text>
     </md-card-title>
     <md-card-content>
-        <md-radio-group ng-model="currentPlantReportSettings.periodMethod">
+        <md-radio-group ng-model="currentPlantReportSettings.periodMethod" required>
             <div layout="row">
                 <md-input-container>
                     <md-radio-button value="interval" class="md-primary" ng-selected="true" ng-click="focusNextInput('interval-minutes-input')">Interval Time (mins)</md-radio-button>
@@ -13,7 +13,7 @@
                 <md-input-container class="md-block" flex-gt-xs>
                     <label>minutes</label>
                     <input ng-disabled="!(currentPlantReportSettings.periodMethod==='interval')" ng-model="currentPlantReportSettings.intervalMinutes"
-                        id="interval-minutes-input" type="number" ng-step="1" ng-min="0" string-to-number>
+                        id="interval-minutes-input" type="number" ng-step="1" ng-min="0" string-to-number ng-required="currentPlantReportSettings.periodMethod==='interval'">
                 </md-input-container>
             </div>
             <div layout="row" layout-wrap>
@@ -25,7 +25,7 @@
                     <md-radio-button value="eventTag" ng-disabled="false" ng-click="focusNextInput('event-tag-select')"> Event Tag </md-radio-button>
                 </div>
                 <div flex="50" flex-gt-md="25" >
-                    <md-radio-group ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag')" ng-model="currentPlantReportSettings.eventagPeriodType">
+                    <md-radio-group ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag')" ng-model="currentPlantReportSettings.eventagPeriodType" ng-required="currentPlantReportSettings.periodMethod==='eventTag'">
                         <md-radio-button value="specifiedValue" ng-selected="true"
                             ng-click="focusNextInput('event-tag-select')">Specified Value: </md-radio-button>
                         <md-radio-button value="anyValueChange" >
@@ -39,7 +39,7 @@
                     <md-input-container>
                         <label>Select Event Tag to Find Periods</label>
                         <md-select id="event-tag-select" ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag')" ng-model="currentPlantReportSettings.eventTag"
-                            ng-change="eventTagSelected()" ng-model-options="{trackBy: '$value.Name'}">
+                            ng-change="eventTagSelected()" ng-model-options="{trackBy: '$value.Name'}" ng-required="currentPlantReportSettings.periodMethod==='eventTag'">
                             <md-option ng-if="!data.availableTagWriterTags.length">
                                 <em>None</em>
                             </md-option>
@@ -52,7 +52,7 @@
                         <label>Select Event Tag Trigger Value</label>
                         <md-select ng-disabled="!(currentPlantReportSettings.periodMethod==='eventTag' && currentPlantReportSettings.eventagPeriodType ==='specifiedValue')"
                             ng-model="currentPlantReportSettings.eventTagTriggerValue" ng-model-options="{trackBy: '$value.Name'}"
-                            id="event-tag-trigger-value-select">
+                            id="event-tag-trigger-value-select" ng-required="currentPlantReportSettings.eventagPeriodType ==='specifiedValue'">
                             <md-option ng-if="!data.availableTagWriterTags.length">
                                 <em>None</em>
                             </md-option>
@@ -69,11 +69,11 @@
                 <br>
                 <md-input-container>
                     <label>Start Date</label>
-                    <md-datepicker ng-model="currentPlantReportSettings.startDate" string-to-date md-open-on-focus></md-datepicker>
+                    <md-datepicker ng-model="currentPlantReportSettings.startDate" string-to-date md-open-on-focus required></md-datepicker>
                 </md-input-container>
                 <md-input-container>
                     <label>Time</label>
-                    <input ng-model="currentPlantReportSettings.startDate" string-to-date type="time">
+                    <input ng-model="currentPlantReportSettings.startDate" string-to-date type="time" required>
                 </md-input-container>
             </div>
             <div flex="50">
@@ -82,12 +82,13 @@
 
                 <md-input-container>
                     <label>End Date</label>
-                    <md-datepicker ng-model="currentPlantReportSettings.endDate" string-to-date md-open-on-focus></md-datepicker>
+                    <md-datepicker ng-model="currentPlantReportSettings.endDate" string-to-date md-open-on-focus required></md-datepicker>
                 </md-input-container>
                 <md-input-container>
                     <label>End Time</label>
-                    <input ng-model="currentPlantReportSettings.endDate" string-to-date type="time">
+                    <input ng-model="currentPlantReportSettings.endDate" string-to-date type="time" required>
                 </md-input-container>
+                <md-button class="md-raised" ng-click="setEndDateToNow()" required>Now</md-button>
             </div>
         </div>
     </md-card-content>
