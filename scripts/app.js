@@ -5,7 +5,7 @@
 
 (function () {
   //set up the angular app
-  var app = angular.module('myapp', ['ngResource', 'LocalStorageModule', 'yaru22.angular-timeago', 'ngMaterial']);
+  var app = angular.module('myapp', ['ngResource', 'LocalStorageModule', 'yaru22.angular-timeago', 'ngMaterial', 'ngMessages']);
 
   //set up any http requests to pass along windwos
   app.config(['$httpProvider',
@@ -151,6 +151,51 @@
       }
     };
   });
+  app.directive('inPast', function () {
+    return {
+      require: 'ngModel',
+      link: function (scope, elm, attrs, ctrl) {
+        ctrl.$validators.inPast = function (modelValue, viewValue) {
+          var currentTime = new Date();
+          if (typeof modelValue === 'object' && modelValue > currentTime) {
+            return false;
+          }
+          return true;
+        };
+      }
+    };
+  });
+  app.directive('validDate', function () {
+    return {
+      require: 'ngModel',
+      link: function (scope, elm, attrs, ctrl) {
+        ctrl.$validators.validDate = function (modelValue, viewValue) {
+          if (scope.currentPlantReportSettings != null && scope.currentPlantReportSettings.endDate != null && scope.currentPlantReportSettings.startDate != null)
+            var endDate = new Date(scope.currentPlantReportSettings.endDate);
+          var startDate = new Date(scope.currentPlantReportSettings.startDate);
+
+          if (endDate > startDate) {
+            return false;
+          }
+
+          return true;
+        };
+      }
+    };
+  });
+  app.directive('tagsSelected', function () {
+    return {
+      require: 'ngModel',
+      link: function (scope, elm, attrs, ctrl) {
+        ctrl.$validators.tagsSelected = function (modelValue, viewValue) {
+          if (scope.currentPlantReportSettings && scope.currentPlantReportSettings.selectedTags && scope.currentPlantReportSettings.selectedTags.lengt > 0) {
+            return true;
+          }
+          return false;
+        };
+      }
+    };
+  });
 
 
   //this is the main controller and it is actually used for the whole app to keep things simpler and on one $scope
@@ -208,23 +253,23 @@
 
     /**
      * UI helper function to bring focus to the next logical spot
-     * 
+     * turned off for now
      */
     $scope.focusNextInput = function (IDtoFocus) {
-      if (angular.element('#' + IDtoFocus) == null) {
-        return;
-      }
-      if (angular.element('#' + IDtoFocus)[0].nodeType = "INPUT") {
-        setTimeout(function () {
-          angular.element('#' + IDtoFocus)[0].focus();
-        }, 0);
-      }
-      //md-select doesnt work with focus
-      if (angular.element('#' + IDtoFocus)[0].nodeType = "MD-SELECT") {
-        setTimeout(function () {
-          angular.element('#' + IDtoFocus)[0].click();
-        }, 0);
-      }
+      // if (angular.element('#' + IDtoFocus) == null) {
+      //   return;
+      // }
+      // if (angular.element('#' + IDtoFocus)[0].nodeType = "INPUT") {
+      //   setTimeout(function () {
+      //     angular.element('#' + IDtoFocus)[0].focus();
+      //   }, 0);
+      // }
+      // //md-select doesnt work with focus
+      // if (angular.element('#' + IDtoFocus)[0].nodeType = "MD-SELECT") {
+      //   setTimeout(function () {
+      //     angular.element('#' + IDtoFocus)[0].click();
+      //   }, 0);
+      // }
     };
     //funciton to save the current prefernces to local storage
     //param showToast is a bool, whether or not to show a toast message when the prefs have been saved
@@ -864,7 +909,10 @@
         }
       }
       else {
-        $mdToast.showSimple("You still need to correctly fill some fiels before getting reports");
+        $mdToast.showSimple("You still need to correctly fill some fields before getting reports");
+        if (angular.element('.ng-invalid')[1] != null) {
+          angular.element('.ng-invalid')[1].focus();
+        }
       }
     };
     /**

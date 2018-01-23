@@ -174,7 +174,7 @@
 									Ready to generate {{reportGeneration.periodsCount?reportGeneration.periodsCount+' ':''}}reports based on your settings?
 
 
-									<md-button ng-disabled="totalAsyncCallsFinished<totalAsyncCallsSent" class="md-raised md-accent" type="submit"  >
+									<md-button ng-disabled="totalAsyncCallsFinished<totalAsyncCallsSent" class="md-raised md-accent" type="submit">
 										{{((totalAsyncCallsFinished
 										< totalAsyncCallsSent)? "Generating...": "Get Report files")}} </md-button>
 											<span ng-show="totalAsyncCallsFinished<totalAsyncCallsSent">
@@ -276,6 +276,13 @@
 			</md-content>
 		</md-sidenav>
 	</div>
+	<script type="text/ng-template" id="form-error-messages">
+		<div ng-message="required">This field is required</div>
+		<div ng-message="number">You must enter a valid number</div>
+		<div ng-message="minlength">This field is too short</div>
+		<div ng-message="maxlength">This field is too Long</div>
+		<div ng-message="inPast">The date must be before the current time</div>
+	  </script>
 	<script src="./scripts/vendor/jquery.min.js"></script>
 	<script src="./scripts/vendor/bootstrap.min.js"></script>
 	<!-- <script src="./scripts/angular.min.js"></script> -->

@@ -23,10 +23,11 @@
                 <label>Period Number</label>
                 <input ng-model="currentPlantReportSettings.periodNumber" name="periodNumber" type="number" ng-step="1" ng-min="0" string-to-number
                     required>
-                <div ng-messages="piToolsForm.periodNumber.$error" ng-show="piToolsForm.$submitted">
+                <div ng-messages="piToolsForm.periodNumber.$error">
                     <div ng-message="required">
                         You must enter a period number
                     </div>
+                    <div ng-messages-include="form-error-messages"></div>
                 </div>
             </md-input-container>
         </div>

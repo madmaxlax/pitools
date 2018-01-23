@@ -21,10 +21,11 @@ table.event-tag-periods td{
   padding: 4px;
   border: 1px solid #000;
 }
-md-radio-group.ng-invalid{
+
+/* md-radio-group.ng-invalid.ng-submitted, md-radio-group.ng-invalid.ng-dirty, md-radio-group.ng-invalid.ng-touched{
   color: rgb(221,44,0);
 }
-md-radio-group.ng-invalid md-radio-button .md-off
+md-radio-group.ng-invalid.ng-submitted md-radio-button .md-off, md-radio-group.ng-invalid.ng-dirty md-radio-button .md-off
 {
   border-color: rgba(221,44,0,0.54);
-}
+} */

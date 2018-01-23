@@ -8,7 +8,13 @@
     <md-card-content>
         <md-input-container>
             <label>Search Among Tags</label>
-            <input ng-model="selectTagsFiltertext">
+            <input ng-model="selectTagsFiltertext" name="tagFilter" tags-selected>
+            <div ng-messages="piToolsForm.tagFilter.$error">
+                    <div ng-message="tagsSelected">
+                        You must select at least one tag to add to the report
+                    </div>
+                    <div ng-messages-include="form-error-messages"></div>
+                </div>
         </md-input-container>
         <div layout="row">
             <div flex-xs flex-gt-xs="50">
