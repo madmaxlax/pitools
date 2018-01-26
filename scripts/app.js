@@ -170,14 +170,19 @@
       require: 'ngModel',
       link: function (scope, elm, attrs, ctrl) {
         ctrl.$validators.validDate = function (modelValue, viewValue) {
-          if (scope.currentPlantReportSettings != null && scope.currentPlantReportSettings.endDate != null && scope.currentPlantReportSettings.startDate != null)
-            var endDate = new Date(scope.currentPlantReportSettings.endDate);
-          var startDate = new Date(scope.currentPlantReportSettings.startDate);
+          if (scope.currentPlantReportSettings != null) {
+            if (scope.currentPlantReportSettings.endDate != null && scope.currentPlantReportSettings.startDate != null) {
+              var endDate = new Date(scope.currentPlantReportSettings.endDate);
+              var startDate = new Date(scope.currentPlantReportSettings.startDate);
 
-          if (endDate > startDate) {
-            return false;
+              return endDate > startDate;
+            }
+            else {
+              //end date or start date is not set
+              return false;
+            }
           }
-
+          //if no variable yet, say its okay
           return true;
         };
       }
@@ -188,10 +193,10 @@
       require: 'ngModel',
       link: function (scope, elm, attrs, ctrl) {
         ctrl.$validators.tagsSelected = function (modelValue, viewValue) {
-          if (scope.currentPlantReportSettings && scope.currentPlantReportSettings.selectedTags && scope.currentPlantReportSettings.selectedTags.lengt > 0) {
-            return true;
+          if (scope.currentPlantReportSettings && scope.currentPlantReportSettings.selectedTags && scope.currentPlantReportSettings.selectedTags.length === 0) {
+            return false;
           }
-          return false;
+          return true;
         };
       }
     };
@@ -385,6 +390,8 @@
           $scope.preferences.plantSettings[$scope.getCurrentPlantID()] = {};
         }
         $scope.newTagSearch();
+        //re check the validation now that new data has been loaded
+        $scope.revalidate();
       }
       $scope.previousPlant = $scope.getCurrentPlantID();
     };
@@ -670,6 +677,7 @@
         $scope.currentPlantReportSettings.selectedTags = [];
       }
       $scope.currentPlantReportSettings.selectedTags.push(selectedTag);
+      $scope.piToolsForm.tagFilter.$validate();
     };
 
     /**
@@ -687,6 +695,8 @@
         }
       }
       $scope.data.availablePlantTags.push(tagToRemove);
+      console.log($scope.currentPlantReportSettings.selectedTags.length);
+      $scope.piToolsForm.tagFilter.$validate();
     };
 
     /**
@@ -717,7 +727,8 @@
      */
     $scope.removeAllTags = function () {
       $scope.data.availablePlantTags = $scope.data.availablePlantTags.concat($scope.currentPlantReportSettings.selectedTags);
-      $scope.currentPlantReportSettings.selectedTags = []
+      $scope.currentPlantReportSettings.selectedTags = [];
+      $scope.piToolsForm.tagFilter.$validate();
     };
 
     $scope.resetGeneratedReports = function () {
@@ -728,21 +739,27 @@
       //figure out how many periods are in the selected start and end times
       $scope.reportGeneration.periodsCount = 0;
     }
-
+    /**
+     * function to force angular to re check the custom validations because these fields can be weird
+     * 
+     */
+    $scope.revalidate = function () {
+      $scope.piToolsForm.tagFilter.$validate();
+      $scope.piToolsForm.endDate.$validate();
+      $scope.piToolsForm.startDate.$validate();
+    }
     /**
      * Function that sets off the functions that generate reports from the user info
      * 
      * @returns 
      */
     $scope.generateReports = function () {
-      //reset report generation info since new ones will be generated
-      $scope.resetGeneratedReports();
+      //re check the validation validate just in case
+      $scope.revalidate();
 
-      //
-      //TODO If statement that everything is ok, and tags are selected
-      //
       if ($scope.piToolsForm.$valid) {//do more validation here
-
+        //reset report generation info since new ones will be generated
+        $scope.resetGeneratedReports();
         //grab the run hour tag, same as how tagwriter does it
         $scope.reportGeneration.runhourTag = {};
         if ($filter('filter')($scope.data.availableTagWriterTags, { Name: $scope.getCurrentPlantID() + "RunHour" }, false) !== 0) {
@@ -848,33 +865,40 @@
               }
               else // value trigger has been selected
                 if ($scope.data.eventTagValues[i].Value.Value === $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
-                  if (i === 0 || periodStartTime == null) {
+                  if (i === 0) {
                     //no periods found yet, beginning not found yet
                     //TO DO look back and find start of period
                     //------
-                    //for now, start period here
-
-                    periodStartTime = $scope.data.eventTagValues[i].Timestamp;
+                    //for now, skip this period
+                    $scope.data.eventTagValues[i].periodSkip = true;
+                    // periodStartTime = $scope.data.eventTagValues[i].Timestamp;
                     //this is used in the popup dialog showing the 
-                    $scope.data.eventTagValues[i].isPeriod = true;
+                    // $scope.data.eventTagValues[i].isPeriod = true;
                   }
                   else {
                     //look 1 behind, if it's not a trigger value, then we found the start of a period
                     if ($scope.data.eventTagValues[i - 1].Value.Value !== $scope.currentPlantReportSettings.eventTagTriggerValue.Value) {
+                      //if this is the first one found
+                      if (periodStartTime == null) {
+                        periodStartTime = $scope.data.eventTagValues[i].Timestamp;
 
-                      //end the period
-                      periodEndTime = $scope.data.eventTagValues[i].Timestamp;
-                      periodNumber = $scope.currentPlantReportSettings.periodNumber + $scope.reportGeneration.periodsCount;
-                      $scope.data.eventTagValues[i].isPeriod = true;
-                      $scope.data.eventTagValues[i].periodNumber = periodNumber;
-                      $scope.data.eventTagValues[i].periodDurationMinutes = Math.floor((new Date(periodEndTime) - new Date(periodStartTime)) / 1000 / 60);
-                      $scope.reportGeneration.periodsCount++;
+                        //this is used in the popup dialog showing the 
+                        $scope.data.eventTagValues[i].isPeriod = true;
+                      }
+                      else {
+                        //end the period
+                        periodEndTime = $scope.data.eventTagValues[i].Timestamp;
+                        periodNumber = $scope.currentPlantReportSettings.periodNumber + $scope.reportGeneration.periodsCount;
+                        $scope.data.eventTagValues[i].isPeriod = true;
+                        $scope.data.eventTagValues[i].periodNumber = periodNumber;
+                        $scope.data.eventTagValues[i].periodDurationMinutes = Math.floor((new Date(periodEndTime) - new Date(periodStartTime)) / 1000 / 60);
+                        $scope.reportGeneration.periodsCount++;
 
-                      $scope.spawnNewPeriod(periodStartTime, periodEndTime, periodNumber);
+                        $scope.spawnNewPeriod(periodStartTime, periodEndTime, periodNumber);
 
-                      //set the beginning of new period
-                      periodStartTime = $scope.data.eventTagValues[i].Timestamp;
-
+                        //set the beginning of new period
+                        periodStartTime = $scope.data.eventTagValues[i].Timestamp;
+                      }
                     }
                   }
                   //   else {

@@ -21,7 +21,17 @@ table.event-tag-periods td{
   padding: 4px;
   border: 1px solid #000;
 }
-
+.md-error-copy
+{
+  color: rgb(221,44,0);
+  font-size: 12px;
+  line-height: 14px;
+  transition: all .3s cubic-bezier(.55,0,.55,.2);
+}
+.date-error-message
+{
+  margin-left:-52px;
+}
 /* md-radio-group.ng-invalid.ng-submitted, md-radio-group.ng-invalid.ng-dirty, md-radio-group.ng-invalid.ng-touched{
   color: rgb(221,44,0);
 }

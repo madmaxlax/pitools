@@ -1,4 +1,3 @@
-
 <div>
     <md-card-title>
         <md-card-title-text>
@@ -8,26 +7,39 @@
     <md-card-content>
         <md-input-container>
             <label>Search Among Tags</label>
-            <input ng-model="selectTagsFiltertext" name="tagFilter" tags-selected>
-            <div ng-messages="piToolsForm.tagFilter.$error">
-                    <div ng-message="tagsSelected">
-                        You must select at least one tag to add to the report
-                    </div>
-                    <div ng-messages-include="form-error-messages"></div>
+            <input ng-model="selectTagsFiltertext">
+            <!-- <div ng-messages="piToolsForm.tagFilter.$error">
+                <div ng-message="tagsSelected">
+                    You must select at least one tag to add to the report
                 </div>
+                <div ng-messages-include="form-error-messages"></div>
+            </div> -->
         </md-input-container>
+        <!-- <div class="md-error-copy" ng-show="piToolsForm.tagFilter.$error.tagsSelected">
+            You must select at least one tag to add to the report
+        </div> -->
+        <md-input-container>
+            <input ng-hide="true" type="hiden" name="tagFilter" ng-model="decoy" tags-selected>
+            <div ng-messages="piToolsForm.tagFilter.$error">
+                <div ng-message="tagsSelected">
+                    You must select at least one tag to add to the report
+                </div>
+                <div ng-messages-include="form-error-messages"></div>
+            </div>
+        </md-input-container>
+
         <div layout="row">
             <div flex-xs flex-gt-xs="50">
                 Tags available ({{virtualTagsList.getLength()}})
-                <md-button class="md-raised" ng-click="selectAllTags()">Select all {{(selectTagsFiltertext != null && selectTagsFiltertext !== '')?'filtered ':''}}tags
-                        <md-icon aria-label="select" class="material-icons">chevron_right</md-icon>
-                    </md-button>
+                <md-button class="md-raised" ng-class="{'md-warn':piToolsForm.tagFilter.$error.tagsSelected}" ng-click="selectAllTags()">Select all {{(selectTagsFiltertext != null && selectTagsFiltertext !== '')?'filtered ':''}}tags
+                    <md-icon aria-label="select" class="material-icons">chevron_right</md-icon>
+                </md-button>
             </div>
             <div flex-xs flex-gt-xs="50">
                 Tags selected ({{currentPlantReportSettings.selectedTags.length}})
                 <md-button ng-show="currentPlantReportSettings.selectedTags.length" class="md-raised" ng-click="removeAllTags()">Remove all selected tags
-                        <md-icon aria-label="remove" class="material-icons">chevron_left</md-icon>
-                    </md-button>
+                    <md-icon aria-label="remove" class="material-icons">chevron_left</md-icon>
+                </md-button>
             </div>
         </div>
 
