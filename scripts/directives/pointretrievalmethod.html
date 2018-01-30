@@ -94,7 +94,7 @@
                     <md-datepicker ng-model="currentPlantReportSettings.startDate" name="startDate" string-to-date md-open-on-focus valid-date in-past required></md-datepicker>
                     <div ng-messages="piToolsForm.startDate.$error">
                         <div ng-message="validDate">
-                            You must enter a valid start time that is earlier than the end time
+                            You must enter a valid start time and it must earlier than the end time
                         </div>
                         <div ng-messages-include="form-error-messages"></div>
                     </div>
@@ -116,14 +116,14 @@
                     <md-datepicker ng-model="currentPlantReportSettings.endDate" string-to-date name="endDate" md-open-on-focus valid-date in-past required></md-datepicker>
                     <div ng-messages="piToolsForm.endDate.$error">
                         <div ng-message="validDate">
-                            You must enter a valid end time that is after the start time
+                            You must enter a valid end time and it must after the start time
                         </div>
                         <div ng-messages-include="form-error-messages"></div>
                     </div>
                 </md-input-container>
                 <md-input-container>
                     <label>End Time</label>
-                    <input ng-model="currentPlantReportSettings.endDate"  string-to-date type="time" name="endDateTime" required valid-date in-past>
+                    <input ng-model="currentPlantReportSettings.endDate" string-to-date type="time" name="endDateTime" required valid-date in-past>
                     <div ng-messages="piToolsForm.endDateTime.$error">
                         <div ng-messages-include="form-error-messages"></div>
                     </div>

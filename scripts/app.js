@@ -142,6 +142,7 @@
     return {
       require: 'ngModel',
       link: function (scope, element, attrs, ngModel) {
+        var mcscope = scope;
         // ngModel.$parsers.push(function(value) {
         //   return '' + value;
         // });

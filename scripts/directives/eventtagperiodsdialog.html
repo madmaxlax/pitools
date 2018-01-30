@@ -24,17 +24,13 @@
                         <td>{{event.Timestamp | date:'yyyy-MM-dd HH:mm:ss'}}</td>
                         <td>{{event.Value.Name?event.Value.Name:event.Value}}</td>
                         <td>{{event.isPeriod===true?(event.periodNumber?"End of period "+event.periodNumber+', '+event.periodDurationMinutes
-                            + 'mins':"Period start"):""}} {{event.periodSkip?"Cannot start with trigger value":""}}</td>
+                            + 'mins':"Period start"):""}} {{event.periodSkip?"Cannot start search with trigger value":""}}</td>
                     </tr>
                 </table>
             </div>
         </md-dialog-content>
 
         <md-dialog-actions layout="row">
-            <!-- <md-button href="http://en.wikipedia.org/wiki/Mango" target="_blank" md-autofocus>
-                More on Wikipedia
-            </md-button>
-            <span flex></span> -->
             <md-button class="md-raised" ng-click=" hideDialog()">
                 OK
             </md-button>
