@@ -5,7 +5,7 @@
 
 (function () {
   //set up the angular app
-  var app = angular.module('myapp', ['ngResource', 'LocalStorageModule', 'yaru22.angular-timeago', 'ngMaterial', 'ngMessages']);
+  var app = angular.module('myapp', ['ngResource', 'LocalStorageModule', 'yaru22.angular-timeago', 'ngMaterial', 'ngMessages', 'ngMaterialDatePicker']);
 
   //set up any http requests to pass along windwos
   app.config(['$httpProvider',
@@ -205,7 +205,7 @@
 
 
   //this is the main controller and it is actually used for the whole app to keep things simpler and on one $scope
-  app.controller('appController', ['$scope', '$http', '$resource', '$filter', 'localStorageService', '$mdSidenav', '$mdDialog', '$mdToast', "PIWebCalls", function ($scope, $http, $resource, $filter, localStorageService, $mdSidenav, $mdDialog, $mdToast, PIWebCalls) {
+  app.controller('appController', ['$scope', '$http', '$resource', '$filter', 'localStorageService', '$mdSidenav', '$mdDialog', '$mdToast', "PIWebCalls", 'mdcDateTimeDialog', function ($scope, $http, $resource, $filter, localStorageService, $mdSidenav, $mdDialog, $mdToast, PIWebCalls, mdcDateTimeDialog, ngModel) {
     //globally available array of errors, to be pushed to and displayed as they arise
     $scope.errors = [];
     //global variable for data, set up initially as an object as angular $scope handles this better
@@ -746,8 +746,8 @@
      */
     $scope.revalidate = function () {
       $scope.piToolsForm.tagFilter.$validate();
-      $scope.piToolsForm.endDate.$validate();
-      $scope.piToolsForm.startDate.$validate();
+      // $scope.piToolsForm.endDate.$validate();
+      // $scope.piToolsForm.startDate.$validate();
     }
     /**
      * Function that sets off the functions that generate reports from the user info

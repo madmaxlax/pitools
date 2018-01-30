@@ -89,7 +89,7 @@
             <div flex="50">
                 Start Date/Time
                 <br>
-                <md-input-container>
+                <!-- <md-input-container>
                     <label>Start Date</label>
                     <md-datepicker ng-model="currentPlantReportSettings.startDate" name="startDate" string-to-date md-open-on-focus valid-date in-past required></md-datepicker>
                     <div ng-messages="piToolsForm.startDate.$error">
@@ -105,13 +105,20 @@
                     <div ng-messages="piToolsForm.startDateTime.$error">
                         <div ng-messages-include="form-error-messages"></div>
                     </div>
-                </md-input-container>
+                </md-input-container> -->
+                <md-input-container class="md-input-has-placeholder">
+                    <label>Start Date/Time</label>
+                    <input mdc-datetime-picker="" date="true" time="true" type="text" 
+                    placeholder="Date" max-date="dateTimeEnd" ng-model="currentPlantReportSettings.startDate" class=" md-input"
+                    readonly="readonly" id="input_0">
+                    <div class="md-errors-spacer"></div>
+                  </md-input-container>
             </div>
             <div flex="50">
                 End Date/Time
                 <br>
 
-                <md-input-container>
+                <!-- <md-input-container>
                     <label>End Date</label>
                     <md-datepicker ng-model="currentPlantReportSettings.endDate" string-to-date name="endDate" md-open-on-focus valid-date in-past required></md-datepicker>
                     <div ng-messages="piToolsForm.endDate.$error">
@@ -127,7 +134,14 @@
                     <div ng-messages="piToolsForm.endDateTime.$error">
                         <div ng-messages-include="form-error-messages"></div>
                     </div>
-                </md-input-container>
+                </md-input-container> -->
+                <md-input-container class="md-input-has-placeholder">
+                    <label>End Date/Time</label>
+                    <input mdc-datetime-picker="" date="true" time="true" type="text"   ng-model="currentPlantReportSettings.endDate"
+                    placeholder="Date" min-date="dateTimeStart" max-date="Date.now()" class=" md-input" readonly="readonly"
+                    id="input_1">
+                    <div class="md-errors-spacer"></div>
+                  </md-input-container>
                 <md-button class="md-raised" ng-click="setEndDateToNow()" required>Now</md-button>
             </div>
         </div>
