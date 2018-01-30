@@ -5,7 +5,7 @@
 
 (function () {
   //set up the angular app
-  var app = angular.module('myapp', ['ngResource', 'LocalStorageModule', 'yaru22.angular-timeago', 'ngMaterial', 'ngMessages', 'ngMaterialDatePicker']);
+  var app = angular.module('myapp', ['ngResource', 'LocalStorageModule', 'yaru22.angular-timeago', 'ngMaterial', 'ngMessages']);
 
   //set up any http requests to pass along windwos
   app.config(['$httpProvider',
@@ -205,7 +205,7 @@
 
 
   //this is the main controller and it is actually used for the whole app to keep things simpler and on one $scope
-  app.controller('appController', ['$scope', '$http', '$resource', '$filter', 'localStorageService', '$mdSidenav', '$mdDialog', '$mdToast', "PIWebCalls", 'mdcDateTimeDialog', function ($scope, $http, $resource, $filter, localStorageService, $mdSidenav, $mdDialog, $mdToast, PIWebCalls, mdcDateTimeDialog, ngModel) {
+  app.controller('appController', ['$scope', '$http', '$resource', '$filter', 'localStorageService', '$mdSidenav', '$mdDialog', '$mdToast', "PIWebCalls", function ($scope, $http, $resource, $filter, localStorageService, $mdSidenav, $mdDialog, $mdToast, PIWebCalls) {
     //globally available array of errors, to be pushed to and displayed as they arise
     $scope.errors = [];
     //global variable for data, set up initially as an object as angular $scope handles this better
@@ -611,6 +611,7 @@
       var date = new Date();  //or use any other date
       var rounded = new Date(Math.floor(date.getTime() / coeff) * coeff)
       $scope.currentPlantReportSettings.endDate = (rounded);
+      $scope.currentPlantReportSettings.endDateTime = (rounded);
     }
     /**
      * Function that checks the list of selected tags that were loaded from the settings and:
@@ -746,8 +747,8 @@
      */
     $scope.revalidate = function () {
       $scope.piToolsForm.tagFilter.$validate();
-      // $scope.piToolsForm.endDate.$validate();
-      // $scope.piToolsForm.startDate.$validate();
+      $scope.piToolsForm.endDate.$validate();
+      $scope.piToolsForm.startDate.$validate();
     }
     /**
      * Function that sets off the functions that generate reports from the user info
@@ -758,7 +759,12 @@
       //re check the validation validate just in case
       $scope.revalidate();
 
-      if ($scope.piToolsForm.$valid) {//do more validation here
+      if ($scope.piToolsForm.$valid) {
+        //combine endDate and endDateTime
+        //and startDate and startDateTime
+        $scope.currentPlantReportSettings.startDate = $scope.currentPlantReportSettings.startDate + $scope.currentPlantReportSettings.startDateTime;
+        $scope.currentPlantReportSettings.endDate = $scope.currentPlantReportSettings.endDate + $scope.currentPlantReportSettings.endDateTime;
+
         //reset report generation info since new ones will be generated
         $scope.resetGeneratedReports();
         //grab the run hour tag, same as how tagwriter does it
