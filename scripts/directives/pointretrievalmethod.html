@@ -85,17 +85,18 @@
                 </div>
             </div>
         </md-radio-group>
-        <div layout="row">
+        <div layout="row" id="date-pickers">
             <div flex="50">
                 Start Date/Time
                 <br>
                 <md-input-container>
                     <label>Start Date</label>
-                    <md-datepicker ng-model="currentPlantReportSettings.startDate" name="startDate" string-to-date md-open-on-focus required md-max-date="currentPlantReportSettings.endDate"></md-datepicker>
+                    <md-tooltip md-direction="top">
+                        Start date must be before end date
+                    </md-tooltip>
+                    <md-datepicker ng-model="currentPlantReportSettings.startDatePicker" name="startDate" string-to-date md-open-on-focus required md-max-date="currentPlantReportSettings.endDate"></md-datepicker>
                     <div ng-messages="piToolsForm.startDate.$error">
-                        <div ng-message="validDate">
-                            You must enter a valid start time and it must earlier than the end time
-                        </div>
+                        <div ng-message="mdMaxDate">The start date must be before the end date </div>
                         <div ng-messages-include="form-error-messages"></div>
                     </div>
                 </md-input-container>
@@ -106,11 +107,11 @@
                         <div ng-messages-include="form-error-messages"></div>
                     </div>
                 </md-input-container>
-                <md-input-container>
-                    <input ng-hide="true" type="hiden" name="dateCheck" ng-model="decoy2" valid-date>
-                    <div ng-messages="piToolsForm.dateCheck.$error">
+                <md-input-container class="date-error-message">
+                    <input ng-hide="true" type="hiden" name="dateCheck" ng-model="decoy2" arial-label="ignore" arial-hidden valid-date>
+                    <div ng-messages="piToolsForm.dateCheck.$error" class="date-error-message">
                         <div ng-message="validDate">
-                            You must enter a valid end time that is after the start time
+                            You must enter a valid start time that is before the end time
                         </div>
                         <div ng-messages-include="form-error-messages"></div>
                     </div>
@@ -122,11 +123,13 @@
 
                 <md-input-container>
                     <label>End Date</label>
-                    <md-datepicker ng-model="currentPlantReportSettings.endDate" string-to-date name="endDate" md-open-on-focus required md-min-date="currentPlantReportSettings.startDate" md-max-date="Date.now()"></md-datepicker>
+                    <md-tooltip md-direction="top">
+                        End date must be after start date and before the current time
+                    </md-tooltip>
+                    <md-datepicker ng-model="currentPlantReportSettings.endDatePicker" string-to-date name="endDate" md-open-on-focus required md-min-date="currentPlantReportSettings.startDate" md-max-date="now"></md-datepicker>
                     <div ng-messages="piToolsForm.endDate.$error">
-                        <div ng-message="validDate">
-                            You must enter a valid end time and it must after the start time
-                        </div>
+                        <div ng-message="mdMaxDate">The end date must be before the current time</div>
+                        <div ng-message="mdMinDate">The end date must be after the start date</div>
                         <div ng-messages-include="form-error-messages"></div>
                     </div>
                 </md-input-container>

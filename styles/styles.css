@@ -30,7 +30,7 @@ table.event-tag-periods td{
 }
 .date-error-message
 {
-  margin-left:-52px;
+  margin:-36px 0 0 0;
 }
 /* md-radio-group.ng-invalid.ng-submitted, md-radio-group.ng-invalid.ng-dirty, md-radio-group.ng-invalid.ng-touched{
   color: rgb(221,44,0);

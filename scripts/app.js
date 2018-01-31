@@ -16,7 +16,10 @@
       //delete $httpProvider.defaults.headers.common['X-Requested-With'];
     }
   ]);
-
+  //trun off aria warnings
+  app.config(['$mdAriaProvider', function ($mdAriaProvider) {
+    $mdAriaProvider.disableWarnings();
+  }]);
   //choosing the colors 
   app.config(function ($mdThemingProvider) {
     $mdThemingProvider.theme('default')
@@ -172,16 +175,8 @@
       link: function (scope, elm, attrs, ctrl) {
         ctrl.$validators.validDate = function (modelValue, viewValue) {
           if (scope.currentPlantReportSettings != null) {
-            if (scope.currentPlantReportSettings.endDate != null && scope.currentPlantReportSettings.startDate != null) {
-              var endDate = new Date(scope.currentPlantReportSettings.endDate);
-              var startDate = new Date(scope.currentPlantReportSettings.startDate);
-
-              return endDate > startDate;
-            }
-            else {
-              //end date or start date is not set
-              return false;
-            }
+            scope.combineDateTime();
+            return scope.currentPlantReportSettings.endDate > scope.currentPlantReportSettings.startDate;
           }
           //if no variable yet, say its okay
           return true;
@@ -220,6 +215,8 @@
     $scope.isUpdating = false;
     //previous plant for saving settings and working with multiple plants
     $scope.previousPlant;
+    //used for current time
+    $scope.now = new Date();
 
     //function to clear any current errors (when the user clicks the x on the errors display)
     $scope.clearErrors = function () {
@@ -747,9 +744,35 @@
      */
     $scope.revalidate = function () {
       $scope.piToolsForm.tagFilter.$validate();
-      $scope.piToolsForm.endDate.$validate();
-      $scope.piToolsForm.startDate.$validate();
+      $scope.piToolsForm.dateCheck.$validate();
     }
+
+    /**
+     * function used by $watch to combine date and time inputs into a single DateTime
+     * 
+     */
+    $scope.combineDateTime = function () {
+      if ($scope.currentPlantReportSettings != null) {
+        if ($scope.currentPlantReportSettings.startDatePicker != null && $scope.currentPlantReportSettings.startDateTime != null) {
+          $scope.currentPlantReportSettings.startDate = new Date((new Date($scope.currentPlantReportSettings.startDatePicker).getTime()) + (new Date($scope.currentPlantReportSettings.startDateTime).getTime()));
+        }
+
+        if ($scope.currentPlantReportSettings.endDatePicker != null && $scope.currentPlantReportSettings.endDateTime != null) {
+          $scope.currentPlantReportSettings.endDate = new Date((new Date($scope.currentPlantReportSettings.endDatePicker).getTime()) + (new Date($scope.currentPlantReportSettings.endDateTime).getTime()));
+        }
+      }
+    };
+
+    //set up a watch on the start and end times to always combine the,
+    $scope.$watchGroup(['currentPlantReportSettings.startDatePicker', 'currentPlantReportSettings.startDateTime', 'currentPlantReportSettings.endDatePicker', 'currentPlantReportSettings.endDateTime'], function (newValues, oldValues) {
+      $scope.combineDateTime;
+      if ($scope.piToolsForm != null && $scope.piToolsForm.dateCheck != null) {
+        $scope.piToolsForm.dateCheck.$setTouched();
+        $scope.piToolsForm.dateCheck.$validate();
+      }
+    });
+
+
     /**
      * Function that sets off the functions that generate reports from the user info
      * 
@@ -760,10 +783,6 @@
       $scope.revalidate();
 
       if ($scope.piToolsForm.$valid) {
-        //combine endDate and endDateTime
-        //and startDate and startDateTime
-        $scope.currentPlantReportSettings.startDate = $scope.currentPlantReportSettings.startDate + $scope.currentPlantReportSettings.startDateTime;
-        $scope.currentPlantReportSettings.endDate = $scope.currentPlantReportSettings.endDate + $scope.currentPlantReportSettings.endDateTime;
 
         //reset report generation info since new ones will be generated
         $scope.resetGeneratedReports();
@@ -942,7 +961,13 @@
       else {
         $mdToast.showSimple("You still need to correctly fill some fields before getting reports");
         if (angular.element('.ng-invalid')[1] != null) {
-          angular.element('.ng-invalid')[1].focus();
+          //scroll to it first
+          if ($scope.piToolsForm.dateCheck.$error.validDate) {
+            $("html,body").animate({ scrollTop: $('#date-pickers').offset().top - 50 }, "medium");
+          }
+          else {
+            angular.element('.ng-invalid')[1].focus();
+          }
         }
       }
     };
@@ -1026,7 +1051,8 @@
           '\r\n' +
           '***PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + newReport.periodNumber + '\r\n' +
           '\r\n' +
-          '    PLANT ' + $scope.getCurrentPlantID(true) + ' PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + newReport.periodNumber + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\r\n' +
+          //Period Number must be 4 digits
+          '    PLANT ' + $scope.getCurrentPlantID(true) + ' PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + (("00000" + newReport.periodNumber).slice(-4)) + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\r\n' +
           '    PERIOD START TIME ' + $filter('date')(newReport.periodStartTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodStartTime, 'dd MMM yyyy') + '  START RUN HOUR ' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\r\n' +
           '    PERIOD END   TIME ' + $filter('date')(newReport.periodEndTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodEndTime, 'dd MMM yyyy') + '  END   RUN HOUR ' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\r\n' +
           '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL\r\n';
