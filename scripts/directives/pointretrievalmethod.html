@@ -94,7 +94,7 @@
                     <md-tooltip md-direction="top">
                         Start date must be before end date
                     </md-tooltip>
-                    <md-datepicker ng-model="currentPlantReportSettings.startDatePicker" name="startDate" string-to-date md-open-on-focus required md-max-date="currentPlantReportSettings.endDate"></md-datepicker>
+                    <md-datepicker ng-model="currentPlantReportSettings.startDatePicker" name="startDate" string-to-date md-open-on-focus required md-max-date="now"></md-datepicker>
                     <div ng-messages="piToolsForm.startDate.$error">
                         <div ng-message="mdMaxDate">The start date must be before the end date </div>
                         <div ng-messages-include="form-error-messages"></div>
@@ -126,7 +126,7 @@
                     <md-tooltip md-direction="top">
                         End date must be after start date and before the current time
                     </md-tooltip>
-                    <md-datepicker ng-model="currentPlantReportSettings.endDatePicker" string-to-date name="endDate" md-open-on-focus required md-min-date="currentPlantReportSettings.startDate" md-max-date="now"></md-datepicker>
+                    <md-datepicker ng-model="currentPlantReportSettings.endDatePicker" string-to-date name="endDate" md-open-on-focus required  md-max-date="now"></md-datepicker>
                     <div ng-messages="piToolsForm.endDate.$error">
                         <div ng-message="mdMaxDate">The end date must be before the current time</div>
                         <div ng-message="mdMinDate">The end date must be after the start date</div>

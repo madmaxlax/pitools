@@ -608,6 +608,7 @@
       var date = new Date();  //or use any other date
       var rounded = new Date(Math.floor(date.getTime() / coeff) * coeff)
       $scope.currentPlantReportSettings.endDate = (rounded);
+      $scope.currentPlantReportSettings.endDatePicker = (rounded);
       $scope.currentPlantReportSettings.endDateTime = (rounded);
     }
     /**
@@ -754,13 +755,16 @@
     $scope.combineDateTime = function () {
       if ($scope.currentPlantReportSettings != null) {
         if ($scope.currentPlantReportSettings.startDatePicker != null && $scope.currentPlantReportSettings.startDateTime != null) {
-          $scope.currentPlantReportSettings.startDate = new Date((new Date($scope.currentPlantReportSettings.startDatePicker).getTime()) + (new Date($scope.currentPlantReportSettings.startDateTime).getTime()));
+          $scope.currentPlantReportSettings.startDate = new Date($filter('date')($scope.currentPlantReportSettings.startDatePicker, 'yyyy-MM-dd ') + $filter('date')($scope.currentPlantReportSettings.startDateTime, 'HH:mm:ss'));
         }
 
         if ($scope.currentPlantReportSettings.endDatePicker != null && $scope.currentPlantReportSettings.endDateTime != null) {
-          $scope.currentPlantReportSettings.endDate = new Date((new Date($scope.currentPlantReportSettings.endDatePicker).getTime()) + (new Date($scope.currentPlantReportSettings.endDateTime).getTime()));
+          $scope.currentPlantReportSettings.endDate = new Date($filter('date')($scope.currentPlantReportSettings.endDatePicker, 'yyyy-MM-dd ') + $filter('date')($scope.currentPlantReportSettings.endDateTime, 'HH:mm:ss'));
         }
+        //console.log($scope.currentPlantReportSettings.startDate,$scope.currentPlantReportSettings.endDate);
+
       }
+
     };
 
     //set up a watch on the start and end times to always combine the,
@@ -783,7 +787,7 @@
       $scope.revalidate();
 
       if ($scope.piToolsForm.$valid) {
-
+        //console.log($scope.currentPlantReportSettings.startDate,$scope.currentPlantReportSettings.endDate);
         //reset report generation info since new ones will be generated
         $scope.resetGeneratedReports();
         //grab the run hour tag, same as how tagwriter does it
@@ -816,6 +820,15 @@
           if (!($scope.reportGeneration.periodsCount > 0)) {
             $mdToast.showSimple("No periods found!! Check your start/end time and interval then try again");
             return;
+          }
+          else {
+            //if there are a weird amount of periods, confirm with user
+            if ($scope.reportGeneration.periodsCount > 100) {
+              var response = confirm("You have selected an interval with " + $scope.reportGeneration.periodsCount + " periods, is this correct? Generating this many reports will take a long time");
+              if (!response) {
+                return;
+              }
+            }
           }
           $mdToast.showSimple($scope.reportGeneration.periodsCount + " periods found, generating reports");
 
@@ -1058,59 +1071,66 @@
           '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL\r\n';
       }
 
-
+      var webIDsShortened = [];
+      newReport.summaryData = [];
+      newReport.sampledData = [];
       //add the selected tags to the report tags list
+      //more than ~40 can't fit in one URL / call (restriction of PI Web API 2015 R2, newer versions allow batch calls)
+      newReport.asyncCallsStillWaiting = 0;
       $scope.currentPlantReportSettings.selectedTags.forEach(function (tag, index) {
         newReport.tags.push(tag);
         newReport.webIDs.push(tag.WebID);
+        webIDsShortened.push(tag.WebID);
+        if ((index > 0 && index % 30 === 0) || (index + 1) === $scope.currentPlantReportSettings.selectedTags.length) {
+          //set up a counter
+
+          //get the calculated values
+          PIWebCalls.CalculatedValues.get({
+            webid: webIDsShortened,
+            startTime: newReport.periodStartTime,
+            endTime: newReport.periodEndTime,
+            summaryType: ['Average', 'Minimum', 'Maximum', 'StdDev']
+          }, function (resp) {
+            // console.log(resp);
+            newReport.summaryData.push(resp.Items);
+            newReport.asyncCallsStillWaiting--
+            $scope.totalAsyncCallsFinished++;
+
+            //check;    
+            //in non blocking way
+            setTimeout($scope.checkAndFinishReport(newReport), 0);
+          }, function (resp) {
+            //there was an error
+            $scope.errorPush({ "Error with getting calculated data for tags": resp });
+          });
+          newReport.asyncCallsStillWaiting++;
+          $scope.totalAsyncCallsSent++;
+
+          //get the first and last values
+          PIWebCalls.SampledValues.get({
+            webid: webIDsShortened,
+            startTime: newReport.periodStartTime,
+            endTime: newReport.periodEndTime,
+            interval: Math.floor((new Date(newReport.periodEndTime) - new Date(newReport.periodStartTime)) / 1000) + 's'
+          }, function (resp) {
+            // console.log(resp);
+            newReport.sampledData.push(resp.Items);
+            newReport.asyncCallsStillWaiting--
+            $scope.totalAsyncCallsFinished++;
+            //check;       
+            //in non blocking way
+            setTimeout($scope.checkAndFinishReport(newReport), 0);
+
+          }, function (resp) {
+            //there was an error
+            $scope.errorPush({ "Error with getting first and last value data for tags": resp });
+          });
+          newReport.asyncCallsStillWaiting++;
+          $scope.totalAsyncCallsSent++;
+        }
+        webIDsShortened = [];
       });
 
-      //set up a counter
-      newReport.asyncCallsStillWaiting = 0;
-
-      //get the calculated values
-      PIWebCalls.CalculatedValues.get({
-        webid: newReport.webIDs,
-        startTime: newReport.periodStartTime,
-        endTime: newReport.periodEndTime,
-        summaryType: ['Average', 'Minimum', 'Maximum', 'StdDev']
-      }, function (resp) {
-        // console.log(resp);
-        newReport.summaryData = PIWebCalls.reformatArray(resp.Items, 'WebId');
-        newReport.asyncCallsStillWaiting--
-        $scope.totalAsyncCallsFinished++;
-
-        //check;    
-        //in non blocking way
-        setTimeout($scope.checkAndFinishReport(newReport), 0);
-      }, function (resp) {
-        //there was an error
-        $scope.errorPush({ "Error with getting calculated data for tags": resp });
-      });
-      newReport.asyncCallsStillWaiting++;
-      $scope.totalAsyncCallsSent++;
-
-      //get the first and last values
-      PIWebCalls.SampledValues.get({
-        webid: newReport.webIDs,
-        startTime: newReport.periodStartTime,
-        endTime: newReport.periodEndTime,
-        interval: Math.floor((new Date(newReport.periodEndTime) - new Date(newReport.periodStartTime)) / 1000) + 's'
-      }, function (resp) {
-        // console.log(resp);
-        newReport.sampledData = PIWebCalls.reformatArray(resp.Items, 'WebId');
-        newReport.asyncCallsStillWaiting--
-        $scope.totalAsyncCallsFinished++;
-        //check;       
-        //in non blocking way
-        setTimeout($scope.checkAndFinishReport(newReport), 0);
-
-      }, function (resp) {
-        //there was an error
-        $scope.errorPush({ "Error with getting first and last value data for tags": resp });
-      });
-      newReport.asyncCallsStillWaiting++;
-      $scope.totalAsyncCallsSent++;
     };
     /**
      * Checks if there are any outstanding async calls still waiting
@@ -1120,7 +1140,8 @@
      */
     $scope.checkAndFinishReport = function (newReport) {
       if (newReport.asyncCallsStillWaiting === 0) {
-        //this needs to be moved
+        newReport.summaryData = PIWebCalls.reformatArray(newReport.summaryData, 'WebId');
+        newReport.sampledData = PIWebCalls.reformatArray(newReport.sampledData, 'WebId');
         newReport.tags.forEach(function (tag, index) {
           if ($scope.currentPlantReportSettings.reportType === 'hydra') {//Hydra .R02
             newReport.csvFile += tag.Name + '\t' + (tag.UoM === undefined ? '' : tag.UoM) + '\t' +

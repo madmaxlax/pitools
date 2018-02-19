@@ -3,7 +3,7 @@
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Tue Jan 23 15:03:39 2018
+  Started : Wed Jan 31 18:29:18 2018
 
    Source : \\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
      Dest : \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\
@@ -21,27 +21,31 @@ Exc Files : file
 
 ------------------------------------------------------------------------------
 
+2018/01/31 18:29:19 ERROR 32 (0x00000020) Scanning Destination Directory \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\scripts\
+The process cannot access the file because it is being used by another process.
+Waiting 30 seconds... Retrying...
+2018/01/31 18:29:53 ERROR 32 (0x00000020) Scanning Destination Directory \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\scripts\vendor\angular_material\1.1.4\
+The process cannot access the file because it is being used by another process.
+Waiting 30 seconds... Retrying...
+2018/01/31 18:30:26 ERROR 32 (0x00000020) Scanning Destination Directory \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\styles\
+The process cannot access the file because it is being used by another process.
+Waiting 30 seconds... Retrying...
 	                   6	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
-	    Newer     		   13452	index.html100%  
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\
-	    Newer     		   54241	app.js100%  
 	                  11	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\directives\
-	    Newer     		    5300	experimentandperiodnumbers.html100%  
-	    Newer     		    6094	pointretrievalmethod.html100%  
-	                   7	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\
+	                  11	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\1.1.4\
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angularjs\
 	                   6	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angularjs\1.6.4\
 	                   8	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\styles\
-	    Newer     		     666	styles.css100%  
 
 ------------------------------------------------------------------------------
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
     Dirs :        10         0        10         0         0         0
-   Files :        42         5        37         0         0         0
-   Bytes :    1.42 m    77.8 k    1.35 m         0         0         0
-   Times :   0:00:08   0:00:01                       0:00:00   0:00:04
+   Files :        46         0        46         0         0         0
+   Bytes :    1.75 m         0    1.75 m         0         0         0
+   Times :   0:01:38   0:00:00                       0:01:30   0:01:38
 
-   Ended : Tue Jan 23 15:03:46 2018
+   Ended : Wed Jan 31 18:30:57 2018
