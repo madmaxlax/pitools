@@ -1077,6 +1077,7 @@
       //add the selected tags to the report tags list
       //more than ~40 can't fit in one URL / call (restriction of PI Web API 2015 R2, newer versions allow batch calls)
       newReport.asyncCallsStillWaiting = 0;
+      newReport.finishedSendingAllCalls = false;
       $scope.currentPlantReportSettings.selectedTags.forEach(function (tag, index) {
         newReport.tags.push(tag);
         newReport.webIDs.push(tag.WebID);
@@ -1092,7 +1093,8 @@
             summaryType: ['Average', 'Minimum', 'Maximum', 'StdDev']
           }, function (resp) {
             // console.log(resp);
-            newReport.summaryData.push(resp.Items);
+            newReport.summaryData = newReport.summaryData.concat(resp.Items);
+            // newReport.summaryData = PIWebCalls.reformatArray(resp.Items, 'WebId');
             newReport.asyncCallsStillWaiting--
             $scope.totalAsyncCallsFinished++;
 
@@ -1114,7 +1116,8 @@
             interval: Math.floor((new Date(newReport.periodEndTime) - new Date(newReport.periodStartTime)) / 1000) + 's'
           }, function (resp) {
             // console.log(resp);
-            newReport.sampledData.push(resp.Items);
+            newReport.sampledData = newReport.sampledData.concat(resp.Items);
+            // newReport.sampledData = PIWebCalls.reformatArray(resp.Items, 'WebId');
             newReport.asyncCallsStillWaiting--
             $scope.totalAsyncCallsFinished++;
             //check;       
@@ -1127,9 +1130,12 @@
           });
           newReport.asyncCallsStillWaiting++;
           $scope.totalAsyncCallsSent++;
+          webIDsShortened = [];
         }
-        webIDsShortened = [];
       });
+      newReport.finishedSendingAllCalls = true;
+      //check once more   
+      setTimeout($scope.checkAndFinishReport(newReport), 0);
 
     };
     /**
@@ -1139,7 +1145,7 @@
      * @param {any} newReport 
      */
     $scope.checkAndFinishReport = function (newReport) {
-      if (newReport.asyncCallsStillWaiting === 0) {
+      if (newReport.finishedSendingAllCalls && newReport.asyncCallsStillWaiting === 0) {
         newReport.summaryData = PIWebCalls.reformatArray(newReport.summaryData, 'WebId');
         newReport.sampledData = PIWebCalls.reformatArray(newReport.sampledData, 'WebId');
         newReport.tags.forEach(function (tag, index) {
