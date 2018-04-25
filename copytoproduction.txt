@@ -3,7 +3,7 @@
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Mon Jan 22 16:49:43 2018
+  Started : Wed Apr 25 11:34:28 2018
 
    Source : \\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
      Dest : \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsProduction\pitools\
@@ -22,28 +22,65 @@ Exc Files : file
 ------------------------------------------------------------------------------
 
 	                   6	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
-	    Newer     		   13340	index.html  0%  100%  100%  
+	    Newer     		   13922	index.html100%  
+	  New Dir          2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\images\
+	    New File  		    2905	favicon-32x32.png100%  
+	    New File  		    4608	Thumbs.db100%  
+	  New Dir         29	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\images\icons\
+	    New File  		   17665	android-icon-144x144.png100%  
+	    New File  		   22437	android-icon-192x192.png100%  
+	    New File  		    3311	android-icon-36x36.png100%  
+	    New File  		    4708	android-icon-48x48.png100%  
+	    New File  		    7490	android-icon-72x72.png100%  
+	    New File  		   10480	android-icon-96x96.png100%  
+	    New File  		   23011	apple-icon.png100%  
+	    New File  		   13189	apple-icon-114x114.png100%  
+	    New File  		   14006	apple-icon-120x120.png100%  
+	    New File  		   17665	apple-icon-144x144.png100%  
+	    New File  		   18810	apple-icon-152x152.png100%  
+	    New File  		   23624	apple-icon-180x180.png100%  
+	    New File  		    5719	apple-icon-57x57.png100%  
+	    New File  		    6091	apple-icon-60x60.png100%  
+	    New File  		    7490	apple-icon-72x72.png100%  
+	    New File  		    7895	apple-icon-76x76.png100%  
+	    New File  		   23011	apple-icon-precomposed.png100%  
+	    New File  		    1493	browserconfig.xml100%  
+	    New File  		    5649	exclamation-icon-17.png100%  
+	    New File  		    1150	favicon.ico100%  
+	    New File  		    1679	favicon-16x16.png100%  
+	    New File  		    2905	favicon-32x32.png100%  
+	    New File  		   10480	favicon-96x96.png100%  
+	    New File  		     720	manifest.json100%  
+	    New File  		   17665	ms-icon-144x144.png100%  
+	    New File  		   18496	ms-icon-150x150.png100%  
+	    New File  		   53747	ms-icon-310x310.png100%  
+	    New File  		    7241	ms-icon-70x70.png100%  
+	    New File  		  115200	Thumbs.db100%  
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\
-	    Newer     		   53571	app.js100%  
+	    Newer     		   61081	app.js100%  
 	                  11	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\directives\
-	    New File  		    2076	eventtagperiodsdialog.html100%  
-	    Newer     		    4503	experimentandperiodnumbers.html100%  
-	    Newer     		    5669	pointretrievalmethod.html100%  
-	    Newer     		    3218	tagselect.html100%  
-	                   7	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\
+	    Newer     		    1943	eventtagperiodsdialog.html100%  
+	    Newer     		    5342	experimentandperiodnumbers.html100%  
+	    Newer     		    9650	pointretrievalmethod.html100%  
+	    Newer     		    4251	tagselect.html100%  
+	                  11	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\
+	    New File  		   18957	angular-material-datetimepicker.min.js100%  
+	    New File  		   56228	angular-material-datetimepicker.min.js.map100%  
+	    New File  		    4352	material-datetimepicker.min.css100%  
+	    New File  		  255277	moment-with-locales.min.js100%  
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\1.1.4\
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angularjs\
 	                   6	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angularjs\1.6.4\
 	                   8	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\styles\
-	    Newer     		     515	styles.css100%  
+	    Newer     		    1022	styles.css100%  
 
 ------------------------------------------------------------------------------
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
-    Dirs :        10         0        10         0         0         0
-   Files :        42         7        35         0         0         0
-   Bytes :    1.42 m    80.9 k    1.34 m         0         0         0
-   Times :   0:00:46   0:00:06                       0:00:00   0:00:01
+    Dirs :        12         2        10         0         0         0
+   Files :        77        42        35         0         0         0
+   Bytes :    2.20 m   881.4 k    1.34 m         0         0         0
+   Times :   0:00:31   0:00:07                       0:00:00   0:00:06
 
-   Ended : Mon Jan 22 16:49:52 2018
+   Ended : Wed Apr 25 11:34:43 2018

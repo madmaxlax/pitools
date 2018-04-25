@@ -1212,6 +1212,10 @@
         //return the value to 4 decimal places
         return $filter('number')(Value.Value, decimals);
       }
+      else if (Value != null && typeof Value === 'number') {
+        //return the value to 4 decimal places
+        return $filter('number')(Value, decimals);
+      }
       else
         return $filter('number')(0, decimals);
     };

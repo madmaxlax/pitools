@@ -3,7 +3,7 @@
    ROBOCOPY     ::     Robust File Copy for Windows                              
 -------------------------------------------------------------------------------
 
-  Started : Wed Jan 31 18:29:18 2018
+  Started : Wed Apr 25 11:34:26 2018
 
    Source : \\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
      Dest : \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\
@@ -21,17 +21,42 @@ Exc Files : file
 
 ------------------------------------------------------------------------------
 
-2018/01/31 18:29:19 ERROR 32 (0x00000020) Scanning Destination Directory \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\scripts\
-The process cannot access the file because it is being used by another process.
-Waiting 30 seconds... Retrying...
-2018/01/31 18:29:53 ERROR 32 (0x00000020) Scanning Destination Directory \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\scripts\vendor\angular_material\1.1.4\
-The process cannot access the file because it is being used by another process.
-Waiting 30 seconds... Retrying...
-2018/01/31 18:30:26 ERROR 32 (0x00000020) Scanning Destination Directory \\muntse-s-08817\DATA\inetpub\wwwroot\PIUserToolsBeta\pitools\styles\
-The process cannot access the file because it is being used by another process.
-Waiting 30 seconds... Retrying...
 	                   6	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\
+	  New Dir          2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\images\
+	    New File  		    2905	favicon-32x32.png100%  
+	    New File  		    4608	Thumbs.db100%  
+	  New Dir         29	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\images\icons\
+	    New File  		   17665	android-icon-144x144.png100%  
+	    New File  		   22437	android-icon-192x192.png100%  
+	    New File  		    3311	android-icon-36x36.png100%  
+	    New File  		    4708	android-icon-48x48.png100%  
+	    New File  		    7490	android-icon-72x72.png100%  
+	    New File  		   10480	android-icon-96x96.png100%  
+	    New File  		   23011	apple-icon.png100%  
+	    New File  		   13189	apple-icon-114x114.png100%  
+	    New File  		   14006	apple-icon-120x120.png100%  
+	    New File  		   17665	apple-icon-144x144.png100%  
+	    New File  		   18810	apple-icon-152x152.png100%  
+	    New File  		   23624	apple-icon-180x180.png100%  
+	    New File  		    5719	apple-icon-57x57.png100%  
+	    New File  		    6091	apple-icon-60x60.png100%  
+	    New File  		    7490	apple-icon-72x72.png100%  
+	    New File  		    7895	apple-icon-76x76.png100%  
+	    New File  		   23011	apple-icon-precomposed.png100%  
+	    New File  		    1493	browserconfig.xml100%  
+	    New File  		    5649	exclamation-icon-17.png100%  
+	    New File  		    1150	favicon.ico100%  
+	    New File  		    1679	favicon-16x16.png100%  
+	    New File  		    2905	favicon-32x32.png100%  
+	    New File  		   10480	favicon-96x96.png100%  
+	    New File  		     720	manifest.json100%  
+	    New File  		   17665	ms-icon-144x144.png100%  
+	    New File  		   18496	ms-icon-150x150.png100%  
+	    New File  		   53747	ms-icon-310x310.png100%  
+	    New File  		    7241	ms-icon-70x70.png100%  
+	    New File  		  115200	Thumbs.db100%  
 	                   2	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\
+	    Newer     		   61081	app.js100%  
 	                  11	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\directives\
 	                  11	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\
 	                   0	\\muntse-s-08817\DATA\inetpub\wwwroot\AppsWithPIWebAPI\pitools\scripts\vendor\angular_material\
@@ -43,9 +68,9 @@ Waiting 30 seconds... Retrying...
 ------------------------------------------------------------------------------
 
                Total    Copied   Skipped  Mismatch    FAILED    Extras
-    Dirs :        10         0        10         0         0         0
-   Files :        46         0        46         0         0         0
-   Bytes :    1.75 m         0    1.75 m         0         0         0
-   Times :   0:01:38   0:00:00                       0:01:30   0:01:38
+    Dirs :        12         2        10         0         0         0
+   Files :        77        32        45         0         0         0
+   Bytes :    2.20 m   519.1 k    1.70 m         0         0         0
+   Times :   0:00:26   0:00:06                       0:00:00   0:00:06
 
-   Ended : Wed Jan 31 18:30:57 2018
+   Ended : Wed Apr 25 11:34:40 2018
