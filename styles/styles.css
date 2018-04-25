@@ -28,6 +28,9 @@ table.event-tag-periods td{
   line-height: 14px;
   transition: all .3s cubic-bezier(.55,0,.55,.2);
 }
+.float-right{
+  float:right;
+}
 .date-error-message
 {
   margin:-36px 0 0 0;

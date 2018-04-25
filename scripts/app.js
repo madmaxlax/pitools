@@ -240,14 +240,21 @@
     //debugging functions
     $scope.toastTest = function () {
       $mdToast.show($mdToast.simple().textContent('Hello!').action("ok").hideDelay(300000));
-    }
+    };
     $scope.errorTest = function () {
       setTimeout(function () {
         $scope.errorPush({ "This error was on purpose": "derpus" });
         console.log('error pushed');
       }, 500);
-    }
+    };
 
+    //check for chrome
+    if (!(/chrome/i.test(window.navigator.userAgent))) {
+      alert("Please use Chrome!  Just a heads up: \nThis app is developed for and tested in the Google Chrome Browser\n" +
+        "We have noticed some issues or functions not working in Internet Explorer\n" +
+        "It appears you are using Internet Explorer or a different browser, please switch to Google Chrome\n" +
+        "Google Chrome is a company-approved browser and available in the software center if you do not have it");
+    }
 
     //function to open/close the right panel that contains the preferences (when the user clicks the settings icon on narrower screens)
     $scope.toggleLeft = function () {
@@ -1034,9 +1041,9 @@
       newReport.periodStartTime = runHourStartValue.Timestamp;
       newReport.periodEndTime = runHourEndValue.Timestamp;
       newReport.periodNumber = periodNumber;
+      newReport.fourDigitPeriodNumber = (("00000" + newReport.periodNumber).slice(-4));
+      newReport.filename = $scope.getCurrentFileName(newReport.fourDigitPeriodNumber);
 
-
-      newReport.filename = $scope.getCurrentFileName(newReport.periodNumber);
       var currentTime = Date.now();
       if ($scope.currentPlantReportSettings.reportType === 'hydra') {
         //hydra format .R02
@@ -1049,7 +1056,7 @@
           'Group name=\t' + $scope.currentPlantReportSettings.experimentName + '\r\n' +
           'Experiment nr=\t' + $scope.currentPlantReportSettings.experimentNumber + '\r\n' +
           'Condition ID=\t' + $scope.currentPlantReportSettings.periodName + '\r\n' +
-          'Period nr=\t' + newReport.periodNumber + '\r\n' + //use period number with the offset
+          'Period nr=\t' + newReport.fourDigitPeriodNumber + '\r\n' + //use period number with the offset
           'Period start date=\t' + $filter('date')(newReport.periodStartTime, 'yyyy-MM-dd') + '\r\n' +
           'Period start time=\t' + $filter('date')(newReport.periodStartTime, 'HH:mm') + '\r\n' +
           'Period end date=\t' + $filter('date')(newReport.periodEndTime, 'yyyy-MM-dd') + '\r\n' +
@@ -1062,12 +1069,12 @@
       else {//runlist format .nox
         newReport.csvFile = 'DATACOL\r\n' +
           '\r\n' +
-          '***PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + newReport.periodNumber + '\r\n' +
+          '***PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + newReport.fourDigitPeriodNumber + '\r\n' +
           '\r\n' +
           //Period Number must be 4 digits
-          '    PLANT ' + $scope.getCurrentPlantID(true) + ' PERIOD ' + $scope.currentPlantReportSettings.periodName + '' + (("00000" + newReport.periodNumber).slice(-4)) + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\r\n' +
-          '    PERIOD START TIME ' + $filter('date')(newReport.periodStartTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodStartTime, 'dd MMM yyyy') + '  START RUN HOUR ' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\r\n' +
-          '    PERIOD END   TIME ' + $filter('date')(newReport.periodEndTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodEndTime, 'dd MMM yyyy') + '  END   RUN HOUR ' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\r\n' +
+          '    PLANT ' + $scope.getCurrentPlantID(true) + ' PERIOD ' + $scope.currentPlantReportSettings.periodName + '' +  newReport.fourDigitPeriodNumber  + '  RUNLIST REPORT        EXPERIMENT NR ' + $scope.currentPlantReportSettings.experimentNumber + '\r\n' +
+          '    PERIOD START TIME ' + $filter('date')(newReport.periodStartTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodStartTime, 'dd MMM yyyy').toUpperCase() + '  START RUN HOUR ' + $filter('number')(newReport.runhourTag.periodStartValue.Value, 1) + '\r\n' +
+          '    PERIOD END   TIME ' + $filter('date')(newReport.periodEndTime, 'HH:mm:ss') + '  ' + $filter('date')(newReport.periodEndTime, 'dd MMM yyyy').toUpperCase() + '  END   RUN HOUR ' + $filter('number')(newReport.runhourTag.periodEndValue.Value, 1) + '\r\n' +
           '   NAME     MINIMUM    MAXIMUM    AVERAGE   DEVIATION  FIRST VAL   LAST VAL\r\n';
       }
 
@@ -1176,7 +1183,7 @@
           }
         });
         if ($scope.currentPlantReportSettings.reportType === 'run') {
-          newReport.csvFile += '\r\n***END OF LIST'
+          newReport.csvFile += '\r\n***END OF LIST';
         }
         $scope.reportGeneration.generatedReports.push(newReport);
 
@@ -1192,7 +1199,7 @@
         }
 
       }
-    }
+    };
 
 
     /**
@@ -1249,7 +1256,9 @@
       //IE allows direct saving
       if (navigator.msSaveBlob) { // IE 10+
         navigator.msSaveBlob(blob, filename);
-      } else {//create an invisible link to a 'blob' of the report, and 'click' it to download it
+      } else {
+
+        //create an invisible link to a 'blob' of the report, and 'click' it to download it
         var url = URL.createObjectURL(blob);
         // Browsers that support HTML5 download attribute
         var link = document.createElement("a");
